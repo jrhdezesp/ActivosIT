@@ -18,19 +18,42 @@ class Nav
         $isDevelopment = Context::getContextByKey("DEVELOPMENT") === "1";
         $tmpNAVIGATION = $isDevelopment ? "" : Context::getContextByKey("NAVIGATION");
         if (!is_array($tmpNAVIGATION) || count($tmpNAVIGATION) === 0) {
-            $tmpNAVIGATION = [];
+            $visibleNavigation = [];
             $userID = Security::getUserId();
-            $navigationData = self::getNavFromJson()["private"];
+            $navigationData = self::getPrivateNavigation();
             foreach ($navigationData as $navEntry) {
-                if (
+                if (isset($navEntry["items"]) && is_array($navEntry["items"])) {
+                    $visibleItems = [];
+                    foreach ($navEntry["items"] as $item) {
+                        if (
+                            $isDevelopment
+                            || Security::isAuthorized($userID, $item["id"], 'MNU')
+                        ) {
+                            $visibleItems[] = $item;
+                        }
+                    }
+                    if (count($visibleItems) > 0) {
+                        $navEntry["items"] = $visibleItems;
+                        $visibleNavigation[] = $navEntry;
+                    }
+                } elseif (
                     $isDevelopment
                     || Security::isAuthorized($userID, $navEntry["id"], 'MNU')
                 ) {
-                    $tmpNAVIGATION[] = $navEntry;
+                    $visibleNavigation[] = $navEntry;
                 }
             }
+            $tmpNAVIGATION = NavRenderer::forSidebar($visibleNavigation);
             Context::setContext("NAVIGATION", $tmpNAVIGATION, !$isDevelopment);
         }
+    }
+
+    public static function getPrivateNavigation(): array
+    {
+        $navigationData = self::getNavFromJson();
+        return isset($navigationData["private"]) && is_array($navigationData["private"])
+            ? $navigationData["private"]
+            : [];
     }
 
     public static function invalidateNavData()
