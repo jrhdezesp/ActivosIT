@@ -53,7 +53,6 @@
 .col-11 { flex-basis: calc(100%/12 * 11)}
 .col-12 { flex-basis:100%}
 
-
 .order-1 {order: 1;}
 .order-2 {order: 2;}
 .order-3 {order: 3;}
@@ -79,15 +78,6 @@
 .offset-10 {margin-left: calc(100%/12 *10)!important}
 .offset-11 {margin-left: calc(100%/12 *11)!important}
 .offset-12 {margin-left: calc(100% )!important}
-
-
-/*
---sm: 640px;
-  --md: 768px;
-  --lg: 1024px;
-  --xl: 1280px;
-  --xxl: 1536px;
-*/
 
 @media (min-width:768px){
   .container-m{
@@ -180,7 +170,6 @@
   .offset-l-11 {margin-left: calc(100%/12*11)}
   .offset-l-12 {margin-left: calc(100%)}
 }
-
 
 @media (min-width:1280px){
   .container-xl{
