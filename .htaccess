@@ -1,0 +1,23 @@
+# Bloquea el listado de directorios.
+Options -Indexes
+
+# Archivos de configuración, dependencias y documentación interna.
+<FilesMatch "^(parameters\.env|renameTo_parameters\.env|composer\.(json|lock)|README\.md|.*\.(sql|md|bundle|phar))$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # El código fuente, dependencias y scripts no deben servirse por HTTP.
+    RewriteRule ^(src|vendor|docs|scripts)(/|$) - [F,L]
+
+    # Protege la carpeta de Git si el proyecto se despliega desde el repositorio.
+    RewriteRule ^\.git(/|$) - [F,L]
+</IfModule>
