@@ -27,35 +27,35 @@
       <tr>
         <th>
           {{ifnot OrderByUsercod}}
-          <a href="index.php?page=Usuarios_Usuarios&orderBy=usercod&orderDescending=0">Id <i class="fas fa-sort"></i></a>
+          <a href="index.php?page=Usuarios_Usuarios&orderBy=usercod&orderDescending=0">Id <i class="fa-solid fa-sort"></i></a>
           {{endifnot OrderByUsercod}}
           {{if OrderUsercodDesc}}
-          <a href="index.php?page=Usuarios_Usuarios&orderBy=clear&orderDescending=0">Id <i class="fas fa-sort-down"></i></a>
+          <a href="index.php?page=Usuarios_Usuarios&orderBy=clear&orderDescending=0">Id <i class="fa-solid fa-sort-down"></i></a>
           {{endif OrderUsercodDesc}}
           {{if OrderUsercod}}
-          <a href="index.php?page=Usuarios_Usuarios&orderBy=usercod&orderDescending=1">Id <i class="fas fa-sort-up"></i></a>
+          <a href="index.php?page=Usuarios_Usuarios&orderBy=usercod&orderDescending=1">Id <i class="fa-solid fa-sort-up"></i></a>
           {{endif OrderUsercod}}
         </th>
         <th class="left">
           {{ifnot OrderByUsername}}
-          <a href="index.php?page=Usuarios_Usuarios&orderBy=username&orderDescending=0">Nombre <i class="fas fa-sort"></i></a>
+          <a href="index.php?page=Usuarios_Usuarios&orderBy=username&orderDescending=0">Nombre <i class="fa-solid fa-sort"></i></a>
           {{endifnot OrderByUsername}}
           {{if OrderUsernameDesc}}
-          <a href="index.php?page=Usuarios_Usuarios&orderBy=clear&orderDescending=0">Nombre <i class="fas fa-sort-down"></i></a>
+          <a href="index.php?page=Usuarios_Usuarios&orderBy=clear&orderDescending=0">Nombre <i class="fa-solid fa-sort-down"></i></a>
           {{endif OrderUsernameDesc}}
           {{if OrderUsername}}
-          <a href="index.php?page=Usuarios_Usuarios&orderBy=username&orderDescending=1">Nombre <i class="fas fa-sort-up"></i></a>
+          <a href="index.php?page=Usuarios_Usuarios&orderBy=username&orderDescending=1">Nombre <i class="fa-solid fa-sort-up"></i></a>
           {{endif OrderUsername}}
         </th>
         <th class="left">
           {{ifnot OrderByUseremail}}
-          <a href="index.php?page=Usuarios_Usuarios&orderBy=useremail&orderDescending=0">Correo <i class="fas fa-sort"></i></a>
+          <a href="index.php?page=Usuarios_Usuarios&orderBy=useremail&orderDescending=0">Correo <i class="fa-solid fa-sort"></i></a>
           {{endifnot OrderByUseremail}}
           {{if OrderUseremailDesc}}
-          <a href="index.php?page=Usuarios_Usuarios&orderBy=clear&orderDescending=0">Correo <i class="fas fa-sort-down"></i></a>
+          <a href="index.php?page=Usuarios_Usuarios&orderBy=clear&orderDescending=0">Correo <i class="fa-solid fa-sort-down"></i></a>
           {{endif OrderUseremailDesc}}
           {{if OrderUseremail}}
-          <a href="index.php?page=Usuarios_Usuarios&orderBy=useremail&orderDescending=1">Correo <i class="fas fa-sort-up"></i></a>
+          <a href="index.php?page=Usuarios_Usuarios&orderBy=useremail&orderDescending=1">Correo <i class="fa-solid fa-sort-up"></i></a>
           {{endif OrderUseremail}}
         </th>
         <th>Estado</th>

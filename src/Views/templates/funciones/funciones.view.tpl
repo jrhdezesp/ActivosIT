@@ -27,35 +27,35 @@
       <tr>
         <th>
           {{ifnot OrderByFncod}}
-          <a href="index.php?page=Funciones_Funciones&orderBy=fncod&orderDescending=0">Código <i class="fas fa-sort"></i></a>
+          <a href="index.php?page=Funciones_Funciones&orderBy=fncod&orderDescending=0">Código <i class="fa-solid fa-sort"></i></a>
           {{endifnot OrderByFncod}}
           {{if OrderFncodDesc}}
-          <a href="index.php?page=Funciones_Funciones&orderBy=clear&orderDescending=0">Código <i class="fas fa-sort-down"></i></a>
+          <a href="index.php?page=Funciones_Funciones&orderBy=clear&orderDescending=0">Código <i class="fa-solid fa-sort-down"></i></a>
           {{endif OrderFncodDesc}}
           {{if OrderFncod}}
-          <a href="index.php?page=Funciones_Funciones&orderBy=fncod&orderDescending=1">Código <i class="fas fa-sort-up"></i></a>
+          <a href="index.php?page=Funciones_Funciones&orderBy=fncod&orderDescending=1">Código <i class="fa-solid fa-sort-up"></i></a>
           {{endif OrderFncod}}
         </th>
         <th class="left">
           {{ifnot OrderByFndsc}}
-          <a href="index.php?page=Funciones_Funciones&orderBy=fndsc&orderDescending=0">Descripción <i class="fas fa-sort"></i></a>
+          <a href="index.php?page=Funciones_Funciones&orderBy=fndsc&orderDescending=0">Descripción <i class="fa-solid fa-sort"></i></a>
           {{endifnot OrderByFndsc}}
           {{if OrderFndscDesc}}
-          <a href="index.php?page=Funciones_Funciones&orderBy=clear&orderDescending=0">Descripción <i class="fas fa-sort-down"></i></a>
+          <a href="index.php?page=Funciones_Funciones&orderBy=clear&orderDescending=0">Descripción <i class="fa-solid fa-sort-down"></i></a>
           {{endif OrderFndscDesc}}
           {{if OrderFndsc}}
-          <a href="index.php?page=Funciones_Funciones&orderBy=fndsc&orderDescending=1">Descripción <i class="fas fa-sort-up"></i></a>
+          <a href="index.php?page=Funciones_Funciones&orderBy=fndsc&orderDescending=1">Descripción <i class="fa-solid fa-sort-up"></i></a>
           {{endif OrderFndsc}}
         </th>
         <th>
           {{ifnot OrderByFntyp}}
-          <a href="index.php?page=Funciones_Funciones&orderBy=fntyp&orderDescending=0">Tipo <i class="fas fa-sort"></i></a>
+          <a href="index.php?page=Funciones_Funciones&orderBy=fntyp&orderDescending=0">Tipo <i class="fa-solid fa-sort"></i></a>
           {{endifnot OrderByFntyp}}
           {{if OrderFntypDesc}}
-          <a href="index.php?page=Funciones_Funciones&orderBy=clear&orderDescending=0">Tipo <i class="fas fa-sort-down"></i></a>
+          <a href="index.php?page=Funciones_Funciones&orderBy=clear&orderDescending=0">Tipo <i class="fa-solid fa-sort-down"></i></a>
           {{endif OrderFntypDesc}}
           {{if OrderFntyp}}
-          <a href="index.php?page=Funciones_Funciones&orderBy=fntyp&orderDescending=1">Tipo <i class="fas fa-sort-up"></i></a>
+          <a href="index.php?page=Funciones_Funciones&orderBy=fntyp&orderDescending=1">Tipo <i class="fa-solid fa-sort-up"></i></a>
           {{endif OrderFntyp}}
         </th>
         <th>Estado</th>

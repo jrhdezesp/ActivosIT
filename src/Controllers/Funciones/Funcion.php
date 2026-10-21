@@ -75,7 +75,7 @@ class Funcion extends PrivateController
         $this->funcion['fnest'] = strval($_POST['fnest'] ?? '');
         $this->funcion['fntyp'] = strval($_POST['fntyp'] ?? '');
 
-        // El código es la llave primaria: en UPD/DEL se toma siempre del GET
+        // El codigo es la llave primaria: en UPD/DEL se toma siempre del GET
         // para que no pueda cambiarse manipulando el formulario.
         if ($this->mode !== 'INS') {
             $this->funcion['fncod'] = strval($_GET['fncod'] ?? '');
