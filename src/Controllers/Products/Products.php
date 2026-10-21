@@ -99,6 +99,9 @@ class Products extends PublicController
         $this->viewData['productsCount'] = $this->productsCount;
         $this->viewData['pages'] = $this->pages;
         $this->viewData['products'] = $this->products;
+        $this->viewData['OrderByProductId'] = false;
+        $this->viewData['OrderByProductName'] = false;
+        $this->viewData['OrderByProductPrice'] = false;
         if ($this->orderBy !== '') {
             $orderByKey = 'Order'.ucfirst($this->orderBy);
             $orderByKeyNoOrder = 'OrderBy'.ucfirst($this->orderBy);

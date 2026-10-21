@@ -28,43 +28,43 @@
         <th>
           {{ifnot OrderByProductId}}
           <a href="index.php?page=Products_Products&orderBy=productId&orderDescending=0">Id <i
-              class="fas fa-sort"></i></a>
+              class="fa-solid fa-sort"></i></a>
           {{endifnot OrderByProductId}}
           {{if OrderProductIdDesc}}
           <a href="index.php?page=Products_Products&orderBy=clear&orderDescending=0">Id <i
-              class="fas fa-sort-down"></i></a>
+              class="fa-solid fa-sort-down"></i></a>
           {{endif OrderProductIdDesc}}
           {{if OrderProductId}}
           <a href="index.php?page=Products_Products&orderBy=productId&orderDescending=1">Id <i
-              class="fas fa-sort-up"></i></a>
+              class="fa-solid fa-sort-up"></i></a>
           {{endif OrderProductId}}
         </th>
         <th class="left">
           {{ifnot OrderByProductName}}
           <a href="index.php?page=Products_Products&orderBy=productName&orderDescending=0">Nombre <i
-              class="fas fa-sort"></i></a>
+              class="fa-solid fa-sort"></i></a>
           {{endifnot OrderByProductName}}
           {{if OrderProductNameDesc}}
           <a href="index.php?page=Products_Products&orderBy=clear&orderDescending=0">Nombre <i
-              class="fas fa-sort-down"></i></a>
+              class="fa-solid fa-sort-down"></i></a>
           {{endif OrderProductNameDesc}}
           {{if OrderProductName}}
           <a href="index.php?page=Products_Products&orderBy=productName&orderDescending=1">Nombre <i
-              class="fas fa-sort-up"></i></a>
+              class="fa-solid fa-sort-up"></i></a>
           {{endif OrderProductName}}
         </th>
         <th>
           {{ifnot OrderByProductPrice}}
           <a href="index.php?page=Products_Products&orderBy=productPrice&orderDescending=0">Precio <i
-              class="fas fa-sort"></i></a>
+              class="fa-solid fa-sort"></i></a>
           {{endifnot OrderByProductPrice}}
           {{if OrderProductPriceDesc}}
           <a href="index.php?page=Products_Products&orderBy=clear&orderDescending=0">Precio <i
-              class="fas fa-sort-down"></i></a>
+              class="fa-solid fa-sort-down"></i></a>
           {{endif OrderProductPriceDesc}}
           {{if OrderProductPrice}}
           <a href="index.php?page=Products_Products&orderBy=productPrice&orderDescending=1">Precio <i
-              class="fas fa-sort-up"></i></a>
+              class="fa-solid fa-sort-up"></i></a>
           {{endif OrderProductPrice}}
         </th>
         <th>Estado</th>

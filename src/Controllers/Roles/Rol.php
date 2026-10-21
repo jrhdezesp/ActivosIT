@@ -78,7 +78,7 @@ class Rol extends PrivateController
         $this->rol['rolesdsc'] = strval($_POST['rolesdsc'] ?? '');
         $this->rol['rolesest'] = strval($_POST['rolesest'] ?? '');
 
-        // El código es la llave primaria: en UPD/DEL se toma siempre del GET
+        // El codigo es la llave primaria: en UPD/DEL se toma siempre del GET
         // para que no pueda cambiarse manipulando el formulario.
         if ($this->mode !== 'INS') {
             $this->rol['rolescod'] = strval($_GET['rolescod'] ?? '');

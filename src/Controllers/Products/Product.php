@@ -54,7 +54,7 @@ class Product extends PublicController
     }
 
     /**
-     * El detalle (DSP) es público; crear, editar y eliminar requiere sesión
+     * El detalle (DSP) es publico; crear, editar y eliminar requiere sesion
      * y, fuera de desarrollo, el permiso del controlador.
      */
     private function ensureCanManage(): void

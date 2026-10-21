@@ -27,24 +27,24 @@
       <tr>
         <th>
           {{ifnot OrderByRolescod}}
-          <a href="index.php?page=Roles_Roles&orderBy=rolescod&orderDescending=0">Código <i class="fas fa-sort"></i></a>
+          <a href="index.php?page=Roles_Roles&orderBy=rolescod&orderDescending=0">Código <i class="fa-solid fa-sort"></i></a>
           {{endifnot OrderByRolescod}}
           {{if OrderRolescodDesc}}
-          <a href="index.php?page=Roles_Roles&orderBy=clear&orderDescending=0">Código <i class="fas fa-sort-down"></i></a>
+          <a href="index.php?page=Roles_Roles&orderBy=clear&orderDescending=0">Código <i class="fa-solid fa-sort-down"></i></a>
           {{endif OrderRolescodDesc}}
           {{if OrderRolescod}}
-          <a href="index.php?page=Roles_Roles&orderBy=rolescod&orderDescending=1">Código <i class="fas fa-sort-up"></i></a>
+          <a href="index.php?page=Roles_Roles&orderBy=rolescod&orderDescending=1">Código <i class="fa-solid fa-sort-up"></i></a>
           {{endif OrderRolescod}}
         </th>
         <th class="left">
           {{ifnot OrderByRolesdsc}}
-          <a href="index.php?page=Roles_Roles&orderBy=rolesdsc&orderDescending=0">Descripción <i class="fas fa-sort"></i></a>
+          <a href="index.php?page=Roles_Roles&orderBy=rolesdsc&orderDescending=0">Descripción <i class="fa-solid fa-sort"></i></a>
           {{endifnot OrderByRolesdsc}}
           {{if OrderRolesdscDesc}}
-          <a href="index.php?page=Roles_Roles&orderBy=clear&orderDescending=0">Descripción <i class="fas fa-sort-down"></i></a>
+          <a href="index.php?page=Roles_Roles&orderBy=clear&orderDescending=0">Descripción <i class="fa-solid fa-sort-down"></i></a>
           {{endif OrderRolesdscDesc}}
           {{if OrderRolesdsc}}
-          <a href="index.php?page=Roles_Roles&orderBy=rolesdsc&orderDescending=1">Descripción <i class="fas fa-sort-up"></i></a>
+          <a href="index.php?page=Roles_Roles&orderBy=rolesdsc&orderDescending=1">Descripción <i class="fa-solid fa-sort-up"></i></a>
           {{endif OrderRolesdsc}}
         </th>
         <th>Estado</th>
