@@ -11,26 +11,16 @@ header nav {
   transition: transform 250ms ease-in-out;
   z-index: 1000;
 }
-
-
 header nav ul {
-  /* display: flex;
-  justify-content: stretch;
-  align-items: center;
-  padding: 0px;
-  list-style: none;
-  margin: 0px;*/
   padding: 0px;
   margin: 0px;
   border-top: 1px solid @primary_text;
 }
-
 header ul li {
   list-style: none;
   cursor: pointer;
   border-bottom: 1px solid @primary_text;
 }
-
 header ul li a,
 header ul li span {
   display: flex;
@@ -39,22 +29,18 @@ header ul li span {
   text-decoration: none;
   transition: background-color 0.5s ease;
 }
-
 header ul li a:hover {
   background-color: @primary_bg300;
   transition: background-color 0.5s ease;
 }
-
 header input[type=checkbox] {
   transition: all 0.3s;
   box-sizing: border-box;
   display: none;
 }
-
 header input[type="checkbox"]:checked~#menu {
   transform: translateX(0);
 }
-
 .menu_toggle_icon {
   transition: all 0.3s;
   box-sizing: border-box;
@@ -65,7 +51,6 @@ header input[type="checkbox"]:checked~#menu {
   height: 33px;
   width: 42px;
 }
-
 .hmb {
   transition: all 0.3s;
   box-sizing: border-box;
@@ -76,32 +61,26 @@ header input[type="checkbox"]:checked~#menu {
   position: relative;
   float: left;
 }
-
 .hrz {
   margin-top: 3px;
 }
-
 .dgn.pt-2 {
   margin-top: 3px;
 }
-
 header input[type=checkbox]:checked~.menu_toggle_icon>.hrz {
   transition: all 0.3s;
   opacity: 0;
 }
-
 header input[type=checkbox]:checked~.menu_toggle_icon>.dgn.pt-1 {
   transition: all 0.3s;
   transform: rotate(135deg);
   margin-top: 7px;
 }
-
 header input[type=checkbox]:checked~.menu_toggle_icon>.dgn.pt-2 {
   transition: all 0.3s;
   transform: rotate(-135deg);
   margin-top: -9px;
 }
-
 @media @md {
   header nav {
     width: 380px;
