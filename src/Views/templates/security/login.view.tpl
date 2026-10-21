@@ -1,36 +1,46 @@
-<section class="fullCenter">
-  <form class="grid" method="post" action="index.php?page=sec_login{{if redirto}}&redirto={{!redirto}}{{endif redirto}}">
-    <input type="hidden" name="csrf_token" value="{{csrf_token}}" />
-    <section class="depth-1 row col-12 col-m-8 offset-m-2 col-xl-6 offset-xl-3">
-      <h1 class="col-12">Iniciar Sesión</h1>
-    </section>
-    <section class="depth-1 py-5 row col-12 col-m-8 offset-m-2 col-xl-6 offset-xl-3">
-      <div class="row">
-        <label class="col-12 col-m-4 flex align-center" for="txtEmail">Correo Electrónico</label>
-        <div class="col-12 col-m-8">
-          <input class="width-full" type="email" id="txtEmail" name="txtEmail" value="{{!txtEmail}}" />
+<section class="fullCenter auth-shell">
+  <div class="container-fluid p-0">
+    <div class="row justify-content-center">
+      <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5">
+        <div class="auth-card">
+          <div class="auth-card__brand">
+            <span class="auth-card__mark">
+              <img src="{{BASE_DIR}}/public/imgs/brand/logo-icon.png" alt="Logo de {{!SITE_TITLE}}" width="56" height="56">
+            </span>
+            <span class="auth-card__eyebrow">Acceso administrativo</span>
+            <h1>Iniciar Sesión</h1>
+          </div>
+
+          <form class="auth-form" method="post" action="index.php?page=sec_login{{if redirto}}&redirto={{!redirto}}{{endif redirto}}">
+            <input type="hidden" name="csrf_token" value="{{csrf_token}}" />
+
+            <div class="auth-field">
+              <label for="txtEmail">Correo electrónico</label>
+              <input type="email" id="txtEmail" name="txtEmail" value="{{!txtEmail}}" autocomplete="username" placeholder="usuario@pinturasamericanas.com" />
+              {{if errorEmail}}
+                <p class="auth-error">{{errorEmail}}</p>
+              {{endif errorEmail}}
+            </div>
+
+            <div class="auth-field">
+              <label for="txtPswd">Contraseña</label>
+              <input type="password" id="txtPswd" name="txtPswd" value="" autocomplete="current-password" placeholder="••••••••" />
+              {{if errorPswd}}
+                <p class="auth-error">{{errorPswd}}</p>
+              {{endif errorPswd}}
+            </div>
+
+            {{if generalError}}
+              <div class="auth-error auth-error--general">{{generalError}}</div>
+            {{endif generalError}}
+
+            <button class="primary auth-submit" id="btnLogin" type="submit">
+              <i class="fa-solid fa-right-to-bracket"></i>
+              Iniciar Sesión
+            </button>
+          </form>
         </div>
-        {{if errorEmail}}
-          <div class="error col-12 py-2 col-m-8 offset-m-4">{{errorEmail}}</div>
-        {{endif errorEmail}}
       </div>
-      <div class="row">
-        <label class="col-12 col-m-4 flex align-center" for="txtPswd">Contraseña</label>
-        <div class="col-12 col-m-8">
-         <input class="width-full" type="password" id="txtPswd" name="txtPswd" value="" />
-        </div>
-        {{if errorPswd}}
-        <div class="error col-12 py-2 col-m-8 offset-m-4">{{errorPswd}}</div>
-        {{endif errorPswd}}
-      </div>
-    {{if generalError}}
-      <div class="row">
-        {{generalError}}
-      </div>
-    {{endif generalError}}
-    <div class="row right flex-end px-4">
-      <button class="primary" id="btnLogin" type="submit">Iniciar Sesión</button>
     </div>
-    </section>
-  </form>
+  </div>
 </section>
