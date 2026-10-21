@@ -1,5 +1,11 @@
+# Configuracion local y credenciales
 parameters.env
+parameters.env.*
 .env
+.env.*
+!.env.example
+.htaccess
+
 .DS_Store
 vendor
 .phpdoc
