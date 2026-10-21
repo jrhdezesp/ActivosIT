@@ -1,41 +1,201 @@
 {
-  "public": [
-    {
-      "id": "Menu_SignIn",
-      "nav_url": "index.php?page=Sec_Login",
-      "nav_label": "<i class=\"fas fa-sign-in-alt\"></i>&nbsp;Iniciar Sesión"
-    },
-    {
-      "id": "Menu_SignUp",
-      "nav_url": "index.php?page=Sec_Register",
-      "nav_label": "<i class=\"fas fa-sign-in-alt\"></i>&nbsp;Crear Cuenta"
-    },
-    {
-      "id": "Menu_Products",
-      "nav_url": "index.php?page=Products_Products",
-      "nav_label": "<i class=\"fas fa-table\"></i>&nbsp;Productos"
-    }
-  ],
-  "private": [
-    {
-      "id": "Menu_Usuarios",
-      "nav_url": "index.php?page=Usuarios_Usuarios",
-      "nav_label": "<i class=\"fas fa-users\"></i>&nbsp;Usuarios"
-    },
-    {
-      "id": "Menu_Roles",
-      "nav_url": "index.php?page=Roles_Roles",
-      "nav_label": "<i class=\"fas fa-user-tag\"></i>&nbsp;Roles"
-    },
-    {
-      "id": "Menu_Funciones",
-      "nav_url": "index.php?page=Funciones_Funciones",
-      "nav_label": "<i class=\"fas fa-key\"></i>&nbsp;Funciones"
-    },
-    {
-      "id": "Menu_ProductosAdmin",
-      "nav_url": "index.php?page=Products_Products",
-      "nav_label": "<i class=\"fas fa-box\"></i>&nbsp;Productos"
-    }
-  ]
+    "public": [
+        {
+            "id": "Menu_SignIn",
+            "nav_url": "index.php?page=Sec_Login",
+            "nav_label": "<i class=\"fa-solid fa-right-to-bracket\"></i>&nbsp;Iniciar Sesión"
+        }
+    ],
+    "private": [
+        {
+            "id": "Menu_Dashboard",
+            "type": "link",
+            "nav_label": "Dashboard",
+            "icon": "fa-gauge-high",
+            "nav_url": "index.php?page=Dashboard_Dashboard",
+            "status": "active",
+            "dashboard": false,
+            "description": "Resumen general del sistema."
+        },
+        {
+            "id": "Menu_Activos",
+            "type": "group",
+            "nav_label": "Activos",
+            "icon": "fa-boxes-stacked",
+            "status": "group",
+            "dashboard": true,
+            "items": [
+                {
+                    "id": "Menu_Articulos",
+                    "nav_label": "Catálogo de artículos",
+                    "icon": "fa-boxes-stacked",
+                    "nav_url": "index.php?page=Products_Products",
+                    "status": "active"
+                },
+                {
+                    "id": "Menu_Equipos",
+                    "nav_label": "Equipos",
+                    "icon": "fa-laptop",
+                    "nav_url": "index.php?page=Equipos_Equipos",
+                    "status": "pending"
+                }
+            ],
+            "description": "Artículos y equipos de TI."
+        },
+        {
+            "id": "Menu_Inventario",
+            "type": "group",
+            "nav_label": "Inventario",
+            "icon": "fa-warehouse",
+            "status": "group",
+            "dashboard": true,
+            "items": [
+                {
+                    "id": "Menu_Entradas",
+                    "nav_label": "Entradas",
+                    "icon": "fa-boxes-packing",
+                    "nav_url": "index.php?page=Inventario_Entradas",
+                    "status": "pending"
+                },
+                {
+                    "id": "Menu_Salidas",
+                    "nav_label": "Salidas",
+                    "icon": "fa-box-open",
+                    "nav_url": "index.php?page=Inventario_Salidas",
+                    "status": "pending"
+                },
+                {
+                    "id": "Menu_Asignaciones",
+                    "nav_label": "Asignaciones",
+                    "icon": "fa-people-arrows",
+                    "nav_url": "index.php?page=Inventario_Asignaciones",
+                    "status": "pending"
+                },
+                {
+                    "id": "Menu_Mantenimientos",
+                    "nav_label": "Mantenimientos",
+                    "icon": "fa-screwdriver-wrench",
+                    "nav_url": "index.php?page=Inventario_Mantenimientos",
+                    "status": "pending"
+                }
+            ],
+            "description": "Entradas, salidas, asignaciones y mantenimiento."
+        },
+        {
+            "id": "Menu_Seguridad",
+            "type": "group",
+            "nav_label": "Seguridad",
+            "icon": "fa-shield-halved",
+            "status": "group",
+            "dashboard": true,
+            "items": [
+                {
+                    "id": "Menu_Usuarios",
+                    "nav_label": "Usuarios",
+                    "icon": "fa-users",
+                    "nav_url": "index.php?page=Usuarios_Usuarios",
+                    "status": "active"
+                },
+                {
+                    "id": "Menu_Roles",
+                    "nav_label": "Roles",
+                    "icon": "fa-user-shield",
+                    "nav_url": "index.php?page=Roles_Roles",
+                    "status": "active"
+                },
+                {
+                    "id": "Menu_Funciones",
+                    "nav_label": "Permisos",
+                    "icon": "fa-key",
+                    "nav_url": "index.php?page=Funciones_Funciones",
+                    "status": "active"
+                },
+                {
+                    "id": "Menu_Navegacion",
+                    "nav_label": "Navegación",
+                    "icon": "fa-sitemap",
+                    "nav_url": "index.php?page=Navegacion_Navegacion",
+                    "status": "active"
+                }
+            ],
+            "description": "Usuarios, roles, permisos y navegación."
+        },
+        {
+            "id": "Menu_Catalogos",
+            "type": "group",
+            "nav_label": "Catálogos",
+            "icon": "fa-list-check",
+            "status": "group",
+            "dashboard": true,
+            "items": [
+                {
+                    "id": "Menu_CatalogosGenerales",
+                    "nav_label": "Catálogos generales",
+                    "icon": "fa-list-check",
+                    "nav_url": "index.php?page=Catalogos_Generales",
+                    "status": "pending"
+                },
+                {
+                    "id": "Menu_CatalogosOperativos",
+                    "nav_label": "Catálogos operativos",
+                    "icon": "fa-sliders",
+                    "nav_url": "index.php?page=Catalogos_Operativos",
+                    "status": "pending"
+                }
+            ],
+            "description": "Listas maestras y catálogos operativos."
+        },
+        {
+            "id": "Menu_Reportes",
+            "type": "group",
+            "nav_label": "Reportes",
+            "icon": "fa-chart-pie",
+            "status": "group",
+            "dashboard": true,
+            "items": [
+                {
+                    "id": "Menu_CentroReportes",
+                    "nav_label": "Centro de reportes",
+                    "icon": "fa-chart-pie",
+                    "nav_url": "index.php?page=Reportes_Reportes",
+                    "status": "pending"
+                },
+                {
+                    "id": "Menu_Kardex",
+                    "nav_label": "Kardex",
+                    "icon": "fa-table-list",
+                    "nav_url": "index.php?page=Reportes_Kardex",
+                    "status": "pending"
+                },
+                {
+                    "id": "Menu_EquiposCustodio",
+                    "nav_label": "Equipos por custodio",
+                    "icon": "fa-map-location-dot",
+                    "nav_url": "index.php?page=Reportes_EquiposCustodio",
+                    "status": "pending"
+                }
+            ],
+            "description": "Indicadores, Kardex y equipos por custodio."
+        },
+        {
+            "id": "Menu_Auditoria",
+            "type": "link",
+            "nav_label": "Auditoría",
+            "icon": "fa-clock-rotate-left",
+            "nav_url": "index.php?page=Auditoria_Auditoria",
+            "status": "pending",
+            "dashboard": true,
+            "description": "Historial de movimientos y eventos del sistema."
+        },
+        {
+            "id": "Menu_Perfil",
+            "type": "link",
+            "nav_label": "Mi perfil",
+            "icon": "fa-user-gear",
+            "nav_url": "index.php?page=Perfil_Perfil",
+            "status": "pending",
+            "dashboard": true,
+            "description": "Datos de la cuenta y preferencias personales."
+        }
+    ]
 }
