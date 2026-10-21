@@ -1,0 +1,41 @@
+{
+  "public": [
+    {
+      "id": "Menu_SignIn",
+      "nav_url": "index.php?page=Sec_Login",
+      "nav_label": "<i class=\"fas fa-sign-in-alt\"></i>&nbsp;Iniciar Sesión"
+    },
+    {
+      "id": "Menu_SignUp",
+      "nav_url": "index.php?page=Sec_Register",
+      "nav_label": "<i class=\"fas fa-sign-in-alt\"></i>&nbsp;Crear Cuenta"
+    },
+    {
+      "id": "Menu_Products",
+      "nav_url": "index.php?page=Products_Products",
+      "nav_label": "<i class=\"fas fa-table\"></i>&nbsp;Productos"
+    }
+  ],
+  "private": [
+    {
+      "id": "Menu_Usuarios",
+      "nav_url": "index.php?page=Usuarios_Usuarios",
+      "nav_label": "<i class=\"fas fa-users\"></i>&nbsp;Usuarios"
+    },
+    {
+      "id": "Menu_Roles",
+      "nav_url": "index.php?page=Roles_Roles",
+      "nav_label": "<i class=\"fas fa-user-tag\"></i>&nbsp;Roles"
+    },
+    {
+      "id": "Menu_Funciones",
+      "nav_url": "index.php?page=Funciones_Funciones",
+      "nav_label": "<i class=\"fas fa-key\"></i>&nbsp;Funciones"
+    },
+    {
+      "id": "Menu_ProductosAdmin",
+      "nav_url": "index.php?page=Products_Products",
+      "nav_label": "<i class=\"fas fa-box\"></i>&nbsp;Productos"
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+<?php
+  namespace Utilities;
+
+  class ArrUtils
+  {
+
+    public static function mergeArrayTo(&$origin, &$destiny)
+    {
+        if (is_array($origin) && is_array($destiny)) {
+            foreach ($origin as $okey => $ovalue) {
+                if (isset($destiny[$okey])) {
+                    $destiny[$okey] = $ovalue;
+                }
+            }
+        }
+    }
+
+    public static function mergeFullArrayTo(&$origin, &$destiny)
+    {
+        if (is_array($origin) && is_array($destiny)) {
+            foreach ($origin as $okey => $ovalue) {
+                $destiny[$okey] = $ovalue;
+            }
+        }
+    }
+
+    public static function toOptionsArray($baseArray, $codeName, $textName, $selectedName, $selectedValue)
+    {
+        $tmpArray = array();
+        foreach ($baseArray as $key => $value) {
+            $tmpArray[] = array(
+                $codeName => $key,
+                $textName => $value,
+                $selectedName => ($selectedValue == $key) ? 'selected' : ''
+            );
+        }
+        return $tmpArray;
+    }
+
+    public static function objectArrToOptionsArray(
+        $baseArray,
+        $codeName,
+        $textName,
+        $selectedName,
+        $selectedValue,
+        $codeKey = "value",
+        $textKey = "text",
+        $selectedKey = "selected"
+    ) {
+        $tmpArray = array();
+        foreach ($baseArray as $value) {
+            $tmpArray[] = array(
+                $codeKey => $value[$codeName],
+                $textKey => $value[$textName],
+                $selectedKey => ($selectedValue == $value[$selectedName])
+                    ? 'selected'
+                    : ''
+            );
+        }
+        return $tmpArray;
+    }
+
+    private function __construct()
+    {
+
+    }
+  }

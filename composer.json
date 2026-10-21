@@ -1,0 +1,27 @@
+{
+    "name": "pinturasamericanas/activos-it",
+    "description": "Sistema de gestión de activos de TI - base MVC en PHP",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "php": ">=7.4",
+        "ext-json": "*",
+        "ext-pdo": "*",
+        "ext-pdo_mysql": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Controllers\\": "src/Controllers/",
+            "Dao\\": "src/Dao/",
+            "Utilities\\": "src/Utilities/",
+            "Views\\": "src/Views/"
+        }
+    },
+    "scripts": {
+        "lint": "@php scripts/lint.php"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    }
+}

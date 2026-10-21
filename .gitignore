@@ -1,0 +1,12 @@
+parameters.env
+.env
+.DS_Store
+vendor
+.phpdoc
+data
+.vscode
+.idea
+docs/manual_tecnico
+phpdoc.dist.xml
+*.log
+.phpunit.result.cache
