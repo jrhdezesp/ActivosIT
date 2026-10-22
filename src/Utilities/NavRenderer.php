@@ -4,6 +4,19 @@ namespace Utilities;
 
 class NavRenderer
 {
+    private const CATALOG_PAGE_BY_TYPE = [
+        "clasificaciones" => "Catalogos_Catalogos",
+        "ubicaciones" => "Catalogos_Catalogos",
+        "unidades_medida" => "Catalogos_Catalogos",
+        "tipos_documentos" => "Catalogos_CatalogosOperativos",
+        "tipos_mantenimientos" => "Catalogos_CatalogosOperativos",
+        "motivos_ajustes_anulaciones" => "Catalogos_CatalogosOperativos",
+    ];
+
+    private const FORM_PARENT_PAGE = [
+        "Articulos_Articulo" => "Articulos_Articulos",
+    ];
+
     public static function forSidebar(array $entries): array
     {
         return self::decorate($entries, [self::class, "sidebarItem"]);
@@ -129,7 +142,22 @@ class NavRenderer
             return false;
         }
         parse_str($query, $params);
-        return isset($params["page"]) && (string) $params["page"] === $currentPage;
+        $targetPage = isset($params["page"]) ? (string) $params["page"] : "";
+        if ($targetPage === "") {
+            return false;
+        }
+        if ($targetPage === $currentPage) {
+            return true;
+        }
+        if (isset(self::FORM_PARENT_PAGE[$currentPage])) {
+            return self::FORM_PARENT_PAGE[$currentPage] === $targetPage;
+        }
+        if ($currentPage === "Catalogos_Catalogo") {
+            $type = isset($_GET["tipo"]) ? (string) $_GET["tipo"] : "";
+            return isset(self::CATALOG_PAGE_BY_TYPE[$type])
+                && self::CATALOG_PAGE_BY_TYPE[$type] === $targetPage;
+        }
+        return false;
     }
 
     private static function statusLabel(string $status): string

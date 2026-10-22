@@ -74,14 +74,21 @@ class Paging
     }
     return $pages;
   }
-  public static function getPagination(int $totalElements, int $itemsPerPage, int $currentPage, string $url, string $controler)
-  {
+  public static function getPagination(
+    int $totalElements,
+    int $itemsPerPage,
+    int $currentPage,
+    string $url,
+    string $controler,
+    array $extraParams = []
+  ) {
     $pages = self::getPages($totalElements, $itemsPerPage, $currentPage, $url);
     $viewData = [
       'pages' => $pages,
       'url' => "index.php",
       'itemsPerPage' => $itemsPerPage,
-      'page' => $controler
+      'page' => $controler,
+      'extraParams' => $extraParams
     ];
     $itemsPerPageKey = "itemsPerPage_" . $itemsPerPage;
     $viewData[$itemsPerPageKey] = "selected";

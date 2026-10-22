@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 {{include partials/head}}
-<link rel="stylesheet" href="{{BASE_DIR}}/public/css/private.css?v=20261021-1">
+<link rel="stylesheet" href="{{BASE_DIR}}/public/css/private.css?v=20261022-13">
 </head>
 <body class="site-private">
   <a class="skip-link" href="#main-content">Saltar al contenido</a>
@@ -15,8 +15,8 @@
     </main>
   </div>
   {{include partials/private_footer}}
-  <div class="modal" id="unavailableModal" tabindex="-1" aria-labelledby="unavailableModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+  <div class="modal modal--info" id="unavailableModal" tabindex="-1" aria-labelledby="unavailableModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog--sm">
       <div class="modal-content">
         <div class="modal-header">
           <div>

@@ -19,10 +19,10 @@
 
       <div class="site-header__user">
         {{with login}}
-          <span class="user-chip" title="{{!userName}}">
-            <i class="fa-solid fa-circle-user"></i>
+          <a class="user-chip" href="index.php?page=Perfil_Perfil" title="Mi perfil de {{!userName}}" aria-label="Mi perfil de {{!userName}}">
+            <i class="fa-solid fa-circle-user" aria-hidden="true"></i>
             <span>{{!userName}}</span>
-          </span>
+          </a>
           <a class="icon-button" href="index.php?page=sec_logout" title="Cerrar sesión" aria-label="Cerrar sesión">
             <i class="fa-solid fa-arrow-right-from-bracket"></i>
           </a>

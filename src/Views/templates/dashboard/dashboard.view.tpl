@@ -8,7 +8,7 @@
         <i class="fa-solid fa-sitemap" aria-hidden="true"></i>
         Editar navegación
       </a>
-      <a class="button button--ghost" href="index.php?page=Products_Products">
+      <a class="button button--ghost" href="index.php?page=Articulos_Articulos">
         <i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i>
         Ir al catálogo
       </a>

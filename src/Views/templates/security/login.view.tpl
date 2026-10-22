@@ -31,7 +31,12 @@
             </div>
 
             {{if generalError}}
-              <div class="auth-error auth-error--general">{{generalError}}</div>
+              <div class="alert alert--danger alert--compact" role="alert">
+                <span class="alert__icon" aria-hidden="true"><i class="fa-solid fa-circle-exclamation"></i></span>
+                <div class="alert__content">
+                  <p class="alert__message">{{generalError}}</p>
+                </div>
+              </div>
             {{endif generalError}}
 
             <button class="primary auth-submit" id="btnLogin" type="submit">
