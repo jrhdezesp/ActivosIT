@@ -13,57 +13,97 @@ class Funciones extends Table
         bool $orderDescending = false,
         int $page = 0,
         int $itemsPerPage = 10
-    ) {
-        $sqlstr = "SELECT f.fncod, f.fndsc, f.fnest, f.fntyp, case when f.fnest = 'ACT' then 'Activo' when f.fnest = 'INA' then 'Inactivo' else 'Sin Asignar' end as fnestDsc
-    FROM funciones f";
-        $sqlstrCount = 'SELECT COUNT(*) as count FROM funciones f';
+    ): array {
+        $sqlstr = "SELECT
+            p.id_permiso,
+            p.nombre_permiso,
+            p.descripcion_permiso,
+            p.modulo_permiso,
+            p.nombre_permiso AS fncod,
+            p.descripcion_permiso AS fndsc,
+            'ACT' AS fnest,
+            'Activo' AS fnestDsc,
+            p.modulo_permiso AS fntyp
+        FROM permisos p";
+
+        $sqlstrCount = 'SELECT COUNT(*) AS count FROM permisos p';
         $conditions = [];
         $params = [];
-        if ($partialName != '') {
-            $conditions[] = 'f.fndsc LIKE :partialName';
-            $params['partialName'] = '%'.$partialName.'%';
+
+        $partialName = trim($partialName);
+        if ($partialName !== '') {
+            $conditions[] = '(p.nombre_permiso LIKE :partialName OR p.descripcion_permiso LIKE :partialName)';
+            $params['partialName'] = '%' . $partialName . '%';
         }
-        if (!in_array($status, ['ACT', 'INA', ''])) {
+
+        if (!in_array($status, ['ACT', 'INA', '', '1', '0'], true)) {
             throw new \Exception('Error Processing Request Status has invalid value');
         }
-        if ($status != '') {
-            $conditions[] = 'f.fnest = :status';
-            $params['status'] = $status;
-        }
+
         if (count($conditions) > 0) {
-            $sqlstr .= ' WHERE '.implode(' AND ', $conditions);
-            $sqlstrCount .= ' WHERE '.implode(' AND ', $conditions);
+            $whereClause = ' WHERE ' . implode(' AND ', $conditions);
+            $sqlstr .= $whereClause;
+            $sqlstrCount .= $whereClause;
         }
-        if (!in_array($orderBy, ['fncod', 'fndsc', 'fntyp', ''])) {
+
+        $orderMap = [
+            'fncod' => 'p.nombre_permiso',
+            'fndsc' => 'p.descripcion_permiso',
+            'fntyp' => 'p.modulo_permiso',
+        ];
+
+        if (!in_array($orderBy, array_keys($orderMap), true) && $orderBy !== '') {
             throw new \Exception('Error Processing Request OrderBy has invalid value');
         }
-        if ($orderBy != '') {
-            $sqlstr .= ' ORDER BY '.$orderBy;
+
+        if ($orderBy !== '') {
+            $sqlstr .= ' ORDER BY ' . $orderMap[$orderBy];
             if ($orderDescending) {
                 $sqlstr .= ' DESC';
             }
+        } else {
+            $sqlstr .= ' ORDER BY p.modulo_permiso ASC, p.nombre_permiso ASC';
         }
+
         $itemsPerPage = $itemsPerPage > 0 ? $itemsPerPage : 10;
         $page = $page >= 0 ? $page : 0;
-        $numeroDeRegistros = self::obtenerUnRegistro($sqlstrCount, $params)['count'];
-        $pagesCount = $numeroDeRegistros > 0 ? ceil($numeroDeRegistros / $itemsPerPage) : 1;
+        $numeroDeRegistros = self::obtenerUnRegistro($sqlstrCount, $params)['count'] ?? 0;
+        $pagesCount = $numeroDeRegistros > 0 ? (int) ceil($numeroDeRegistros / $itemsPerPage) : 1;
         if ($page > $pagesCount - 1) {
             $page = $pagesCount - 1;
         }
-        $offset = $page * $itemsPerPage;
-        $sqlstr .= ' LIMIT '.$offset.', '.$itemsPerPage;
+        $offset = max(0, $page * $itemsPerPage);
+        $sqlstr .= ' LIMIT ' . $offset . ', ' . $itemsPerPage;
 
         $registros = self::obtenerRegistros($sqlstr, $params);
 
-        return ['funciones' => $registros, 'total' => $numeroDeRegistros, 'page' => $page, 'itemsPerPage' => $itemsPerPage];
+        return [
+            'funciones' => $registros,
+            'total' => $numeroDeRegistros,
+            'page' => $page,
+            'itemsPerPage' => $itemsPerPage,
+        ];
     }
 
     public static function getFuncionById(string $fncod)
     {
-        $sqlstr = 'SELECT f.fncod, f.fndsc, f.fnest, f.fntyp FROM funciones f WHERE f.fncod = :fncod';
-        $params = ['fncod' => $fncod];
+        $sqlstr = "SELECT
+            p.id_permiso,
+            p.nombre_permiso,
+            p.descripcion_permiso,
+            p.modulo_permiso,
+            p.nombre_permiso AS fncod,
+            p.descripcion_permiso AS fndsc,
+            'ACT' AS fnest,
+            p.modulo_permiso AS fntyp
+        FROM permisos p
+        WHERE p.nombre_permiso = :fncod OR p.id_permiso = :fncodInt
+        LIMIT 1";
 
-        return self::obtenerUnRegistro($sqlstr, $params);
+        return self::obtenerUnRegistro($sqlstr, [
+            'fncod' => $fncod,
+            'fncodInt' => intval($fncod),
+        ]);
     }
 
     public static function insertFuncion(
@@ -71,16 +111,19 @@ class Funciones extends Table
         string $fndsc,
         string $fnest,
         string $fntyp
-    ) {
-        $sqlstr = 'INSERT INTO funciones (fncod, fndsc, fnest, fntyp) VALUES (:fncod, :fndsc, :fnest, :fntyp)';
-        $params = [
+    ): int {
+        $modulo = trim($fntyp) !== '' ? $fntyp : 'General';
+        $sqlstr = 'INSERT INTO permisos (nombre_permiso, descripcion_permiso, modulo_permiso)
+            VALUES (:fncod, :fndsc, :modulo)
+            ON DUPLICATE KEY UPDATE
+                descripcion_permiso = VALUES(descripcion_permiso),
+                modulo_permiso = VALUES(modulo_permiso)';
+
+        return self::executeNonQuery($sqlstr, [
             'fncod' => $fncod,
             'fndsc' => $fndsc,
-            'fnest' => $fnest,
-            'fntyp' => $fntyp,
-        ];
-
-        return self::executeNonQuery($sqlstr, $params);
+            'modulo' => $modulo,
+        ]);
     }
 
     public static function updateFuncion(
@@ -88,23 +131,36 @@ class Funciones extends Table
         string $fndsc,
         string $fnest,
         string $fntyp
-    ) {
-        $sqlstr = 'UPDATE funciones SET fndsc = :fndsc, fnest = :fnest, fntyp = :fntyp WHERE fncod = :fncod';
-        $params = [
-            'fncod' => $fncod,
-            'fndsc' => $fndsc,
-            'fnest' => $fnest,
-            'fntyp' => $fntyp,
-        ];
+    ): int {
+        $modulo = trim($fntyp) !== '' ? $fntyp : 'General';
+        $sqlstr = 'UPDATE permisos
+            SET descripcion_permiso = :fndsc,
+                modulo_permiso = :modulo
+            WHERE nombre_permiso = :fncod OR id_permiso = :fncodInt';
 
-        return self::executeNonQuery($sqlstr, $params);
+        return self::executeNonQuery($sqlstr, [
+            'fncod' => $fncod,
+            'fncodInt' => intval($fncod),
+            'fndsc' => $fndsc,
+            'modulo' => $modulo,
+        ]);
     }
 
-    public static function deleteFuncion(string $fncod)
+    public static function deleteFuncion(string $fncod): int
     {
-        $sqlstr = 'DELETE FROM funciones WHERE fncod = :fncod';
-        $params = ['fncod' => $fncod];
+        // 1. Eliminar relaciones en roles_permisos
+        self::executeNonQuery(
+            "DELETE rp FROM roles_permisos rp
+             INNER JOIN permisos p ON p.id_permiso = rp.id_permiso
+             WHERE p.nombre_permiso = :fncod OR p.id_permiso = :fncodInt",
+            ['fncod' => $fncod, 'fncodInt' => intval($fncod)]
+        );
 
-        return self::executeNonQuery($sqlstr, $params);
+        // 2. Eliminar permiso
+        $sqlstr = 'DELETE FROM permisos WHERE nombre_permiso = :fncod OR id_permiso = :fncodInt';
+        return self::executeNonQuery($sqlstr, [
+            'fncod' => $fncod,
+            'fncodInt' => intval($fncod),
+        ]);
     }
 }
