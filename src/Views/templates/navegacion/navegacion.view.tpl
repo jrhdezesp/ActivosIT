@@ -79,7 +79,9 @@
   </aside>
 </div>
 
-<div id="editorToast" class="app-toast" role="status" aria-live="polite" hidden></div>
+<div class="toast-region">
+  <div id="editorToast" class="app-toast app-toast--info" role="status" aria-live="polite" hidden></div>
+</div>
 
 <div class="modal" id="groupModal" tabindex="-1" aria-labelledby="groupModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
@@ -92,7 +94,12 @@
         <button type="button" class="modal-close" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="modal-body">
-        <p class="modal-note">Solo diseño. El grupo no se guardará todavía.</p>
+        <div class="alert alert--warning alert--compact" role="note">
+          <span class="alert__icon" aria-hidden="true"><i class="fa-solid fa-triangle-exclamation"></i></span>
+          <div class="alert__content">
+            <p class="alert__message">Solo diseño. El grupo no se guardará todavía.</p>
+          </div>
+        </div>
         <div class="form-field">
           <label for="groupName">Nombre del grupo</label>
           <input id="groupName" type="text" placeholder="Ej. Inventario">
@@ -134,7 +141,12 @@
         <button type="button" class="modal-close" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="modal-body">
-        <p class="modal-note">Solo diseño. El elemento no se guardará todavía.</p>
+        <div class="alert alert--warning alert--compact" role="note">
+          <span class="alert__icon" aria-hidden="true"><i class="fa-solid fa-triangle-exclamation"></i></span>
+          <div class="alert__content">
+            <p class="alert__message">Solo diseño. El elemento no se guardará todavía.</p>
+          </div>
+        </div>
         <div class="form-field">
           <label for="itemGroup">Grupo</label>
           <select id="itemGroup">

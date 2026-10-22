@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap-grid.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap-utilities.min.css">
 <link rel="stylesheet" href="{{BASE_DIR}}/public/css/appstyle.css">
-<link rel="stylesheet" href="{{BASE_DIR}}/public/css/theme.css?v=20261021-1">
+<link rel="stylesheet" href="{{BASE_DIR}}/public/css/theme.css?v=20261022-9">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
 {{foreach SiteLinks}}
   <link rel="stylesheet" href="{{~BASE_DIR}}/{{this}}" />
