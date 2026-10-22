@@ -58,8 +58,8 @@ class Articulos extends Table
 
         $where = count($conditions) > 0 ? ' WHERE ' . implode(' AND ', $conditions) : '';
         $from = ' FROM articulos a'
-            . ' INNER JOIN clasificaciones c ON c.id_clasificacion = a.id_clasificacion'
-            . ' INNER JOIN unidades_medida u ON u.id_unidad_medida = a.id_unidad_medida';
+            . ' LEFT JOIN clasificaciones c ON c.id_clasificacion = a.id_clasificacion'
+            . ' LEFT JOIN unidades_medida u ON u.id_unidad_medida = a.id_unidad_medida';
 
         $countRow = self::obtenerUnRegistro('SELECT COUNT(*) AS total' . $from . $where, $params);
         $total = intval($countRow['total'] ?? 0);
@@ -72,8 +72,8 @@ class Articulos extends Table
         }
         $offset = $page * $itemsPerPage;
 
-        $sql = 'SELECT a.*, c.nombre_clasificacion, c.estado_clasif,'
-            . ' u.nombre_unidad, u.simbolo_medida, u.estado_medida'
+        $sql = 'SELECT a.*, COALESCE(c.nombre_clasificacion, "Sin clasificación") AS nombre_clasificacion, c.estado_clasif,'
+            . ' COALESCE(u.nombre_unidad, "Unidad") AS nombre_unidad, u.simbolo_medida, u.estado_medida'
             . $from . $where
             . ' ORDER BY a.' . $orderBy . ($orderDescending ? ' DESC' : ' ASC')
             . ' LIMIT ' . $offset . ', ' . $itemsPerPage;
@@ -94,11 +94,11 @@ class Articulos extends Table
         }
 
         $row = self::obtenerUnRegistro(
-            'SELECT a.*, c.nombre_clasificacion, c.estado_clasif,'
-            . ' u.nombre_unidad, u.simbolo_medida, u.estado_medida'
+            'SELECT a.*, COALESCE(c.nombre_clasificacion, "Sin clasificación") AS nombre_clasificacion, c.estado_clasif,'
+            . ' COALESCE(u.nombre_unidad, "Unidad") AS nombre_unidad, u.simbolo_medida, u.estado_medida'
             . ' FROM articulos a'
-            . ' INNER JOIN clasificaciones c ON c.id_clasificacion = a.id_clasificacion'
-            . ' INNER JOIN unidades_medida u ON u.id_unidad_medida = a.id_unidad_medida'
+            . ' LEFT JOIN clasificaciones c ON c.id_clasificacion = a.id_clasificacion'
+            . ' LEFT JOIN unidades_medida u ON u.id_unidad_medida = a.id_unidad_medida'
             . ' WHERE a.id_articulo = :id LIMIT 1',
             ['id' => $id]
         );
@@ -276,6 +276,14 @@ class Articulos extends Table
         return self::executeNonQuery(
             'UPDATE articulos SET estado_registro = 0, fecha_modificacion = NOW()'
             . ' WHERE id_articulo = :id',
+            ['id' => $id]
+        );
+    }
+
+    public static function deleteArticulo(int $id): bool
+    {
+        return self::executeNonQuery(
+            'DELETE FROM articulos WHERE id_articulo = :id',
             ['id' => $id]
         );
     }

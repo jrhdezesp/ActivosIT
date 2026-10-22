@@ -13,137 +13,226 @@ class Roles extends Table
         bool $orderDescending = false,
         int $page = 0,
         int $itemsPerPage = 10
-    ) {
-        $sqlstr = "SELECT r.rolescod, r.rolesdsc, r.rolesest, case when r.rolesest = 'ACT' then 'Activo' when r.rolesest = 'INA' then 'Inactivo' else 'Sin Asignar' end as rolesestDsc
-    FROM roles r";
-        $sqlstrCount = 'SELECT COUNT(*) as count FROM roles r';
+    ): array {
+        $sqlstr = "SELECT
+            r.id_rol,
+            r.nombre_rol,
+            r.descripcion_rol,
+            r.estado_rol,
+            r.nombre_rol AS rolescod,
+            r.descripcion_rol AS rolesdsc,
+            CASE WHEN r.estado_rol = 1 THEN 'ACT' ELSE 'INA' END AS rolesest,
+            CASE WHEN r.estado_rol = 1 THEN 'Activo' ELSE 'Inactivo' END AS rolesestDsc
+        FROM roles r";
+
+        $sqlstrCount = 'SELECT COUNT(*) AS count FROM roles r';
         $conditions = [];
         $params = [];
-        if ($partialName != '') {
-            $conditions[] = 'r.rolesdsc LIKE :partialName';
-            $params['partialName'] = '%'.$partialName.'%';
+
+        $partialName = trim($partialName);
+        if ($partialName !== '') {
+            $conditions[] = '(r.nombre_rol LIKE :partialName OR r.descripcion_rol LIKE :partialName)';
+            $params['partialName'] = '%' . $partialName . '%';
         }
-        if (!in_array($status, ['ACT', 'INA', ''])) {
+
+        if (!in_array($status, ['ACT', 'INA', '', '1', '0'], true)) {
             throw new \Exception('Error Processing Request Status has invalid value');
         }
-        if ($status != '') {
-            $conditions[] = 'r.rolesest = :status';
-            $params['status'] = $status;
+
+        if ($status !== '') {
+            $conditions[] = 'r.estado_rol = :status';
+            $params['status'] = in_array($status, ['ACT', '1'], true) ? 1 : 0;
         }
+
         if (count($conditions) > 0) {
-            $sqlstr .= ' WHERE '.implode(' AND ', $conditions);
-            $sqlstrCount .= ' WHERE '.implode(' AND ', $conditions);
+            $whereClause = ' WHERE ' . implode(' AND ', $conditions);
+            $sqlstr .= $whereClause;
+            $sqlstrCount .= $whereClause;
         }
-        if (!in_array($orderBy, ['rolescod', 'rolesdsc', ''])) {
+
+        $orderMap = [
+            'rolescod' => 'r.nombre_rol',
+            'rolesdsc' => 'r.descripcion_rol',
+        ];
+
+        if (!in_array($orderBy, array_keys($orderMap), true) && $orderBy !== '') {
             throw new \Exception('Error Processing Request OrderBy has invalid value');
         }
-        if ($orderBy != '') {
-            $sqlstr .= ' ORDER BY '.$orderBy;
+
+        if ($orderBy !== '') {
+            $sqlstr .= ' ORDER BY ' . $orderMap[$orderBy];
             if ($orderDescending) {
                 $sqlstr .= ' DESC';
             }
+        } else {
+            $sqlstr .= ' ORDER BY r.id_rol ASC';
         }
+
         $itemsPerPage = $itemsPerPage > 0 ? $itemsPerPage : 10;
         $page = $page >= 0 ? $page : 0;
-        $numeroDeRegistros = self::obtenerUnRegistro($sqlstrCount, $params)['count'];
-        $pagesCount = $numeroDeRegistros > 0 ? ceil($numeroDeRegistros / $itemsPerPage) : 1;
+        $numeroDeRegistros = self::obtenerUnRegistro($sqlstrCount, $params)['count'] ?? 0;
+        $pagesCount = $numeroDeRegistros > 0 ? (int) ceil($numeroDeRegistros / $itemsPerPage) : 1;
         if ($page > $pagesCount - 1) {
             $page = $pagesCount - 1;
         }
-        $offset = $page * $itemsPerPage;
-        $sqlstr .= ' LIMIT '.$offset.', '.$itemsPerPage;
+        $offset = max(0, $page * $itemsPerPage);
+        $sqlstr .= ' LIMIT ' . $offset . ', ' . $itemsPerPage;
 
         $registros = self::obtenerRegistros($sqlstr, $params);
 
-        return ['roles' => $registros, 'total' => $numeroDeRegistros, 'page' => $page, 'itemsPerPage' => $itemsPerPage];
+        return [
+            'roles' => $registros,
+            'total' => $numeroDeRegistros,
+            'page' => $page,
+            'itemsPerPage' => $itemsPerPage,
+        ];
     }
 
     public static function getRolById(string $rolescod)
     {
-        $sqlstr = 'SELECT r.rolescod, r.rolesdsc, r.rolesest FROM roles r WHERE r.rolescod = :rolescod';
-        $params = ['rolescod' => $rolescod];
+        $sqlstr = "SELECT
+            r.id_rol,
+            r.nombre_rol,
+            r.descripcion_rol,
+            r.estado_rol,
+            r.nombre_rol AS rolescod,
+            r.descripcion_rol AS rolesdsc,
+            CASE WHEN r.estado_rol = 1 THEN 'ACT' ELSE 'INA' END AS rolesest
+        FROM roles r
+        WHERE r.nombre_rol = :rolescod OR r.id_rol = :rolescodInt
+        LIMIT 1";
 
-        return self::obtenerUnRegistro($sqlstr, $params);
+        return self::obtenerUnRegistro($sqlstr, [
+            'rolescod' => $rolescod,
+            'rolescodInt' => intval($rolescod),
+        ]);
     }
 
-    public static function getFuncionesByRol(string $rolescod)
+    public static function getFuncionesByRol(string $rolescod): array
     {
-        $sqlstr = "SELECT f.fncod, f.fndsc, f.fnest, f.fntyp,
-            COALESCE(fr.fnrolest, 'INA') AS fnrolest,
-            CASE
-                WHEN COALESCE(fr.fnrolest, 'INA') = 'ACT' THEN 'Activo'
-                WHEN COALESCE(fr.fnrolest, 'INA') = 'INA' THEN 'Inactivo'
-                ELSE 'Sin Asignar'
-            END AS fnrolestDsc
-        FROM funciones f
-        LEFT JOIN funciones_roles fr
-            ON f.fncod = fr.fncod
-            AND fr.rolescod = :rolescod
-        ORDER BY f.fncod";
-        $params = ['rolescod' => $rolescod];
+        $sqlstr = "SELECT
+            p.id_permiso,
+            p.nombre_permiso,
+            p.descripcion_permiso,
+            p.modulo_permiso,
+            p.nombre_permiso AS fncod,
+            p.descripcion_permiso AS fndsc,
+            'ACT' AS fnest,
+            p.modulo_permiso AS fntyp,
+            CASE WHEN rp.id_rol IS NOT NULL THEN 'ACT' ELSE 'INA' END AS fnrolest,
+            CASE WHEN rp.id_rol IS NOT NULL THEN 'Activo' ELSE 'Inactivo' END AS fnrolestDsc
+        FROM permisos p
+        LEFT JOIN roles_permisos rp
+            ON p.id_permiso = rp.id_permiso
+            AND rp.id_rol = (SELECT id_rol FROM roles WHERE nombre_rol = :rolescod OR id_rol = :rolescodInt LIMIT 1)
+        ORDER BY p.nombre_permiso";
 
-        return self::obtenerRegistros($sqlstr, $params);
+        return self::obtenerRegistros($sqlstr, [
+            'rolescod' => $rolescod,
+            'rolescodInt' => intval($rolescod),
+        ]);
     }
 
     public static function insertRol(
         string $rolescod,
         string $rolesdsc,
         string $rolesest
-    ) {
-        $sqlstr = 'INSERT INTO roles (rolescod, rolesdsc, rolesest) VALUES (:rolescod, :rolesdsc, :rolesest)';
-        $params = [
+    ): int {
+        $estado = in_array($rolesest, ['ACT', '1'], true) ? 1 : 0;
+        $sqlstr = 'INSERT INTO roles (nombre_rol, descripcion_rol, estado_rol)
+            VALUES (:rolescod, :rolesdsc, :estado)';
+
+        return self::executeNonQuery($sqlstr, [
             'rolescod' => $rolescod,
             'rolesdsc' => $rolesdsc,
-            'rolesest' => $rolesest,
-        ];
-
-        return self::executeNonQuery($sqlstr, $params);
+            'estado' => $estado,
+        ]);
     }
 
     public static function updateRol(
         string $rolescod,
         string $rolesdsc,
         string $rolesest
-    ) {
-        $sqlstr = 'UPDATE roles SET rolesdsc = :rolesdsc, rolesest = :rolesest WHERE rolescod = :rolescod';
-        $params = [
-            'rolescod' => $rolescod,
-            'rolesdsc' => $rolesdsc,
-            'rolesest' => $rolesest,
-        ];
+    ): int {
+        $estado = in_array($rolesest, ['ACT', '1'], true) ? 1 : 0;
+        $sqlstr = 'UPDATE roles
+            SET descripcion_rol = :rolesdsc,
+                estado_rol = :estado
+            WHERE nombre_rol = :rolescod OR id_rol = :rolescodInt';
 
-        return self::executeNonQuery($sqlstr, $params);
+        return self::executeNonQuery($sqlstr, [
+            'rolescod' => $rolescod,
+            'rolescodInt' => intval($rolescod),
+            'rolesdsc' => $rolesdsc,
+            'estado' => $estado,
+        ]);
     }
 
     public static function upsertRolFuncion(
         string $rolescod,
         string $fncod,
         string $fnrolest
-    ) {
-        if (!in_array($fnrolest, ['ACT', 'INA'])) {
+    ): int {
+        if (!in_array($fnrolest, ['ACT', 'INA'], true)) {
             throw new \Exception('Error Processing Request fnrolest has invalid value');
         }
 
-        $sqlstr = 'INSERT INTO funciones_roles (rolescod, fncod, fnrolest, fnexp)
-            VALUES (:rolescod, :fncod, :fnrolest, :fnexp)
-            ON DUPLICATE KEY UPDATE
-                fnrolest = :fnrolest,
-                fnexp = :fnexp';
-        $params = [
-            'rolescod' => $rolescod,
-            'fncod' => $fncod,
-            'fnrolest' => $fnrolest,
-            'fnexp' => $fnrolest === 'INA' ? date('Y-m-d H:i:s') : null,
-        ];
+        if ($fnrolest === 'ACT') {
+            $sqlstr = "INSERT INTO roles_permisos (id_rol, id_permiso)
+                SELECT r.id_rol, p.id_permiso
+                FROM roles r
+                CROSS JOIN permisos p
+                WHERE (r.nombre_rol = :rolescod OR r.id_rol = :rolescodInt)
+                  AND (p.nombre_permiso = :fncod OR p.id_permiso = :fncodInt)
+                LIMIT 1
+                ON DUPLICATE KEY UPDATE id_rol = VALUES(id_rol)";
 
-        return self::executeNonQuery($sqlstr, $params);
+            return self::executeNonQuery($sqlstr, [
+                'rolescod' => $rolescod,
+                'rolescodInt' => intval($rolescod),
+                'fncod' => $fncod,
+                'fncodInt' => intval($fncod),
+            ]);
+        }
+
+        // Si es INA, eliminamos la relación
+        $sqlstr = "DELETE rp FROM roles_permisos rp
+            INNER JOIN roles r ON r.id_rol = rp.id_rol
+            INNER JOIN permisos p ON p.id_permiso = rp.id_permiso
+            WHERE (r.nombre_rol = :rolescod OR r.id_rol = :rolescodInt)
+              AND (p.nombre_permiso = :fncod OR p.id_permiso = :fncodInt)";
+
+        return self::executeNonQuery($sqlstr, [
+            'rolescod' => $rolescod,
+            'rolescodInt' => intval($rolescod),
+            'fncod' => $fncod,
+            'fncodInt' => intval($fncod),
+        ]);
     }
 
-    public static function deleteRol(string $rolescod)
+    public static function deleteRol(string $rolescod): int
     {
-        $sqlstr = 'DELETE FROM roles WHERE rolescod = :rolescod';
-        $params = ['rolescod' => $rolescod];
+        // 1. Eliminar de roles_permisos
+        self::executeNonQuery(
+            "DELETE rp FROM roles_permisos rp
+             INNER JOIN roles r ON r.id_rol = rp.id_rol
+             WHERE r.nombre_rol = :rolescod OR r.id_rol = :rolescodInt",
+            ['rolescod' => $rolescod, 'rolescodInt' => intval($rolescod)]
+        );
 
-        return self::executeNonQuery($sqlstr, $params);
+        // 2. Eliminar de usuarios_roles
+        self::executeNonQuery(
+            "DELETE ur FROM usuarios_roles ur
+             INNER JOIN roles r ON r.id_rol = ur.id_rol
+             WHERE r.nombre_rol = :rolescod OR r.id_rol = :rolescodInt",
+            ['rolescod' => $rolescod, 'rolescodInt' => intval($rolescod)]
+        );
+
+        // 3. Eliminar de roles
+        $sqlstr = 'DELETE FROM roles WHERE nombre_rol = :rolescod OR id_rol = :rolescodInt';
+        return self::executeNonQuery($sqlstr, [
+            'rolescod' => $rolescod,
+            'rolescodInt' => intval($rolescod),
+        ]);
     }
 }

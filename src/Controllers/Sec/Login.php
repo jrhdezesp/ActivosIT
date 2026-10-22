@@ -36,15 +36,15 @@ class Login extends \Controllers\PublicController
             }
             if (! $this->hasError) {
                 if ($dbUser = \Dao\Security\Security::getUsuarioByEmail($this->txtEmail)) {
-                    if ($dbUser["userest"] != \Dao\Security\Estados::ACTIVO) {
+                    $isActive = ($dbUser["estado_usuario"] == 1 || $dbUser["userest"] === 'ACT');
+                    if (!$isActive) {
                         $this->generalError = "¡Credenciales son incorrectas!";
                         $this->hasError = true;
                         error_log(
                             sprintf(
-                                "ERROR: %d %s tiene cuenta con estado %s",
+                                "ERROR: %d %s tiene cuenta inactiva",
                                 $dbUser["usercod"],
-                                $dbUser["useremail"],
-                                $dbUser["userest"]
+                                $dbUser["useremail"]
                             )
                         );
                     }
@@ -58,9 +58,9 @@ class Login extends \Controllers\PublicController
                                 $dbUser["useremail"]
                             )
                         );
-                        // Aqui se debe establecer acciones segun la politica de la institucion.
                     }
                     if (! $this->hasError) {
+                        \Dao\Security\Security::updateUltimoAcceso($dbUser["usercod"]);
                         \Utilities\Security::login(
                             $dbUser["usercod"],
                             $dbUser["username"],

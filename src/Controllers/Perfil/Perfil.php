@@ -11,12 +11,6 @@ use Views\Renderer;
 
 class Perfil extends PrivateController
 {
-    private const USER_TYPE_LABELS = [
-        'ADM' => 'Administrador',
-        'AUD' => 'Auditor',
-        'PBL' => 'Público',
-    ];
-
     private const MONTHS = [
         1 => 'ene',
         2 => 'feb',
@@ -57,7 +51,8 @@ class Perfil extends PrivateController
             }
         }
 
-        $usuario = $this->buildUserData($usuario);
+        $primaryRole = !empty($activeRoles) ? $activeRoles[0]['rolescod'] : 'Usuario';
+        $usuario = $this->buildUserData($usuario, $primaryRole);
         $usuario = array_merge($usuario, $this->buildPasswordData($usuario['userpswdexp'] ?? ''));
 
         $rolesLabel = count($activeRoles) === 1
@@ -72,20 +67,29 @@ class Perfil extends PrivateController
         ]);
     }
 
-    private function buildUserData(array $usuario): array
+    private function buildUserData(array $usuario, string $primaryRole): array
     {
-        unset($usuario['userpswd']);
+        unset($usuario['userpswd'], $usuario['clave_usuario']);
 
         $usuario['userestDsc'] = $this->userStatusLabel($usuario['userest'] ?? '');
-        $usuario['usertipoDsc'] = self::USER_TYPE_LABELS[$usuario['usertipo'] ?? '']
-            ?? 'Sin asignar';
+        $usuario['usertipoDsc'] = $primaryRole;
         $usuario['initials'] = $this->initials(
             $usuario['username'] ?? '',
             $usuario['useremail'] ?? ''
         );
-        $usuario['userfchingFmt'] = $this->formatDate($usuario['userfching'] ?? '');
-        $usuario['userpswdchgFmt'] = $this->formatDate($usuario['userpswdchg'] ?? '');
-        $usuario['userpswdexpFmt'] = $this->formatDate($usuario['userpswdexp'] ?? '');
+
+        $ultimoAcceso = $usuario['ultimo_acceso_usuario'] ?? '';
+        $usuario['userfchingFmt'] = !empty($ultimoAcceso)
+            ? $this->formatDate($ultimoAcceso)
+            : 'Sesión actual';
+
+        $usuario['userpswdchgFmt'] = !empty($usuario['userpswdchg'] ?? '')
+            ? $this->formatDate($usuario['userpswdchg'])
+            : 'No registrada';
+
+        $usuario['userpswdexpFmt'] = !empty($usuario['userpswdexp'] ?? '')
+            ? $this->formatDate($usuario['userpswdexp'])
+            : 'Sin expiración';
 
         return $usuario;
     }
@@ -95,9 +99,9 @@ class Perfil extends PrivateController
         $expiryTime = $expiry !== '' ? strtotime($expiry) : false;
         if ($expiryTime === false) {
             return [
-                'passwordStatus' => 'Sin fecha',
-                'passwordBadge' => 'badge--outline',
-                'passwordNotice' => 'No hay una fecha de vencimiento registrada.',
+                'passwordStatus' => 'Activa',
+                'passwordBadge' => 'badge--success',
+                'passwordNotice' => 'Contraseña protegida mediante algoritmo seguro.',
                 'passwordExpired' => false,
             ];
         }
@@ -131,10 +135,10 @@ class Perfil extends PrivateController
 
     private function userStatusLabel(string $status): string
     {
-        if ($status === 'ACT') {
+        if ($status === 'ACT' || $status === '1') {
             return 'Activo';
         }
-        if ($status === 'INA') {
+        if ($status === 'INA' || $status === '0') {
             return 'Inactivo';
         }
         return 'Sin asignar';
