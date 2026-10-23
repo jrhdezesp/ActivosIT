@@ -76,7 +76,7 @@
                     "nav_label": "Mantenimientos",
                     "icon": "fa-screwdriver-wrench",
                     "nav_url": "index.php?page=Inventario_Mantenimientos",
-                    "status": "pending"
+                    "status": "active"
                 }
             ],
             "description": "Entradas, salidas, asignaciones y mantenimiento."
