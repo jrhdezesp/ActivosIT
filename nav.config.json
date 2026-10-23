@@ -37,7 +37,7 @@
                     "nav_label": "Equipos",
                     "icon": "fa-laptop",
                     "nav_url": "index.php?page=Equipos_Equipos",
-                    "status": "pending"
+                    "status": "active"
                 }
             ],
             "description": "Artículos y equipos de TI."
@@ -55,14 +55,14 @@
                     "nav_label": "Entradas",
                     "icon": "fa-boxes-packing",
                     "nav_url": "index.php?page=Inventario_Entradas",
-                    "status": "pending"
+                    "status": "active"
                 },
                 {
                     "id": "Menu_Salidas",
                     "nav_label": "Salidas",
                     "icon": "fa-box-open",
                     "nav_url": "index.php?page=Inventario_Salidas",
-                    "status": "pending"
+                    "status": "active"
                 },
                 {
                     "id": "Menu_Asignaciones",
