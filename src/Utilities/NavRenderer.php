@@ -16,6 +16,7 @@ class NavRenderer
     private const FORM_PARENT_PAGE = [
         "Articulos_Articulo" => "Articulos_Articulos",
         "Inventario_Mantenimiento" => "Inventario_Mantenimientos",
+        "Inventario_Asignacion" => "Inventario_Asignaciones",
     ];
 
     public static function forSidebar(array $entries): array
