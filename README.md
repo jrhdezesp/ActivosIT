@@ -2,8 +2,8 @@
 
 ![Logo](public/imgs/brand/logo-icon.png)
 
-![PHP](https://img.shields.io/badge/PHP-8.1%2B-777BB4?logo=php&logoColor=white)
-![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql&logoColor=white)
+![PHP](https://img.shields.io/badge/PHP-7.4%20a%208.2-777BB4?logo=php&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL%20%2F%20MariaDB-8.0%20%2F%2010.4-4479A1?logo=mysql&logoColor=white)
 ![XAMPP](https://img.shields.io/badge/XAMPP-8.x-FB7A24?logo=xampp&logoColor=white)
 ![Composer](https://img.shields.io/badge/Composer-2.x-885630?logo=composer&logoColor=white)
 ![HTML5](https://img.shields.io/badge/HTML5-5-E34F26?logo=html5&logoColor=white)
@@ -18,57 +18,204 @@
 - **Estado Actual:** Etapa de Análisis y Alcance (Fase Teórica y Prototipado)
 
 ## Tecnologías y Arquitectura
-- **Backend:** PHP 8.1+ + Composer (Arquitectura MVC)
-- **Base de Datos:** MySQL 8.0 (21 tablas, transacciones ACID, borrado lógico)
-- **Frontend:** HTML5, CSS3, JavaScript puro, Bootstrap 5
-- **Entorno de Desarrollo:** XAMPP (Apache) en red local
-- **Control de Versiones:** Git + GitHub / GitKraken
+- **Backend:** PHP 7.4+ (probado en 8.2) + Composer, arquitectura MVC con PSR-4.
+- **Base de Datos:** MySQL 8.0 / MariaDB 10.4 (21 tablas, InnoDB, borrado lógico en las entidades de negocio).
+- **Frontend:** HTML5, CSS3, JavaScript puro, Bootstrap 5 y Font Awesome.
+- **Entorno de Desarrollo:** XAMPP (Apache + MySQL) o el servidor embebido de PHP.
+- **Control de Versiones:** Git + GitHub / GitKraken.
 
 ## Problema Planteado
 La administración de la infraestructura tecnológica requiere un control estricto. Actualmente, la falta de un registro centralizado para gestionar el hardware, los componentes, las asignaciones a empleados y los mantenimientos genera inconsistencias en las existencias, falta de trazabilidad y dificultades para la auditoría técnica y financiera del departamento de IT.
 
 ## Solución Tecnológica
 Desarrollo de un sistema web integral bajo el patrón de diseño **MVC** que automatiza y digitaliza los flujos operativos del departamento de IT.
-**Destaca por:** Control estricto de Kardex, gestión dual (artículos por cantidad y equipos físicos por número de serie), trazabilidad completa mediante bitácora de auditoría y un despliegue local ágil y seguro.
+**Destaca por:** control estricto de Kardex, gestión dual (artículos por cantidad y equipos físicos por número de serie), trazabilidad mediante bitácora de auditoría y un despliegue local ágil y seguro.
 
 ---
 
-## Alcance Funcional (En diseño)
+## Puesta en marcha (local)
 
-### Seguridad y Auditoría
-- Autenticación segura y gestión de perfiles.
-- Control de acceso basado en Roles y Permisos (RBAC): Administrador, Auditor, Usuario General.
-- Bitácora de operaciones (registro inmutable de acciones críticas, IP, fechas y usuarios).
+### 1. Requisitos
+| Componente | Versión mínima |
+|---|---|
+| PHP | 7.4 (recomendado 8.2) con `pdo_mysql`, `json`, `mbstring`, `openssl` |
+| MySQL / MariaDB | 5.7 / 10.4 |
+| Composer | 2.x |
 
-### Módulo de Artículos y Equipos
-- **Catálogo General:** Gestión de artículos consumibles controlados por stock y cantidad mínima.
-- **Equipos Individuales:** Trazabilidad estricta de activos tecnológicos mediante número de serie, código patrimonial, estado físico y garantía.
+Con XAMPP basta con tener Apache y MySQL activos; PHP también puede ejecutarse por CLI.
 
-### Movimientos de Inventario
-- **Entradas:** Recepción de equipos, compras y ajustes debidamente documentados.
-- **Salidas:** Extracción de material con validación de existencias en tiempo real para evitar saldos negativos.
-- **Kardex:** Historial cronológico de movimientos por artículo.
+### 2. Dependencias
+```bash
+composer install
+```
+Si `vendor/` no existe la aplicación muestra un error explícito: es obligatorio ejecutar `composer install`.
 
-### Asignaciones y Mantenimientos
-- **Cadena de Custodia:** Asignación y devolución documentada de equipos a custodios/departamentos.
-- **Mantenimiento:** Registro de intervenciones preventivas/correctivas, diagnósticos, repuestos utilizados y costos.
+### 3. Configuración del entorno
+`parameters.env` **no se versiona** (está en `.gitignore`). Créelo a partir de la plantilla:
 
-### Catálogos Auxiliares y Reportes
-- Administración dinámica de clasificaciones, ubicaciones, estados y unidades de medida.
-- Generación de reportes exportables para auditorías de stock, historial de custodios y mantenimientos.
+```bash
+# Windows
+copy renameTo_parameters.env parameters.env
+
+# Linux / macOS
+cp renameTo_parameters.env parameters.env
+```
+
+Ajuste como mínimo:
+
+```ini
+DB_SERVER = 127.0.0.1
+DB_PORT = 3306
+DB_USER = root
+DB_PSWD =
+DB_DATABASE = activosit
+PWD_HASH = <cadena aleatoria de 64 caracteres>
+DEVELOPMENT = 1
+```
+
+`PWD_HASH` es obligatorio y no puede quedar vacío. Genérelo con:
+
+```bash
+php -r "echo bin2hex(random_bytes(32)), PHP_EOL;"
+```
+
+### 4. Base de datos
+Ejecute los scripts **en orden**:
+
+```bash
+mysql -u root -p < docs/scripts/00_database.sql
+mysql -u root -p activosit < docs/scripts/01_security.sql
+mysql -u root -p activosit < docs/scripts/02_catalogos.sql
+mysql -u root -p activosit < docs/scripts/03_articulos.sql
+mysql -u root -p activosit < docs/scripts/04_equipos.sql
+mysql -u root -p activosit < docs/scripts/05_inventario.sql
+mysql -u root -p activosit < docs/scripts/06_operaciones.sql
+```
+
+> Para una base ya existente, **no vuelvas a ejecutar los scripts completos**: aplica solo la migración incremental `docs/scripts/07_inventario_permisos.sql` (ver [Migración de permisos de inventario](#migración-de-permisos-de-inventario)). Así evitas sobrescribir datos y existencias.
+
+En phpMyAdmin: pestaña **Importar** y seleccionar cada archivo en el mismo orden.
+
+### 5. Ejecutar
+Con Apache, apunte el *DocumentRoot* a la raíz del proyecto (o copie el proyecto dentro de `htdocs`).
+Con el servidor embebido de PHP:
+
+```bash
+php -S 127.0.0.1:8080 -t .
+```
+
+Luego abra `http://127.0.0.1:8080/index.php`.
+
+### 6. Cuentas iniciales
+| Correo | Contraseña | Rol |
+|---|---|---|
+| `admin@pinturasamericanas.com` | `[REDACTED_DEFAULT_PASSWORD]` | Administrador |
+| `soporte@pinturasamericanas.com` | `[REDACTED_DEFAULT_PASSWORD]` | Técnico de Soporte |
+| `auditoria@pinturasamericanas.com` | `[REDACTED_DEFAULT_PASSWORD]` | Auditor |
+
+> Cambie estas contraseñas después del primer acceso. Las cuentas creadas por auto-registro reciben el rol **Público**, que solo permite acceder a *Mi perfil*.
+
+### 7. Verificación rápida
+```bash
+composer lint        # o: php scripts/lint.php
+```
+Revisa sintaxis de todos los archivos PHP y JSON del proyecto.
 
 ---
 
-## 📁 Estructura del Proyecto (MVC Propuesto)
+## Control de acceso (RBAC)
+
+El sistema usa tres tablas: `roles`, `permisos`, `roles_permisos` y `usuarios_roles`.
+
+Cada fila de `permisos` tiene un `tipo_permiso`:
+
+| Tipo | `nombre_permiso` contiene | Valida |
+|---|---|---|
+| `CTR` | Nombre completo del controlador, p. ej. `Controllers\Usuarios\Usuarios` | `Controllers\PrivateController` |
+| `MNU` | Identificador del menú, p. ej. `Menu_Usuarios` | `Utilities\Nav` |
+| `MNT` / `RPT` | Permisos de mantenimiento o reportes | Módulos pendientes |
+
+Reglas:
+- El rol **Administrador** (`id_rol = 1`) tiene acceso global.
+- Todo controlador privado exige su permiso `CTR`, **incluso con `DEVELOPMENT = 1`**.
+- `DEVELOPMENT = 1` solo automatiza el registro de permisos nuevos (los crea si no existen) y muestra todos los menús.
+- Desactivar un permiso (`estado_permiso = 0`) bloquea el acceso sin borrar el registro.
+
+---
+
+## Alcance Funcional
+
+### Implementado
+- Autenticación con sesiones endurecidas, CSRF por formulario y contraseñas con `password_hash`.
+- RBAC completo: usuarios, roles y permisos, con asignación desde la interfaz.
+- Catálogo de artículos (cantidad y serie) con existencias derivadas del Kardex.
+- Equipos individuales: series, código patrimonial, ubicación, garantía, motivo y estado operativo, con borrado lógico.
+- Entradas de inventario con borrador, confirmación con Kardex y anulación con reverso de existencias.
+- Salidas de inventario con borrador, confirmación con descuento de stock/Kardex, control de equipos serializados y anulación con reverso.
+- Catálogos generales y operativos con borrado lógico.
+- Navegación dinámica filtrada por permisos (`nav.config.json`).
+- Perfil del usuario autenticado.
+
+### En diseño / pendiente
+- Asignaciones formales, devoluciones y mantenimientos.
+- Consulta de Kardex, reportes y bitácora de auditoría (tablas creadas, sin interfaz).
+
+> La existencia de un artículo **no se edita manualmente** después de crearlo: se calcula a partir de los movimientos de inventario.
+
+### Entradas de inventario
+
+Ruta **Inventario → Entradas** (`Inventario_Entradas`); permisos `CTR` 35 y 36.
+
+- Documento maestro (`documentos_entrada`) con líneas (`detalles_entrada`) y correlativo automático `ENT-AAAA-####` según el año del movimiento.
+- Flujo **BORRADOR → CONFIRMADO → ANULADO**:
+  - Al confirmar se actualiza `articulos.existencia_actual` y se registra un movimiento `ENTRADA` por línea en `movimientos_inventario` (Kardex).
+  - Al anular un documento confirmado se revierte el stock con movimientos `AJUSTE_NEGATIVO`; anular un borrador no afecta existencias.
+- Las líneas de artículos controlados por serie exigen un equipo disponible del mismo artículo y cantidad 1. Las líneas por cantidad no llevan equipo.
+- El proveedor es obligatorio en tipos de documento de compra; el motivo es opcional y debe aplicar a entradas (`AJUSTE_ENTRADA`).
+- El listado permite buscar por correlativo, proveedor, observaciones o tipo, filtrar por estado y tipo de documento, y ordenar por documento, fecha o estado.
+
+### Salidas de inventario
+
+Ruta **Inventario → Salidas** (`Inventario_Salidas`); permisos `CTR` 37 y 38.
+
+- Documento maestro (`documentos_salida`) con líneas (`detalles_salida`) y correlativo automático `SAL-AAAA-####` según el año del movimiento.
+- Flujo **BORRADOR → CONFIRMADO → ANULADO**:
+  - Al confirmar se descuenta `articulos.existencia_actual` y se registra un movimiento `SALIDA` por artículo en `movimientos_inventario` (Kardex).
+  - Al anular un documento confirmado se devuelve el stock con movimientos `AJUSTE_POSITIVO`; anular un borrador no afecta existencias.
+- Las líneas de artículos controlados por serie exigen un equipo `DISPONIBLE`, del mismo artículo, no usado en otra salida confirmada y cantidad 1. Las líneas por cantidad no llevan equipo.
+- Al confirmar, los equipos serializados pasan a `ASIGNADO` si el tipo de documento es de asignación (por ejemplo, «Despacho para asignación») o a `DE_BAJA` en caso contrario. Si el motivo aplica a `BAJA`, se guarda en el equipo. Al anular se liberan a `DISPONIBLE` y se limpia el motivo.
+- El destino es obligatorio; la autorización y el motivo son opcionales. Los motivos disponibles son los que aplican a `AJUSTE_SALIDA` o `BAJA`.
+- El listado permite buscar por correlativo, destino, autorización, observaciones o tipo, filtrar por estado y tipo de documento, y ordenar por documento, fecha o estado.
+
+### Migración de permisos de inventario
+
+Si actualizas una base ya existente, no vuelvas a ejecutar los scripts completos. Aplica solo el script incremental:
+
+```bash
+mysql -u root -p activosit < docs/scripts/07_inventario_permisos.sql
+```
+
+Asegura los permisos de Equipos, Entradas y Salidas, es idempotente y no modifica existencias ni documentos. Instrucciones detalladas en [`docs/migraciones/2026-10-23_inventario.md`](docs/migraciones/2026-10-23_inventario.md). Cierra sesión y vuelve a entrar para refrescar el menú.
+
+---
+
+## 📁 Estructura del Proyecto
 ```text
-InventarioIT/
-├── public/                 # DocumentRoot (css, js, img, index.php)
+ActivosIT/
+├── index.php                  # Punto de entrada único (front controller)
+├── nav.config.json            # Definición del menú público y privado
+├── parameters.env             # Configuración local (NO se versiona)
+├── renameTo_parameters.env    # Plantilla de configuración
+├── composer.json
+├── public/                    # CSS, imágenes y recursos estáticos
 ├── src/
-│   ├── Controllers/        # Controladores MVC (Rutas y validaciones)
-│   ├── Models/             # Acceso a datos (PDO, sentencias preparadas)
-│   └── Views/              # Plantillas PHP (Interfaces y formularios)
-├── docs/                   # Diagramas UML, base de datos (.sql), diccionarios
-├── config/                 # Configuraciones de entorno y base de datos
-├── composer.json           # Dependencias backend
-└── README.md               # Documentación del proyecto
+│   ├── Controllers/           # Controladores MVC (públicos y privados)
+│   ├── Dao/                   # Acceso a datos (PDO, sentencias preparadas)
+│   ├── Utilities/             # Contexto, seguridad, navegación, validaciones
+│   └── Views/                 # Motor de plantillas y vistas .tpl
+├── scripts/
+│   └── lint.php               # Verificación de sintaxis
+└── docs/
+    ├── scripts/               # Scripts SQL base y migraciones incrementales
+    └── migraciones/           # Instrucciones para aplicar cambios de BD
 ```
