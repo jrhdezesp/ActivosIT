@@ -174,7 +174,9 @@ INSERT INTO `detalles_entrada` (`id_detalle_ent`, `id_doc_entrada`, `id_articulo
 (1, 1, 1, 1, 1, 850.00),
 (2, 1, 1, 1, 2, 850.00),
 (3, 1, 2, 1, 3, 180.00),
-(4, 1, 3, 305, NULL, 0.45)
+(4, 1, 3, 305, NULL, 0.45),
+(5, 1, 4, 100, NULL, 0.80),
+(6, 1, 5, 12, NULL, 25.00)
 ON DUPLICATE KEY UPDATE `cantidad` = VALUES(`cantidad`);
 
 -- Registro en Kardex (movimientos_inventario) correspondiente a la recepción inicial
@@ -192,9 +194,11 @@ INSERT INTO `movimientos_inventario` (
   `id_usuario`,
   `observacion`
 ) VALUES
-(1, 1, NULL, 'ENTRADA', 2, 3, 5, 1, 'documentos_entrada', NOW(), 1, 'Recepción inicial según ENT-2026-0001'),
-(2, 2, NULL, 'ENTRADA', 1, 7, 8, 1, 'documentos_entrada', NOW(), 1, 'Recepción inicial según ENT-2026-0001'),
-(3, 3, NULL, 'ENTRADA', 305, 0, 305, 1, 'documentos_entrada', NOW(), 1, 'Recepción inicial de bobina de red')
+(1, 1, NULL, 'ENTRADA', 2, 0, 2, 1, 'documentos_entrada', NOW(), 1, 'Recepción inicial según ENT-2026-0001'),
+(2, 2, NULL, 'ENTRADA', 1, 0, 1, 1, 'documentos_entrada', NOW(), 1, 'Recepción inicial según ENT-2026-0001'),
+(3, 3, NULL, 'ENTRADA', 305, 0, 305, 1, 'documentos_entrada', NOW(), 1, 'Recepción inicial de bobina de red'),
+(4, 4, NULL, 'ENTRADA', 100, 0, 100, 1, 'documentos_entrada', NOW(), 1, 'Recepción inicial de conectores RJ45'),
+(5, 5, NULL, 'ENTRADA', 12, 0, 12, 1, 'documentos_entrada', NOW(), 1, 'Recepción inicial de kits teclado y mouse')
 ON DUPLICATE KEY UPDATE `observacion` = VALUES(`observacion`);
 
 SET FOREIGN_KEY_CHECKS = 1;

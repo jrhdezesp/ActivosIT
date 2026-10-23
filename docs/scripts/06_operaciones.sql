@@ -97,6 +97,13 @@ INSERT INTO `asignaciones_devoluciones` (
 )
 ON DUPLICATE KEY UPDATE `persona_responsable` = VALUES(`persona_responsable`);
 
+-- Coherencia del inventario: un equipo con asignación activa no puede figurar
+-- como DISPONIBLE en el catálogo de equipos.
+UPDATE `equipos_individuales`
+   SET `estado_operativo` = 'ASIGNADO'
+ WHERE `id_equipo` = 2
+   AND `estado_operativo` <> 'ASIGNADO';
+
 -- Mantenimiento preventivo de ejemplo inicial
 INSERT INTO `mantenimientos` (
   `id_mantenimiento`,
