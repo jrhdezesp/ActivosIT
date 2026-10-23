@@ -158,21 +158,21 @@
                     "nav_label": "Centro de reportes",
                     "icon": "fa-chart-pie",
                     "nav_url": "index.php?page=Reportes_Reportes",
-                    "status": "pending"
+                    "status": "active"
                 },
                 {
                     "id": "Menu_Kardex",
                     "nav_label": "Kardex",
                     "icon": "fa-table-list",
                     "nav_url": "index.php?page=Reportes_Kardex",
-                    "status": "pending"
+                    "status": "active"
                 },
                 {
                     "id": "Menu_EquiposCustodio",
                     "nav_label": "Equipos por custodio",
                     "icon": "fa-map-location-dot",
                     "nav_url": "index.php?page=Reportes_EquiposCustodio",
-                    "status": "pending"
+                    "status": "active"
                 }
             ],
             "description": "Indicadores, Kardex y equipos por custodio."
@@ -183,7 +183,7 @@
             "nav_label": "Auditoría",
             "icon": "fa-clock-rotate-left",
             "nav_url": "index.php?page=Auditoria_Auditoria",
-            "status": "pending",
+            "status": "active",
             "dashboard": true,
             "description": "Historial de movimientos y eventos del sistema."
         },

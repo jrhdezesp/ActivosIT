@@ -19,6 +19,14 @@ class Login extends \Controllers\PublicController
         if ($this->isPostBack() && !\Utilities\CSRF::validate('login', $_POST['csrf_token'] ?? '')) {
             $this->txtEmail = strval($_POST['txtEmail'] ?? '');
             $this->generalError = "El formulario expiró o no es válido. Intente de nuevo.";
+            \Utilities\Bitacora::registrar(
+                'LOGIN',
+                'Seguridad',
+                \Utilities\Bitacora::RESULTADO_DENEGADO,
+                null,
+                null,
+                ['email' => $this->txtEmail, 'motivo' => 'Token CSRF inválido']
+            );
             \Views\Renderer::render("security/login", get_object_vars($this));
             return;
         }
@@ -47,8 +55,20 @@ class Login extends \Controllers\PublicController
                                 $dbUser["useremail"]
                             )
                         );
+                        \Utilities\Bitacora::registrar(
+                            'LOGIN',
+                            'Seguridad',
+                            \Utilities\Bitacora::RESULTADO_DENEGADO,
+                            null,
+                            null,
+                            [
+                                'email' => $dbUser["useremail"],
+                                'motivo' => 'Cuenta inactiva',
+                            ],
+                            intval($dbUser["usercod"])
+                        );
                     }
-                    if (!\Dao\Security\Security::verifyPassword($this->txtPswd, $dbUser["userpswd"])) {
+                    if (! $this->hasError && !\Dao\Security\Security::verifyPassword($this->txtPswd, $dbUser["userpswd"])) {
                         $this->generalError = "¡Credenciales son incorrectas!";
                         $this->hasError = true;
                         error_log(
@@ -58,6 +78,18 @@ class Login extends \Controllers\PublicController
                                 $dbUser["useremail"]
                             )
                         );
+                        \Utilities\Bitacora::registrar(
+                            'LOGIN',
+                            'Seguridad',
+                            \Utilities\Bitacora::RESULTADO_DENEGADO,
+                            null,
+                            null,
+                            [
+                                'email' => $dbUser["useremail"],
+                                'motivo' => 'Contraseña incorrecta',
+                            ],
+                            intval($dbUser["usercod"])
+                        );
                     }
                     if (! $this->hasError) {
                         \Dao\Security\Security::updateUltimoAcceso($dbUser["usercod"]);
@@ -65,6 +97,17 @@ class Login extends \Controllers\PublicController
                             $dbUser["usercod"],
                             $dbUser["username"],
                             $dbUser["useremail"]
+                        );
+                        \Utilities\Bitacora::registrar(
+                            'LOGIN',
+                            'Seguridad',
+                            \Utilities\Bitacora::RESULTADO_EXITO,
+                            null,
+                            null,
+                            [
+                                'email' => $dbUser["useremail"],
+                                'nombre' => $dbUser["username"],
+                            ]
                         );
                         if (\Utilities\Context::getContextByKey("redirto") !== "") {
                             \Utilities\Site::redirectTo(
@@ -80,6 +123,17 @@ class Login extends \Controllers\PublicController
                             "ERROR: %s trato de ingresar",
                             $this->txtEmail
                         )
+                    );
+                    \Utilities\Bitacora::registrar(
+                        'LOGIN',
+                        'Seguridad',
+                        \Utilities\Bitacora::RESULTADO_DENEGADO,
+                        null,
+                        null,
+                        [
+                            'email' => $this->txtEmail,
+                            'motivo' => 'Cuenta no encontrada',
+                        ]
                     );
                     $this->generalError = "¡Credenciales son incorrectas!";
                 }

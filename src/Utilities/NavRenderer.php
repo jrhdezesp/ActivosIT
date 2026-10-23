@@ -15,6 +15,8 @@ class NavRenderer
 
     private const FORM_PARENT_PAGE = [
         "Articulos_Articulo" => "Articulos_Articulos",
+        "Inventario_Entrada" => "Inventario_Entradas",
+        "Inventario_Salida" => "Inventario_Salidas",
         "Inventario_Mantenimiento" => "Inventario_Mantenimientos",
         "Inventario_Asignacion" => "Inventario_Asignaciones",
     ];
