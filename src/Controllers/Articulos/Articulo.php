@@ -87,6 +87,13 @@ class Articulo extends PrivateController
                     $this->item[$field] = trim(strval($_POST[$field]));
                 }
             }
+
+            // La existencia no se edita directamente: es un saldo derivado de
+            // los movimientos de inventario (Kardex). Solo se captura al crear
+            // el artículo como existencia inicial.
+            if ($this->mode === 'UPD') {
+                $this->item['existencia_actual'] = strval($this->originalItem['existencia_actual'] ?? '0');
+            }
         }
     }
 
@@ -207,12 +214,16 @@ class Articulo extends PrivateController
         }
 
         $actual = trim(strval($this->item['existencia_actual'] ?? ''));
-        if ($actual === '') {
-            $this->errors['existencia_actual'] = 'Este campo es requerido.';
-        } elseif (!preg_match('/^\d{1,10}$/', $actual) || intval($actual) > 2147483647) {
-            $this->errors['existencia_actual'] = 'Ingresa un número entero mayor o igual a 0.';
+        if ($this->mode === 'INS') {
+            if ($actual === '') {
+                $this->errors['existencia_actual'] = 'Este campo es requerido.';
+            } elseif (!preg_match('/^\d{1,10}$/', $actual) || intval($actual) > 2147483647) {
+                $this->errors['existencia_actual'] = 'Ingresa un número entero mayor o igual a 0.';
+            } else {
+                $this->item['existencia_actual'] = strval(intval($actual));
+            }
         } else {
-            $this->item['existencia_actual'] = strval(intval($actual));
+            $this->item['existencia_actual'] = strval(intval($this->originalItem['existencia_actual'] ?? 0));
         }
 
         $estado = strval($this->item['estado_registro'] ?? '');
@@ -349,6 +360,7 @@ class Articulo extends PrivateController
             'FormTipoControl' => strval($this->item['tipo_control'] ?? ''),
             'FormExistenciaMinima' => strval($this->item['existencia_minima'] ?? '0'),
             'FormExistenciaActual' => strval($this->item['existencia_actual'] ?? '0'),
+            'FormExistenciaActualReadonly' => $this->mode === 'UPD' ? 'readonly' : '',
             'FormEstado' => strval($this->item['estado_registro'] ?? '1'),
             'FormCodeError' => strval($this->errors['codigo_interno_articulo'] ?? ''),
             'FormNameError' => strval($this->errors['nombre_articulo'] ?? ''),

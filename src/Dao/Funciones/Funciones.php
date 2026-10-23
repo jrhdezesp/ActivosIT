@@ -21,9 +21,16 @@ class Funciones extends Table
             p.modulo_permiso,
             p.nombre_permiso AS fncod,
             p.descripcion_permiso AS fndsc,
-            'ACT' AS fnest,
-            'Activo' AS fnestDsc,
-            p.modulo_permiso AS fntyp
+            CASE WHEN p.estado_permiso = 1 THEN 'ACT' ELSE 'INA' END AS fnest,
+            CASE WHEN p.estado_permiso = 1 THEN 'Activo' ELSE 'Inactivo' END AS fnestDsc,
+            p.tipo_permiso AS fntyp,
+            CASE p.tipo_permiso
+                WHEN 'CTR' THEN 'Controlador'
+                WHEN 'MNU' THEN 'Menú'
+                WHEN 'MNT' THEN 'Mantenimiento'
+                WHEN 'RPT' THEN 'Reporte'
+                ELSE p.tipo_permiso
+            END AS fntypDsc
         FROM permisos p";
 
         $sqlstrCount = 'SELECT COUNT(*) AS count FROM permisos p';
@@ -32,12 +39,18 @@ class Funciones extends Table
 
         $partialName = trim($partialName);
         if ($partialName !== '') {
-            $conditions[] = '(p.nombre_permiso LIKE :partialName OR p.descripcion_permiso LIKE :partialName)';
-            $params['partialName'] = '%' . $partialName . '%';
+            $conditions[] = '(p.nombre_permiso LIKE :partialNameCod OR p.descripcion_permiso LIKE :partialNameDesc)';
+            $params['partialNameCod'] = '%' . $partialName . '%';
+            $params['partialNameDesc'] = '%' . $partialName . '%';
         }
 
         if (!in_array($status, ['ACT', 'INA', '', '1', '0'], true)) {
             throw new \Exception('Error Processing Request Status has invalid value');
+        }
+
+        if ($status !== '') {
+            $conditions[] = 'p.estado_permiso = :status';
+            $params['status'] = in_array($status, ['ACT', '1'], true) ? 1 : 0;
         }
 
         if (count($conditions) > 0) {
@@ -49,7 +62,7 @@ class Funciones extends Table
         $orderMap = [
             'fncod' => 'p.nombre_permiso',
             'fndsc' => 'p.descripcion_permiso',
-            'fntyp' => 'p.modulo_permiso',
+            'fntyp' => 'p.tipo_permiso',
         ];
 
         if (!in_array($orderBy, array_keys($orderMap), true) && $orderBy !== '') {
@@ -62,7 +75,7 @@ class Funciones extends Table
                 $sqlstr .= ' DESC';
             }
         } else {
-            $sqlstr .= ' ORDER BY p.modulo_permiso ASC, p.nombre_permiso ASC';
+            $sqlstr .= ' ORDER BY p.tipo_permiso ASC, p.nombre_permiso ASC';
         }
 
         $itemsPerPage = $itemsPerPage > 0 ? $itemsPerPage : 10;
@@ -94,8 +107,8 @@ class Funciones extends Table
             p.modulo_permiso,
             p.nombre_permiso AS fncod,
             p.descripcion_permiso AS fndsc,
-            'ACT' AS fnest,
-            p.modulo_permiso AS fntyp
+            CASE WHEN p.estado_permiso = 1 THEN 'ACT' ELSE 'INA' END AS fnest,
+            p.tipo_permiso AS fntyp
         FROM permisos p
         WHERE p.nombre_permiso = :fncod OR p.id_permiso = :fncodInt
         LIMIT 1";
@@ -112,17 +125,23 @@ class Funciones extends Table
         string $fnest,
         string $fntyp
     ): int {
-        $modulo = trim($fntyp) !== '' ? $fntyp : 'General';
-        $sqlstr = 'INSERT INTO permisos (nombre_permiso, descripcion_permiso, modulo_permiso)
-            VALUES (:fncod, :fndsc, :modulo)
+        $tipo = in_array($fntyp, ['CTR', 'MNU', 'MNT', 'RPT'], true) ? $fntyp : 'CTR';
+        $estado = in_array($fnest, ['ACT', '1'], true) ? 1 : 0;
+        $moduloPorTipo = ['CTR' => 'Controladores', 'MNU' => 'Menús', 'MNT' => 'Mantenimientos', 'RPT' => 'Reportes'];
+
+        $sqlstr = 'INSERT INTO permisos (nombre_permiso, descripcion_permiso, modulo_permiso, tipo_permiso, estado_permiso)
+            VALUES (:fncod, :fndsc, :modulo, :tipo, :estado)
             ON DUPLICATE KEY UPDATE
                 descripcion_permiso = VALUES(descripcion_permiso),
-                modulo_permiso = VALUES(modulo_permiso)';
+                tipo_permiso = VALUES(tipo_permiso),
+                estado_permiso = VALUES(estado_permiso)';
 
         return self::executeNonQuery($sqlstr, [
             'fncod' => $fncod,
             'fndsc' => $fndsc,
-            'modulo' => $modulo,
+            'modulo' => $moduloPorTipo[$tipo],
+            'tipo' => $tipo,
+            'estado' => $estado,
         ]);
     }
 
@@ -132,32 +151,31 @@ class Funciones extends Table
         string $fnest,
         string $fntyp
     ): int {
-        $modulo = trim($fntyp) !== '' ? $fntyp : 'General';
+        $tipo = in_array($fntyp, ['CTR', 'MNU', 'MNT', 'RPT'], true) ? $fntyp : 'CTR';
+        $estado = in_array($fnest, ['ACT', '1'], true) ? 1 : 0;
+
+        // modulo_permiso es informativo/agrupador: no se sobrescribe al editar
+        // el permiso, de lo contrario el tipo (CTR/MNU) se perderia.
         $sqlstr = 'UPDATE permisos
             SET descripcion_permiso = :fndsc,
-                modulo_permiso = :modulo
+                tipo_permiso = :tipo,
+                estado_permiso = :estado
             WHERE nombre_permiso = :fncod OR id_permiso = :fncodInt';
 
         return self::executeNonQuery($sqlstr, [
             'fncod' => $fncod,
             'fncodInt' => intval($fncod),
             'fndsc' => $fndsc,
-            'modulo' => $modulo,
+            'tipo' => $tipo,
+            'estado' => $estado,
         ]);
     }
 
     public static function deleteFuncion(string $fncod): int
     {
-        // 1. Eliminar relaciones en roles_permisos
-        self::executeNonQuery(
-            "DELETE rp FROM roles_permisos rp
-             INNER JOIN permisos p ON p.id_permiso = rp.id_permiso
-             WHERE p.nombre_permiso = :fncod OR p.id_permiso = :fncodInt",
-            ['fncod' => $fncod, 'fncodInt' => intval($fncod)]
-        );
-
-        // 2. Eliminar permiso
-        $sqlstr = 'DELETE FROM permisos WHERE nombre_permiso = :fncod OR id_permiso = :fncodInt';
+        // Borrado lógico: el permiso se conserva para no romper el historial de
+        // roles_permisos y para poder reactivarlo desde el formulario.
+        $sqlstr = 'UPDATE permisos SET estado_permiso = 0 WHERE nombre_permiso = :fncod OR id_permiso = :fncodInt';
         return self::executeNonQuery($sqlstr, [
             'fncod' => $fncod,
             'fncodInt' => intval($fncod),

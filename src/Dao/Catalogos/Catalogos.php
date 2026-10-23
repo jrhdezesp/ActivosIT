@@ -435,7 +435,10 @@ class Catalogos extends Table
             throw new \InvalidArgumentException('El registro solicitado no es válido.');
         }
 
-        $sql = 'DELETE FROM `' . $definition['table'] . '` WHERE `' . $definition['pk'] . '` = :id';
+        // Borrado lógico: el catálogo se marca inactivo para no romper las
+        // llaves foráneas de artículos, equipos y movimientos que lo usan.
+        $sql = 'UPDATE `' . $definition['table'] . '` SET `' . $definition['statusField'] . '` = 0'
+            . ' WHERE `' . $definition['pk'] . '` = :id';
 
         return self::executeNonQuery($sql, ['id' => $id]);
     }

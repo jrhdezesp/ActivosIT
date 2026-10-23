@@ -84,7 +84,7 @@
         <tr>
           <td><span class="data-table__code" title="{{!fncod}}">{{!fncod}}</span></td>
           <td><span class="data-table__truncate" title="{{!fndsc}}">{{!fndsc}}</span></td>
-          <td class="is-center"><span class="badge badge--info" data-type="{{fntyp}}">{{!fntyp}}</span></td>
+          <td class="is-center"><span class="badge badge--info" data-type="{{fntyp}}">{{!fntypDsc}}</span></td>
           <td class="is-center"><span class="badge" data-status="{{fnrolest}}">{{!fnrolestDsc}}</span></td>
           <td>
             <form action="index.php?page=Roles_Rol&mode={{~mode}}&rolescod={{!~rolescod}}" method="POST" class="data-table__actions">

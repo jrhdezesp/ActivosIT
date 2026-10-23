@@ -12,7 +12,7 @@ use Exception;
 
 class Security extends \Dao\Table
 {
-    public static function newUsuario($email, $password, $nombre = null)
+    public static function newUsuario($email, $password, $nombre = null, $rolNombre = 'Público')
     {
         if (!\Utilities\Validators::IsValidEmail($email)) {
             throw new Exception("Correo no es válido");
@@ -20,20 +20,46 @@ class Security extends \Dao\Table
         if (!\Utilities\Validators::IsValidPassword($password)) {
             throw new Exception("Contraseña debe tener al menos 8 caracteres, 1 número, 1 mayúscula y 1 símbolo especial");
         }
+        if (self::getUsuarioByEmail($email)) {
+            throw new Exception("El correo ya está registrado");
+        }
 
         $hashedPassword = self::_hashPassword($password);
         if ($nombre === null || trim($nombre) === '') {
             $nombre = explode("@", $email)[0];
         }
 
-        $sqlIns = "INSERT INTO `usuarios` (`user_usuario`, `clave_usuario`, `nombre_usuario`, `estado_usuario`, `ultimo_acceso_usuario`)
-            VALUES (:user_usuario, :clave_usuario, :nombre_usuario, 1, NOW());";
+        $conn = self::getConn();
+        $conn->beginTransaction();
+        try {
+            $sqlIns = "INSERT INTO `usuarios` (`user_usuario`, `clave_usuario`, `nombre_usuario`, `tipo_usuario`, `estado_usuario`, `ultimo_acceso_usuario`)
+                VALUES (:user_usuario, :clave_usuario, :nombre_usuario, 'PBL', 1, NOW());";
 
-        return self::executeNonQuery($sqlIns, [
-            "user_usuario" => $email,
-            "clave_usuario" => $hashedPassword,
-            "nombre_usuario" => $nombre,
-        ]);
+            self::executeNonQuery($sqlIns, [
+                "user_usuario" => $email,
+                "clave_usuario" => $hashedPassword,
+                "nombre_usuario" => $nombre,
+            ], $conn);
+
+            // Toda cuenta nueva recibe un rol para que el RBAC tenga sentido:
+            // sin rol el usuario queda autenticado pero sin acceso a nada.
+            self::executeNonQuery(
+                "INSERT INTO `usuarios_roles` (`id_usuario`, `id_rol`)
+                 SELECT u.id_usuario, r.id_rol
+                 FROM `usuarios` u
+                 INNER JOIN `roles` r ON r.nombre_rol = :rolNombre AND r.estado_rol = 1
+                 WHERE u.user_usuario = :user_usuario
+                 LIMIT 1;",
+                ["rolNombre" => $rolNombre, "user_usuario" => $email],
+                $conn
+            );
+
+            $conn->commit();
+            return true;
+        } catch (\Throwable $ex) {
+            $conn->rollBack();
+            throw $ex;
+        }
     }
 
     public static function getUsuarioByEmail($email)
@@ -129,22 +155,29 @@ class Security extends \Dao\Table
 
     public static function getFeature($fncod): bool
     {
-        $sqlstr = "SELECT id_permiso FROM `permisos` WHERE `nombre_permiso` = :fncod LIMIT 1;";
+        $sqlstr = "SELECT id_permiso FROM `permisos` WHERE `nombre_permiso` = :fncod AND `estado_permiso` = 1 LIMIT 1;";
         $featuresList = self::obtenerRegistros($sqlstr, ["fncod" => $fncod]);
         return count($featuresList) > 0;
     }
 
     public static function addNewFeature($fncod, $fndsc, $fnest = 'ACT', $fntyp = 'FNC')
     {
-        $modulo = ($fntyp === 'CTR') ? 'Controladores' : 'General';
-        $sqlins = "INSERT INTO `permisos` (`nombre_permiso`, `descripcion_permiso`, `modulo_permiso`)
-            VALUES (:fncod, :fndsc, :modulo)
-            ON DUPLICATE KEY UPDATE `descripcion_permiso` = VALUES(`descripcion_permiso`);";
+        $tipo = in_array($fntyp, ["CTR", "MNU", "MNT", "RPT"], true) ? $fntyp : "CTR";
+        $estado = in_array($fnest, ["ACT", "1", 1, true], true) ? 1 : 0;
+        $moduloPorTipo = ["CTR" => "Controladores", "MNU" => "Menús", "MNT" => "Mantenimientos", "RPT" => "Reportes"];
+        $sqlins = "INSERT INTO `permisos` (`nombre_permiso`, `descripcion_permiso`, `modulo_permiso`, `tipo_permiso`, `estado_permiso`)
+            VALUES (:fncod, :fndsc, :modulo, :tipo, :estado)
+            ON DUPLICATE KEY UPDATE
+                `descripcion_permiso` = VALUES(`descripcion_permiso`),
+                `tipo_permiso` = VALUES(`tipo_permiso`),
+                `estado_permiso` = VALUES(`estado_permiso`);";
 
         return self::executeNonQuery($sqlins, [
             "fncod" => $fncod,
             "fndsc" => $fndsc,
-            "modulo" => $modulo,
+            "modulo" => $moduloPorTipo[$tipo],
+            "tipo" => $tipo,
+            "estado" => $estado,
         ]);
     }
 
@@ -170,6 +203,7 @@ class Security extends \Dao\Table
             INNER JOIN `roles` r ON r.id_rol = rp.id_rol AND r.estado_rol = 1
             INNER JOIN `usuarios_roles` ur ON ur.id_rol = r.id_rol
             WHERE p.nombre_permiso = :fncod
+              AND p.estado_permiso = 1
               AND ur.id_usuario = :id_usuario
             LIMIT 1;";
 
@@ -279,8 +313,8 @@ class Security extends \Dao\Table
             p.modulo_permiso,
             p.nombre_permiso AS fncod,
             p.descripcion_permiso AS fndsc,
-            'ACT' AS fnest,
-            'FNC' AS fntyp
+            CASE WHEN p.estado_permiso = 1 THEN 'ACT' ELSE 'INA' END AS fnest,
+            p.tipo_permiso AS fntyp
         FROM `permisos` p
         WHERE NOT EXISTS (
             SELECT 1 FROM `roles_permisos` rp

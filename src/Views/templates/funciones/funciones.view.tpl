@@ -76,7 +76,7 @@
           <td>
             <a class="data-table__link data-table__truncate" href="index.php?page=Funciones_Funcion&mode=DSP&fncod={{!fncod}}" title="{{!fndsc}}">{{!fndsc}}</a>
           </td>
-          <td class="is-center"><span class="badge badge--info" data-type="{{fntyp}}">{{!fntyp}}</span></td>
+          <td class="is-center"><span class="badge badge--info" data-type="{{fntyp}}">{{!fntypDsc}}</span></td>
           <td class="is-center"><span class="badge" data-status="{{fnest}}">{{!fnestDsc}}</span></td>
           <td>
             <div class="data-table__actions">

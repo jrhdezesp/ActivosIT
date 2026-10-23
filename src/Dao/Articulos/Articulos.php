@@ -253,7 +253,7 @@ class Articulos extends Table
             . ' codigo_interno_articulo = :codigo, nombre_articulo = :nombre,'
             . ' descripcion_articulo = :descripcion, id_clasificacion = :clasificacion,'
             . ' id_unidad_medida = :unidad, tipo_control = :control,'
-            . ' existencia_minima = :existenciaMinima, existencia_actual = :existenciaActual,'
+            . ' existencia_minima = :existenciaMinima,'
             . ' estado_registro = :estado, fecha_modificacion = NOW()'
             . ' WHERE id_articulo = :id',
             [
@@ -264,7 +264,6 @@ class Articulos extends Table
                 'unidad' => intval($data['id_unidad_medida']),
                 'control' => $data['tipo_control'],
                 'existenciaMinima' => intval($data['existencia_minima']),
-                'existenciaActual' => intval($data['existencia_actual']),
                 'estado' => intval($data['estado_registro']),
                 'id' => $id,
             ]

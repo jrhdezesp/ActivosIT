@@ -106,7 +106,13 @@
 
           <div class="form-field {{if FormExistenciaActualError}}has-error{{endif FormExistenciaActualError}}">
             <label for="existencia_actual" class="form-label {{if FormRequired}}form-label--required{{endif FormRequired}}">Existencia actual</label>
-            <input type="number" name="existencia_actual" id="existencia_actual" value="{{!FormExistenciaActual}}" min="0" step="1" {{FormRequired}} {{FormReadonly}} />
+            <input type="number" name="existencia_actual" id="existencia_actual" value="{{!FormExistenciaActual}}" min="0" step="1" {{FormRequired}} {{FormReadonly}} {{FormExistenciaActualReadonly}} />
+            {{if FormExistenciaActualReadonly}}
+            <p class="form-help">Saldo calculado por el Kardex. Se modifica únicamente con entradas, salidas o ajustes de inventario.</p>
+            {{endif FormExistenciaActualReadonly}}
+            {{ifnot FormExistenciaActualReadonly}}
+            <p class="form-help">Existencia inicial del artículo al momento de registrarlo.</p>
+            {{endifnot FormExistenciaActualReadonly}}
             {{if FormExistenciaActualError}}<p class="form-error">{{!FormExistenciaActualError}}</p>{{endif FormExistenciaActualError}}
           </div>
         </div>

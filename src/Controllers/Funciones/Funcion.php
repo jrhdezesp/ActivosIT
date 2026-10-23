@@ -164,7 +164,7 @@ class Funcion extends PrivateController
         if ($result > 0) {
             Site::redirectToWithMsg(
                 'index.php?page=Funciones_Funciones',
-                'Función eliminada exitosamente'
+                'Permiso desactivado exitosamente'
             );
         }
     }
