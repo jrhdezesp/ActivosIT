@@ -155,10 +155,13 @@ Reglas:
 - Catálogos generales y operativos con borrado lógico.
 - Navegación dinámica filtrada por permisos (`nav.config.json`).
 - Perfil del usuario autenticado.
+- Asignaciones formales y devoluciones con trazabilidad de custodios.
+- Mantenimientos con recepción, servicio técnico y entrega.
+- Centro de reportes, Kardex y equipos por custodio con exportación CSV.
+- Bitácora de auditoría de solo lectura con filtros, detalle y exportación CSV.
 
 ### En diseño / pendiente
-- Asignaciones formales, devoluciones y mantenimientos.
-- Consulta de Kardex, reportes y bitácora de auditoría (tablas creadas, sin interfaz).
+- Instrumentación de auditoría en los módulos de negocio (la cobertura actual registra inicio y cierre de sesión, además del alta de cuentas).
 
 > La existencia de un artículo **no se edita manualmente** después de crearlo: se calcula a partir de los movimientos de inventario.
 
@@ -196,6 +199,22 @@ mysql -u root -p activosit < docs/scripts/07_inventario_permisos.sql
 ```
 
 Asegura los permisos de Equipos, Entradas y Salidas, es idempotente y no modifica existencias ni documentos. Instrucciones detalladas en [`docs/migraciones/2026-10-23_inventario.md`](docs/migraciones/2026-10-23_inventario.md). Cierra sesión y vuelve a entrar para refrescar el menú.
+
+### Bitácora de auditoría
+
+Ruta **Auditoría** (`Auditoria_Auditoria`); permisos `Menu_Auditoria` y `Controllers\Auditoria\Auditoria`.
+
+- Consulta de solo lectura sobre la tabla `bitacora`, con filtros por texto, módulo, operación, resultado y rango de fechas.
+- Resumen de eventos totales, exitosos, denegados y con error, calculado con los filtros activos.
+- Detalle de cada evento con metadatos, dirección IP y los datos anteriores/nuevos en formato JSON.
+- Exportación CSV de los eventos filtrados con BOM UTF-8, separador `;` y saneo de fórmulas.
+- Instrumentación actual: inicio de sesión exitoso o denegado, cierre de sesión y alta de cuenta.
+
+Para una base existente, aplica el script incremental (es idempotente y no altera eventos ni datos de negocio):
+
+```bash
+mysql -u root -p activosit < docs/scripts/12_auditoria_permisos.sql
+```
 
 ---
 

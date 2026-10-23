@@ -40,10 +40,39 @@ class Register extends PublicController
             if (!$this->hasErrors) {
                 try{
                     if (\Dao\Security\Security::newUsuario($this->txtEmail, $this->txtPswd)) {
+                        $nuevoUsuario = \Dao\Security\Security::getUsuarioByEmail($this->txtEmail);
+                        $nuevoUsuarioId = is_array($nuevoUsuario)
+                            ? intval($nuevoUsuario["usercod"] ?? 0)
+                            : 0;
+                        \Utilities\Bitacora::registrar(
+                            'REGISTRO',
+                            'Seguridad',
+                            \Utilities\Bitacora::RESULTADO_EXITO,
+                            null,
+                            null,
+                            [
+                                'email' => $this->txtEmail,
+                                'nombre' => is_array($nuevoUsuario)
+                                    ? strval($nuevoUsuario["username"] ?? '')
+                                    : '',
+                            ],
+                            $nuevoUsuarioId > 0 ? $nuevoUsuarioId : null
+                        );
                         \Utilities\Site::redirectToWithMsg("index.php?page=sec_login", "¡Usuario Registrado Satisfactoriamente!");
                     }
                 } catch (\Exception $ex){
                     error_log((string) $ex);
+                    \Utilities\Bitacora::registrar(
+                        'REGISTRO',
+                        'Seguridad',
+                        \Utilities\Bitacora::RESULTADO_DENEGADO,
+                        null,
+                        null,
+                        [
+                            'email' => $this->txtEmail,
+                            'motivo' => 'No se pudo crear la cuenta',
+                        ]
+                    );
                     $this->generalError = "No se pudo crear la cuenta. Verifique si el correo ya está registrado.";
                 }
             }
