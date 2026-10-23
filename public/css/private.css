@@ -2581,3 +2581,67 @@
 .entry-stock__warning[hidden] {
   display: none;
 }
+
+/* Modulo de mantenimientos */
+.data-table--mantenimientos {
+  min-width: 900px;
+}
+
+.data-table--mantenimientos .data-table__col--equipo {
+  width: 26%;
+}
+
+.data-table--mantenimientos .data-table__col--servicio {
+  width: 24%;
+}
+
+.data-table--mantenimientos .data-table__col--fecha {
+  width: 18%;
+}
+
+.data-table--mantenimientos .data-table__col--costo {
+  width: 12%;
+  font-variant-numeric: tabular-nums;
+}
+
+.data-table--mantenimientos .data-table__col--estado {
+  width: 12%;
+}
+
+.data-table--mantenimientos .data-table__col--actions {
+  width: 8%;
+}
+
+.data-table--mantenimientos .data-table__col--fecha .data-table__nowrap {
+  font-size: 0.86rem;
+}
+
+@media (max-width: 1279px) {
+  .data-table--mantenimientos {
+    min-width: 720px;
+  }
+
+  .data-table--mantenimientos .data-table__col--costo {
+    display: none;
+  }
+
+  .data-table--mantenimientos .data-table__col--equipo {
+    width: 30%;
+  }
+
+  .data-table--mantenimientos .data-table__col--servicio {
+    width: 26%;
+  }
+
+  .data-table--mantenimientos .data-table__col--fecha {
+    width: 20%;
+  }
+
+  .data-table--mantenimientos .data-table__col--estado {
+    width: 14%;
+  }
+
+  .data-table--mantenimientos .data-table__col--actions {
+    width: 10%;
+  }
+}
