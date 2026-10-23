@@ -2645,3 +2645,67 @@
     width: 10%;
   }
 }
+
+/* Modulo de asignaciones */
+.data-table--asignaciones {
+  min-width: 980px;
+}
+
+.data-table--asignaciones .data-table__col--equipo {
+  width: 25%;
+}
+
+.data-table--asignaciones .data-table__col--responsable {
+  width: 22%;
+}
+
+.data-table--asignaciones .data-table__col--entrega {
+  width: 19%;
+}
+
+.data-table--asignaciones .data-table__col--devolucion {
+  width: 19%;
+}
+
+.data-table--asignaciones .data-table__col--estado {
+  width: 10%;
+}
+
+.data-table--asignaciones .data-table__col--actions {
+  width: 9%;
+}
+
+.data-table--asignaciones .data-table__col--entrega .data-table__nowrap,
+.data-table--asignaciones .data-table__col--devolucion .data-table__nowrap {
+  font-size: 0.86rem;
+}
+
+@media (max-width: 1279px) {
+  .data-table--asignaciones {
+    min-width: 860px;
+  }
+
+  .data-table--asignaciones .data-table__col--equipo {
+    width: 28%;
+  }
+
+  .data-table--asignaciones .data-table__col--responsable {
+    width: 24%;
+  }
+
+  .data-table--asignaciones .data-table__col--entrega {
+    width: 20%;
+  }
+
+  .data-table--asignaciones .data-table__col--devolucion {
+    width: 20%;
+  }
+
+  .data-table--asignaciones .data-table__col--estado {
+    width: 12%;
+  }
+
+  .data-table--asignaciones .data-table__col--actions {
+    width: 9%;
+  }
+}
