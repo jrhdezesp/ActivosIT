@@ -2157,3 +2157,427 @@
     border-top: 1px solid var(--border-subtle);
   }
 }
+
+/* Modulo de equipos */
+.data-table--equipos {
+  min-width: 860px;
+}
+
+.data-table--equipos .data-table__col--equipo {
+  width: 24%;
+}
+
+.data-table--equipos .data-table__col--articulo {
+  width: 20%;
+}
+
+.data-table--equipos .data-table__col--ubicacion {
+  width: 14%;
+}
+
+.data-table--equipos .data-table__col--estado {
+  width: 14%;
+}
+
+.data-table--equipos .data-table__col--fechas {
+  width: 16%;
+}
+
+.data-table--equipos .data-table__col--actions {
+  width: 12%;
+}
+
+.equipment-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+
+@media (max-width: 1279px) {
+  .data-table--equipos {
+    min-width: 680px;
+  }
+
+  .data-table--equipos .data-table__col--fechas {
+    display: none;
+  }
+
+  .data-table--equipos .data-table__col--equipo {
+    width: 28%;
+  }
+
+  .data-table--equipos .data-table__col--articulo {
+    width: 25%;
+  }
+
+  .data-table--equipos .data-table__col--ubicacion {
+    width: 17%;
+  }
+
+  .data-table--equipos .data-table__col--estado {
+    width: 16%;
+  }
+
+  .data-table--equipos .data-table__col--actions {
+    width: 14%;
+  }
+}
+
+
+/* Modulo de entradas */
+.entry-form__title-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.catalog-form__header-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.entry-form__readonly {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.86rem;
+  letter-spacing: 0.02em;
+}
+
+.data-table--entradas {
+  min-width: 860px;
+}
+
+.data-table--entradas .data-table__col--documento {
+  width: 21%;
+}
+
+.data-table--entradas .data-table__col--fecha {
+  width: 13%;
+}
+
+.data-table--entradas .data-table__col--origen {
+  width: 24%;
+}
+
+.data-table--entradas .data-table__col--detalle {
+  width: 12%;
+}
+
+.data-table--entradas .data-table__col--estado {
+  width: 15%;
+}
+
+.data-table--entradas .data-table__col--actions {
+  width: 15%;
+}
+
+.data-table--entradas .data-table__col--fecha .data-table__nowrap {
+  font-size: 0.86rem;
+}
+
+.data-table__nowrap {
+  white-space: nowrap;
+}
+
+@media (max-width: 1279px) {
+  .data-table--entradas {
+    min-width: 680px;
+  }
+
+  .data-table--entradas .data-table__col--detalle {
+    display: none;
+  }
+
+  .data-table--entradas .data-table__col--documento {
+    width: 22%;
+  }
+
+  .data-table--entradas .data-table__col--fecha {
+    width: 14%;
+  }
+
+  .data-table--entradas .data-table__col--origen {
+    width: 31%;
+  }
+
+  .data-table--entradas .data-table__col--estado {
+    width: 17%;
+  }
+
+  .data-table--entradas .data-table__col--actions {
+    width: 16%;
+  }
+}
+
+.entry-lines {
+  margin-top: 1.6rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.entry-lines__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.9rem;
+}
+
+.entry-lines__title {
+  margin: 0;
+  color: var(--text-strong);
+  font-size: 1.05rem;
+}
+
+.entry-lines__description {
+  margin: 0.25rem 0 0;
+  max-width: 62ch;
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+}
+
+.entry-lines__error {
+  margin-bottom: 0.75rem;
+}
+
+.entry-lines__wrap {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+}
+
+.data-table--entry-lines {
+  min-width: 660px;
+  table-layout: fixed;
+}
+
+.data-table--entry-lines thead th {
+  padding: 0.55rem;
+  font-size: 0.66rem;
+  letter-spacing: 0.02em;
+  white-space: normal;
+}
+
+.data-table--entry-lines tbody td {
+  padding: 0.55rem;
+  vertical-align: top;
+}
+
+.data-table--entry-lines .entry-col--articulo {
+  width: 29%;
+}
+
+.data-table--entry-lines .entry-col--cantidad {
+  width: 11%;
+}
+
+.data-table--entry-lines .entry-col--equipo {
+  width: 23%;
+}
+
+.data-table--entry-lines .entry-col--costo {
+  width: 13%;
+}
+
+.data-table--entry-lines .entry-col--subtotal {
+  width: 12%;
+}
+
+.data-table--entry-lines .entry-col--actions {
+  width: 12%;
+}
+
+.data-table--entry-lines input,
+.data-table--entry-lines select {
+  min-height: 38px;
+  padding: 0.45rem 0.5rem;
+  font-size: 0.85rem;
+}
+
+.data-table--entry-lines select {
+  padding-right: 1.8rem;
+  background-position: right 0.55rem center;
+  background-size: 0.58rem auto;
+}
+
+.data-table--entry-lines .form-error {
+  margin-top: 0.3rem;
+}
+
+.data-table--entry-lines .entry-equipment-hint {
+  font-size: 0.68rem;
+  line-height: 1.35;
+}
+
+.data-table--entry-lines tbody tr:nth-child(even),
+.data-table--entry-lines tbody tr:hover,
+.data-table--entry-lines tbody tr:focus-within {
+  background: transparent;
+}
+
+.entry-subtotal {
+  display: inline-block;
+  padding-top: 0.55rem;
+  color: var(--text-strong);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+}
+
+.entry-static__name {
+  color: var(--text-strong);
+  font-weight: var(--weight-semibold);
+}
+
+.entry-static__qty {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+}
+
+.entry-totals {
+  display: flex;
+  justify-content: flex-end;
+  gap: 2rem;
+  margin-top: 0.9rem;
+  padding: 0.8rem 0.2rem 0;
+}
+
+.entry-totals__item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.1rem;
+  min-width: 9rem;
+}
+
+.entry-totals__label {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.entry-totals__value {
+  color: var(--text-strong);
+  font-size: 1.1rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Modulo de salidas */
+.data-table--salidas {
+  min-width: 860px;
+}
+
+.data-table--salidas .data-table__col--documento {
+  width: 21%;
+}
+
+.data-table--salidas .data-table__col--fecha {
+  width: 13%;
+}
+
+.data-table--salidas .data-table__col--destino {
+  width: 24%;
+}
+
+.data-table--salidas .data-table__col--detalle {
+  width: 12%;
+}
+
+.data-table--salidas .data-table__col--estado {
+  width: 15%;
+}
+
+.data-table--salidas .data-table__col--actions {
+  width: 15%;
+}
+
+.data-table--salidas .data-table__col--fecha .data-table__nowrap {
+  font-size: 0.86rem;
+}
+
+@media (max-width: 1279px) {
+  .data-table--salidas {
+    min-width: 680px;
+  }
+
+  .data-table--salidas .data-table__col--detalle {
+    display: none;
+  }
+
+  .data-table--salidas .data-table__col--documento {
+    width: 22%;
+  }
+
+  .data-table--salidas .data-table__col--fecha {
+    width: 14%;
+  }
+
+  .data-table--salidas .data-table__col--destino {
+    width: 31%;
+  }
+
+  .data-table--salidas .data-table__col--estado {
+    width: 17%;
+  }
+
+  .data-table--salidas .data-table__col--actions {
+    width: 16%;
+  }
+}
+
+.data-table--salida-lines {
+  min-width: 660px;
+}
+
+.data-table--salida-lines .entry-col--articulo {
+  width: 31%;
+}
+
+.data-table--salida-lines .entry-col--cantidad {
+  width: 12%;
+}
+
+.data-table--salida-lines .entry-col--equipo {
+  width: 25%;
+}
+
+.data-table--salida-lines .entry-col--stock {
+  width: 15%;
+}
+
+.data-table--salida-lines .entry-col--actions {
+  width: 17%;
+}
+
+.entry-stock {
+  display: inline-block;
+  padding-top: 0.55rem;
+  color: var(--text-strong);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+}
+
+.entry-stock.is-low {
+  color: var(--color-danger);
+}
+
+.entry-stock__warning {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--color-danger);
+  font-size: 0.68rem;
+  font-weight: var(--weight-semibold);
+  line-height: 1.35;
+}
+
+.entry-stock__warning[hidden] {
+  display: none;
+}
