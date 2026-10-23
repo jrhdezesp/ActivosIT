@@ -63,7 +63,7 @@ INSERT INTO `articulos` (
   1, -- Unidad
   'SERIE',
   3,
-  5,
+  2,
   1,
   NOW()
 ),
@@ -76,7 +76,7 @@ INSERT INTO `articulos` (
   1, -- Unidad
   'SERIE',
   2,
-  8,
+  1,
   1,
   NOW()
 ),
