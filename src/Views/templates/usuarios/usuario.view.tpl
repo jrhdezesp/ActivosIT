@@ -54,6 +54,7 @@
             <option value="PBL" {{usertipo_pbl}}>Público</option>
             <option value="ADM" {{usertipo_adm}}>Administrador</option>
             <option value="AUD" {{usertipo_aud}}>Auditor</option>
+            <option value="TEC" {{usertipo_tec}}>Técnico</option>
           </select>
         </div>
       </div>

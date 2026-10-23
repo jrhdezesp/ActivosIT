@@ -32,10 +32,9 @@ abstract class PrivateController extends PublicController
     {
         parent::__construct();
         $this->_isAuthenticated();
-        // En desarrollo se permite cualquier usuario autenticado
-        // para poder asignar permisos desde la aplicacion.
-        if (\Utilities\Context::getContextByKey("DEVELOPMENT") !== "1") {
-            $this->_isAuthorized();
-        }
+        // El control de acceso se aplica siempre. En desarrollo solo se
+        // registran automáticamente los permisos que aún no existen, pero un
+        // usuario sin el permiso asignado a su rol no puede entrar.
+        $this->_isAuthorized();
     }
 }

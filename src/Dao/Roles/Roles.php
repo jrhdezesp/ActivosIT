@@ -31,8 +31,9 @@ class Roles extends Table
 
         $partialName = trim($partialName);
         if ($partialName !== '') {
-            $conditions[] = '(r.nombre_rol LIKE :partialName OR r.descripcion_rol LIKE :partialName)';
-            $params['partialName'] = '%' . $partialName . '%';
+            $conditions[] = '(r.nombre_rol LIKE :partialNameNombre OR r.descripcion_rol LIKE :partialNameDesc)';
+            $params['partialNameNombre'] = '%' . $partialName . '%';
+            $params['partialNameDesc'] = '%' . $partialName . '%';
         }
 
         if (!in_array($status, ['ACT', 'INA', '', '1', '0'], true)) {
@@ -117,8 +118,15 @@ class Roles extends Table
             p.modulo_permiso,
             p.nombre_permiso AS fncod,
             p.descripcion_permiso AS fndsc,
-            'ACT' AS fnest,
-            p.modulo_permiso AS fntyp,
+            CASE WHEN p.estado_permiso = 1 THEN 'ACT' ELSE 'INA' END AS fnest,
+            p.tipo_permiso AS fntyp,
+            CASE p.tipo_permiso
+                WHEN 'CTR' THEN 'Controlador'
+                WHEN 'MNU' THEN 'Menú'
+                WHEN 'MNT' THEN 'Mantenimiento'
+                WHEN 'RPT' THEN 'Reporte'
+                ELSE p.tipo_permiso
+            END AS fntypDsc,
             CASE WHEN rp.id_rol IS NOT NULL THEN 'ACT' ELSE 'INA' END AS fnrolest,
             CASE WHEN rp.id_rol IS NOT NULL THEN 'Activo' ELSE 'Inactivo' END AS fnrolestDsc
         FROM permisos p
@@ -212,24 +220,10 @@ class Roles extends Table
 
     public static function deleteRol(string $rolescod): int
     {
-        // 1. Eliminar de roles_permisos
-        self::executeNonQuery(
-            "DELETE rp FROM roles_permisos rp
-             INNER JOIN roles r ON r.id_rol = rp.id_rol
-             WHERE r.nombre_rol = :rolescod OR r.id_rol = :rolescodInt",
-            ['rolescod' => $rolescod, 'rolescodInt' => intval($rolescod)]
-        );
-
-        // 2. Eliminar de usuarios_roles
-        self::executeNonQuery(
-            "DELETE ur FROM usuarios_roles ur
-             INNER JOIN roles r ON r.id_rol = ur.id_rol
-             WHERE r.nombre_rol = :rolescod OR r.id_rol = :rolescodInt",
-            ['rolescod' => $rolescod, 'rolescodInt' => intval($rolescod)]
-        );
-
-        // 3. Eliminar de roles
-        $sqlstr = 'DELETE FROM roles WHERE nombre_rol = :rolescod OR id_rol = :rolescodInt';
+        // Borrado lógico: el rol se desactiva y conserva su historial de
+        // asignaciones. Las cuentas que lo tuvieran dejan de recibir sus
+        // permisos porque todas las consultas filtran estado_rol = 1.
+        $sqlstr = 'UPDATE roles SET estado_rol = 0 WHERE nombre_rol = :rolescod OR id_rol = :rolescodInt';
         return self::executeNonQuery($sqlstr, [
             'rolescod' => $rolescod,
             'rolescodInt' => intval($rolescod),

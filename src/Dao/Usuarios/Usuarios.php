@@ -35,7 +35,7 @@ class Usuarios extends Table
             u.id_usuario AS usercod,
             u.user_usuario AS useremail,
             u.nombre_usuario AS username,
-            'ADM' AS usertipo,
+            u.tipo_usuario AS usertipo,
             CASE WHEN u.estado_usuario = 1 THEN 'ACT' ELSE 'INA' END AS userest,
             CASE WHEN u.estado_usuario = 1 THEN 'Activo' ELSE 'Inactivo' END AS userestDsc
         FROM usuarios u";
@@ -46,8 +46,9 @@ class Usuarios extends Table
 
         $partialName = trim($partialName);
         if ($partialName !== '') {
-            $conditions[] = '(u.nombre_usuario LIKE :partialName OR u.user_usuario LIKE :partialName)';
-            $params['partialName'] = '%' . $partialName . '%';
+            $conditions[] = '(u.nombre_usuario LIKE :partialNameNombre OR u.user_usuario LIKE :partialNameEmail)';
+            $params['partialNameNombre'] = '%' . $partialName . '%';
+            $params['partialNameEmail'] = '%' . $partialName . '%';
         }
 
         if (!in_array($status, ['ACT', 'INA', '', '1', '0'], true)) {
@@ -116,7 +117,7 @@ class Usuarios extends Table
             u.user_usuario AS useremail,
             u.nombre_usuario AS username,
             '' AS userpswd,
-            'ADM' AS usertipo,
+            u.tipo_usuario AS usertipo,
             CASE WHEN u.estado_usuario = 1 THEN 'ACT' ELSE 'INA' END AS userest,
             CASE WHEN u.estado_usuario = 1 THEN 'Activo' ELSE 'Inactivo' END AS userestDsc
         FROM usuarios u
@@ -148,6 +149,11 @@ class Usuarios extends Table
         return self::obtenerRegistros($sqlstr, ['usercod' => $usercod]);
     }
 
+    private static function normalizeTipo(string $usertipo): string
+    {
+        return in_array($usertipo, ['PBL', 'ADM', 'AUD', 'TEC'], true) ? $usertipo : 'PBL';
+    }
+
     public static function insertUsuario(
         string $useremail,
         string $username,
@@ -158,13 +164,14 @@ class Usuarios extends Table
         $estado = in_array($userest, ['ACT', '1'], true) ? 1 : 0;
         $hashed = self::hashPassword($userpswd);
 
-        $sqlstr = 'INSERT INTO usuarios (user_usuario, nombre_usuario, clave_usuario, estado_usuario, ultimo_acceso_usuario)
-            VALUES (:useremail, :username, :clave, :estado, NOW())';
+        $sqlstr = 'INSERT INTO usuarios (user_usuario, nombre_usuario, clave_usuario, tipo_usuario, estado_usuario, ultimo_acceso_usuario)
+            VALUES (:useremail, :username, :clave, :usertipo, :estado, NOW())';
 
         $params = [
             'useremail' => $useremail,
             'username' => $username,
             'clave' => $hashed,
+            'usertipo' => self::normalizeTipo($usertipo),
             'estado' => $estado,
         ];
 
@@ -186,6 +193,7 @@ class Usuarios extends Table
                 SET user_usuario = :useremail,
                     nombre_usuario = :username,
                     clave_usuario = :clave,
+                    tipo_usuario = :usertipo,
                     estado_usuario = :estado
                 WHERE id_usuario = :usercod';
             $params = [
@@ -193,18 +201,21 @@ class Usuarios extends Table
                 'useremail' => $useremail,
                 'username' => $username,
                 'clave' => self::hashPassword($userpswd),
+                'usertipo' => self::normalizeTipo($usertipo),
                 'estado' => $estado,
             ];
         } else {
             $sqlstr = 'UPDATE usuarios
                 SET user_usuario = :useremail,
                     nombre_usuario = :username,
+                    tipo_usuario = :usertipo,
                     estado_usuario = :estado
                 WHERE id_usuario = :usercod';
             $params = [
                 'usercod' => $usercod,
                 'useremail' => $useremail,
                 'username' => $username,
+                'usertipo' => self::normalizeTipo($usertipo),
                 'estado' => $estado,
             ];
         }
@@ -249,11 +260,10 @@ class Usuarios extends Table
 
     public static function deleteUsuario(int $usercod): int
     {
-        // 1. Eliminar relaciones en usuarios_roles
-        self::executeNonQuery('DELETE FROM usuarios_roles WHERE id_usuario = :usercod', ['usercod' => $usercod]);
-
-        // 2. Eliminar usuario
-        $sqlstr = 'DELETE FROM usuarios WHERE id_usuario = :usercod';
+        // Borrado lógico: la cuenta queda inactiva y conserva su historial,
+        // asignaciones y bitácora. Nunca se elimina físicamente para no romper
+        // las llaves foráneas de inventario/mantenimientos.
+        $sqlstr = 'UPDATE usuarios SET estado_usuario = 0 WHERE id_usuario = :usercod';
         return self::executeNonQuery($sqlstr, ['usercod' => $usercod]);
     }
 }

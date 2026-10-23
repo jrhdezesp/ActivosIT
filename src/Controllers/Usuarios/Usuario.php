@@ -112,7 +112,7 @@ class Usuario extends PrivateController
             $errors['userest_error'] = 'El estado del usuario es invalido';
         }
 
-        if (!in_array($this->usuario['usertipo'], ['PBL', 'ADM', 'AUD'])) {
+        if (!in_array($this->usuario['usertipo'], ['PBL', 'ADM', 'AUD', 'TEC'])) {
             $errors['usertipo_error'] = 'El tipo de usuario es invalido';
         }
 
@@ -182,11 +182,14 @@ class Usuario extends PrivateController
 
     private function handleDelete()
     {
+        if (intval($this->usuario['usercod']) === intval(\Utilities\Security::getUserId())) {
+            throw new \Exception('No puede desactivar su propia cuenta.', 1);
+        }
         $result = UsuariosDao::deleteUsuario($this->usuario['usercod']);
         if ($result > 0) {
             Site::redirectToWithMsg(
                 'index.php?page=Usuarios_Usuarios',
-                'Usuario eliminado exitosamente'
+                'Usuario desactivado exitosamente'
             );
         }
     }

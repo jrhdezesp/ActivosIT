@@ -161,7 +161,7 @@ class Rol extends PrivateController
         if ($result > 0) {
             Site::redirectToWithMsg(
                 'index.php?page=Roles_Roles',
-                'Rol eliminado exitosamente'
+                'Rol desactivado exitosamente'
             );
         }
     }
