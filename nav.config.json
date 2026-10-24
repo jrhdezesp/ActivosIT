@@ -173,6 +173,13 @@
                     "icon": "fa-map-location-dot",
                     "nav_url": "index.php?page=Reportes_EquiposCustodio",
                     "status": "active"
+                },
+                {
+                    "id": "Menu_ReportesOperativos",
+                    "nav_label": "Reportes operativos",
+                    "icon": "fa-list-check",
+                    "nav_url": "index.php?page=Reportes_Operativos",
+                    "status": "active"
                 }
             ],
             "description": "Indicadores, Kardex y equipos por custodio."

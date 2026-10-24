@@ -122,6 +122,16 @@ composer lint        # o: php scripts/lint.php
 ```
 Revisa sintaxis de todos los archivos PHP y JSON del proyecto.
 
+### 8. Respaldo y restauración
+
+El procedimiento documentado para respaldar y restaurar la base de datos,
+validar hashes, probar una restauración aislada y conservar la evidencia se
+encuentra en [docs/respaldo_restauracion.md](docs/respaldo_restauracion.md).
+
+Los respaldos deben almacenarse fuera del repositorio y `parameters.env` no
+debe incluirse en archivos compartidos. La primera restauración siempre debe
+realizarse en una base de prueba separada antes de intervenir `activosit`.
+
 ---
 
 ## Control de acceso (RBAC)
@@ -158,7 +168,7 @@ Reglas:
 - Perfil del usuario autenticado.
 - Asignaciones formales y devoluciones con trazabilidad de custodios.
 - Mantenimientos con recepción, servicio técnico y entrega.
-- Centro de reportes, Kardex y equipos por custodio con exportación CSV, Excel y PDF.
+- Centro de reportes, Kardex, equipos por custodio y reportes operativos detallados con exportación CSV, Excel y PDF.
 - Bitácora de auditoría de solo lectura con filtros, detalle y exportación CSV.
 
 ### En diseño / pendiente
@@ -199,6 +209,7 @@ Rutas **Reportes → Centro de reportes** (`Reportes_Reportes`), **Kardex** (`Re
 - Kardex filtrable por fecha, tipo, artículo y texto; Equipos por custodio filtrable por texto y departamento.
 - Gráficos con Chart.js 4.4.4 servido localmente desde `public/js/vendor/chart.umd.min.js`; no requiere CDN. En Kardex y Equipos por custodio respetan los filtros activos.
 - Exportación CSV, Excel (`.xlsx`) y PDF de cada reporte. En Kardex y Equipos por custodio las descargas incluyen los filtros aplicados; el Centro exporta el resumen general.
+- Reportes operativos detallados (`Reportes → Reportes operativos`) para inventario general, existencias, stock bajo, entradas, salidas, movimientos por artículo, equipos asignados, estados de equipos, asignaciones/devoluciones, mantenimientos, artículos por responsable, ajustes/bajas, movimientos por usuario y documentos.
 - CSV con BOM UTF-8, separador `;` y saneo de fórmulas; Excel con una hoja por sección; PDF horizontal con Dompdf y numeración de páginas.
 - Acceso para Administrador, Auditor y Técnico de Soporte; la bitácora de auditoría queda reservada a Administrador y Auditor.
 
@@ -248,6 +259,7 @@ ActivosIT/
 ├── scripts/
 │   └── lint.php               # Verificación de sintaxis
 └── docs/
+    ├── respaldo_restauracion.md # Procedimiento de respaldo y recuperación
     ├── scripts/               # Scripts SQL base y migraciones incrementales
     └── migraciones/           # Instrucciones para aplicar cambios de BD
 ```
