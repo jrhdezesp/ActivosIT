@@ -30,8 +30,9 @@ class EquiposCustodio extends PrivateController
     {
         $this->getParams();
 
-        if ($this->isCsvExport()) {
-            $this->exportCsv();
+        $exportFormat = $this->getExportFormat();
+        if ($exportFormat !== '') {
+            $this->export($exportFormat);
             return;
         }
 
@@ -146,7 +147,9 @@ class EquiposCustodio extends PrivateController
                 : 'Departamentos',
             'CentroUrl' => 'index.php?page=Reportes_Reportes',
             'KardexUrl' => 'index.php?page=Reportes_Kardex',
-            'ExportUrl' => $this->buildExportUrl(),
+            'ExportUrl' => $this->buildExportUrl('csv'),
+            'ExportXlsxUrl' => $this->buildExportUrl('xlsx'),
+            'ExportPdfUrl' => $this->buildExportUrl('pdf'),
             'ChartsJson' => ReportCharts::toJson(
                 $this->buildCharts($porDepartamento, $porEstado, $topCustodios)
             ),
@@ -553,15 +556,17 @@ class EquiposCustodio extends PrivateController
         return 'Custodios con más equipos: ' . implode(', ', $partes) . '.';
     }
 
-    private function isCsvExport(): bool
+    private function getExportFormat(): string
     {
-        return strtolower(trim(strval($_GET['export'] ?? ''))) === 'csv';
+        $format = strtolower(trim(strval($_GET['export'] ?? '')));
+
+        return in_array($format, ['csv', 'xlsx', 'pdf'], true) ? $format : '';
     }
 
-    private function buildExportUrl(): string
+    private function buildExportUrl(string $format = 'csv'): string
     {
         $params = $this->filterParams();
-        $params['export'] = 'csv';
+        $params['export'] = $format;
 
         return 'index.php?' . http_build_query($params);
     }
@@ -569,7 +574,7 @@ class EquiposCustodio extends PrivateController
     /**
      * Exporta un renglon por equipo en custodia con los filtros actuales.
      */
-    private function exportCsv(): void
+    private function export(string $format): void
     {
         $custodios = DaoEquiposCustodio::getCustodiosForExport(
             $this->search,
@@ -631,7 +636,7 @@ class EquiposCustodio extends PrivateController
             }
         }
 
-        ReportExport::stream('custodios_' . date('Ymd_His') . '.csv', [
+        $headers = [
             'Custodio',
             'Departamento',
             'Equipos en custodia',
@@ -643,7 +648,57 @@ class EquiposCustodio extends PrivateController
             'Fecha asignación',
             'Entregado por',
             'Estado operativo',
-        ], $data);
+        ];
+
+        $sections = [[
+            'title' => 'Equipos por custodio',
+            'headers' => $headers,
+            'rows' => $data,
+        ]];
+
+        $baseName = 'custodios_' . date('Ymd_His');
+        $meta = [
+            'title' => 'Equipos por custodio',
+            'creator' => 'ActivosIT',
+            $this->buildFilterSummary(),
+            'Generado el ' . date('d/m/Y H:i'),
+        ];
+
+        if ($format === 'xlsx') {
+            ReportExport::streamXlsxSections($baseName . '.xlsx', $sections, $meta);
+            return;
+        }
+
+        if ($format === 'pdf') {
+            ReportExport::streamPdfSections(
+                $baseName . '.pdf',
+                'Equipos por custodio',
+                $sections,
+                $meta
+            );
+            return;
+        }
+
+        ReportExport::stream($baseName . '.csv', $headers, $data);
+    }
+
+    private function buildFilterSummary(): string
+    {
+        $parts = [];
+
+        if ($this->search !== '') {
+            $parts[] = 'Búsqueda: ' . $this->search;
+        }
+
+        if ($this->departamento !== '') {
+            $parts[] = 'Departamento: ' . $this->departamento;
+        }
+
+        if (count($parts) === 0) {
+            return 'Sin filtros aplicados';
+        }
+
+        return 'Filtros aplicados: ' . implode(' · ', $parts);
     }
 
     private function truncate(string $value, int $length): string

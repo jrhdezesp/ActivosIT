@@ -38,7 +38,7 @@ Desarrollo de un sistema web integral bajo el patrón de diseño **MVC** que aut
 ### 1. Requisitos
 | Componente | Versión mínima |
 |---|---|
-| PHP | 7.4 (recomendado 8.2) con `pdo_mysql`, `json`, `mbstring`, `openssl` |
+| PHP | 7.4 (recomendado 8.2) con `pdo_mysql`, `json`, `mbstring`, `dom`, `iconv`, `zip`, `openssl` |
 | MySQL / MariaDB | 5.7 / 10.4 |
 | Composer | 2.x |
 
@@ -49,6 +49,7 @@ Con XAMPP basta con tener Apache y MySQL activos; PHP también puede ejecutarse 
 composer install
 ```
 Si `vendor/` no existe la aplicación muestra un error explícito: es obligatorio ejecutar `composer install`.
+La instalación incluye **Dompdf** para la exportación PDF; el Excel se genera con `ZipArchive` (`ext-zip`).
 
 ### 3. Configuración del entorno
 `parameters.env` **no se versiona** (está en `.gitignore`). Créelo a partir de la plantilla:
@@ -157,7 +158,7 @@ Reglas:
 - Perfil del usuario autenticado.
 - Asignaciones formales y devoluciones con trazabilidad de custodios.
 - Mantenimientos con recepción, servicio técnico y entrega.
-- Centro de reportes, Kardex y equipos por custodio con exportación CSV.
+- Centro de reportes, Kardex y equipos por custodio con exportación CSV, Excel y PDF.
 - Bitácora de auditoría de solo lectura con filtros, detalle y exportación CSV.
 
 ### En diseño / pendiente
@@ -194,9 +195,11 @@ Ruta **Inventario → Salidas** (`Inventario_Salidas`); permisos `CTR` 37 y 38.
 
 Rutas **Reportes → Centro de reportes** (`Reportes_Reportes`), **Kardex** (`Reportes_Kardex`) y **Equipos por custodio** (`Reportes_EquiposCustodio`); permisos `Menu_CentroReportes`, `Menu_Kardex`, `Menu_EquiposCustodio` y los `CTR` de cada controlador.
 
-- Indicadores de inventario, equipos, movimientos y asignaciones, con filtros por fecha, tipo, artículo y texto.
-- Gráficos con Chart.js 4.4.4 servido localmente desde `public/js/vendor/chart.umd.min.js`; no requiere CDN.
-- Exportación CSV de cada reporte con BOM UTF-8, separador `;` y saneo de fórmulas.
+- Indicadores generales de inventario, equipos, movimientos y asignaciones en el Centro de reportes.
+- Kardex filtrable por fecha, tipo, artículo y texto; Equipos por custodio filtrable por texto y departamento.
+- Gráficos con Chart.js 4.4.4 servido localmente desde `public/js/vendor/chart.umd.min.js`; no requiere CDN. En Kardex y Equipos por custodio respetan los filtros activos.
+- Exportación CSV, Excel (`.xlsx`) y PDF de cada reporte. En Kardex y Equipos por custodio las descargas incluyen los filtros aplicados; el Centro exporta el resumen general.
+- CSV con BOM UTF-8, separador `;` y saneo de fórmulas; Excel con una hoja por sección; PDF horizontal con Dompdf y numeración de páginas.
 - Acceso para Administrador, Auditor y Técnico de Soporte; la bitácora de auditoría queda reservada a Administrador y Auditor.
 
 Para una base existente, aplica `docs/scripts/11_reportes_permisos.sql` (idempotente).

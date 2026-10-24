@@ -47,8 +47,9 @@ class Reportes extends PrivateController
         $estadosEquipo = $this->buildEstadosEquipo($resumen);
         $charts = $this->buildCharts($estadosEquipo, $serieMes, $distribucion);
 
-        if ($this->isCsvExport()) {
-            $this->exportCsv($resumen, $stockBajo, $movimientos, $serieMes, $distribucion);
+        $exportFormat = $this->getExportFormat();
+        if ($exportFormat !== '') {
+            $this->export($exportFormat, $resumen, $stockBajo, $movimientos, $serieMes, $distribucion);
             return;
         }
 
@@ -78,12 +79,16 @@ class Reportes extends PrivateController
             'CustodiosUrl' => 'index.php?page=Reportes_EquiposCustodio',
             'ArticulosUrl' => 'index.php?page=Articulos_Articulos',
             'ExportUrl' => 'index.php?page=Reportes_Reportes&export=csv',
+            'ExportXlsxUrl' => 'index.php?page=Reportes_Reportes&export=xlsx',
+            'ExportPdfUrl' => 'index.php?page=Reportes_Reportes&export=pdf',
         ]);
     }
 
-    private function isCsvExport(): bool
+    private function getExportFormat(): string
     {
-        return strtolower(trim(strval($_GET['export'] ?? ''))) === 'csv';
+        $format = strtolower(trim(strval($_GET['export'] ?? '')));
+
+        return in_array($format, ['csv', 'xlsx', 'pdf'], true) ? $format : '';
     }
 
     private function buildKpis(array $resumen): array
@@ -415,7 +420,8 @@ class Reportes extends PrivateController
     /**
      * Exporta un resumen del centro de reportes en secciones.
      */
-    private function exportCsv(
+    private function export(
+        string $format,
         array $resumen,
         array $stockBajo,
         array $movimientos,
@@ -477,7 +483,7 @@ class Reportes extends PrivateController
             $tipoRows[] = [$tipoData['label'], intval($distribucion[$tipo] ?? 0)];
         }
 
-        ReportExport::streamSections('centro_reportes_' . date('Ymd_His') . '.csv', [
+        $sections = [
             [
                 'title' => 'Resumen general',
                 'headers' => ['Indicador', 'Valor', 'Detalle'],
@@ -523,7 +529,32 @@ class Reportes extends PrivateController
                 'headers' => ['Tipo', 'Movimientos'],
                 'rows' => $tipoRows,
             ],
-        ]);
+        ];
+
+        $baseName = 'centro_reportes_' . date('Ymd_His');
+        $meta = [
+            'title' => 'Centro de reportes',
+            'creator' => 'ActivosIT',
+            'Resumen general al ' . date('d/m/Y H:i'),
+            'Los reportes filtrados están disponibles en Kardex y Equipos por custodio',
+        ];
+
+        if ($format === 'xlsx') {
+            ReportExport::streamXlsxSections($baseName . '.xlsx', $sections, $meta);
+            return;
+        }
+
+        if ($format === 'pdf') {
+            ReportExport::streamPdfSections(
+                $baseName . '.pdf',
+                'Centro de reportes',
+                $sections,
+                $meta
+            );
+            return;
+        }
+
+        ReportExport::streamSections($baseName . '.csv', $sections);
     }
 
     private function buildEstadosAlt(array $estadosEquipo): string

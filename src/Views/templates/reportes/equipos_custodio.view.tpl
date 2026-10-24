@@ -3,7 +3,7 @@
     <div class="data-panel__heading">
       <span class="eyebrow">Reportes / Equipos por custodio</span>
       <h1 class="data-panel__title">Equipos por custodio</h1>
-      <p class="data-panel__description">Consulta qué equipos tiene cada responsable, su departamento y la fecha desde la que están en custodia.</p>
+      <p class="data-panel__description">Consulta qué equipos tiene cada responsable, su departamento y la fecha desde la que están en custodia. Descarga el resultado filtrado en CSV, Excel o PDF.</p>
     </div>
     <div class="data-panel__actions">
       <a class="button button--ghost" href="{{!CentroUrl}}">
@@ -17,6 +17,14 @@
       <a class="button button--ghost" href="{{!ExportUrl}}">
         <i class="fa-solid fa-file-csv" aria-hidden="true"></i>
         Descargar CSV
+      </a>
+      <a class="button button--ghost" href="{{!ExportXlsxUrl}}">
+        <i class="fa-solid fa-file-excel" aria-hidden="true"></i>
+        Descargar Excel
+      </a>
+      <a class="button button--ghost" href="{{!ExportPdfUrl}}">
+        <i class="fa-solid fa-file-pdf" aria-hidden="true"></i>
+        Descargar PDF
       </a>
     </div>
   </div>

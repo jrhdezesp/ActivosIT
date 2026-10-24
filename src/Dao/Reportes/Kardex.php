@@ -163,6 +163,35 @@ class Kardex extends Table
         );
     }
 
+    /**
+     * Nombre legible de un articulo para los metadatos de la exportacion.
+     */
+    public static function getArticuloLabel(int $articuloId): string
+    {
+        if ($articuloId <= 0) {
+            return '';
+        }
+
+        $row = self::obtenerUnRegistro(
+            'SELECT codigo_interno_articulo, nombre_articulo'
+            . ' FROM articulos WHERE id_articulo = :articulo',
+            ['articulo' => $articuloId]
+        );
+
+        if (!is_array($row)) {
+            return '';
+        }
+
+        $codigo = trim(strval($row['codigo_interno_articulo'] ?? ''));
+        $nombre = trim(strval($row['nombre_articulo'] ?? ''));
+
+        if ($codigo !== '' && $nombre !== '') {
+            return $codigo . ' · ' . $nombre;
+        }
+
+        return $nombre !== '' ? $nombre : $codigo;
+    }
+
     private static function buildFilters(
         string $search,
         string $tipo,

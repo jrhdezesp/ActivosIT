@@ -3,7 +3,7 @@
     <div class="data-panel__heading">
       <span class="eyebrow">Reportes / Centro de reportes</span>
       <h1 class="data-panel__title">Centro de reportes</h1>
-      <p class="data-panel__description">Consulta los indicadores del inventario y accede a los reportes de movimientos y custodia de equipos.</p>
+      <p class="data-panel__description">Consulta los indicadores del inventario y accede a los reportes de movimientos y custodia de equipos. Descarga el resumen en CSV, Excel o PDF.</p>
     </div>
     <div class="data-panel__actions">
       <a class="button button--primary" href="{{!KardexUrl}}">
@@ -17,6 +17,14 @@
       <a class="button button--ghost" href="{{!ExportUrl}}">
         <i class="fa-solid fa-file-csv" aria-hidden="true"></i>
         Descargar CSV
+      </a>
+      <a class="button button--ghost" href="{{!ExportXlsxUrl}}">
+        <i class="fa-solid fa-file-excel" aria-hidden="true"></i>
+        Descargar Excel
+      </a>
+      <a class="button button--ghost" href="{{!ExportPdfUrl}}">
+        <i class="fa-solid fa-file-pdf" aria-hidden="true"></i>
+        Descargar PDF
       </a>
     </div>
   </div>
