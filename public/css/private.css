@@ -1363,6 +1363,14 @@
 }
 
 @media (max-width: 760px) {
+  .report-panel .data-panel__actions {
+    width: 100%;
+  }
+
+  .report-panel .data-panel__actions .button {
+    flex: 1 1 auto;
+  }
+
   .dashboard-hero {
     grid-template-columns: 1fr;
   }
@@ -1394,6 +1402,16 @@
 }
 
 @media (max-width: 560px) {
+  .report-panel .data-panel__actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .report-panel .data-panel__actions .button {
+    justify-content: center;
+    width: 100%;
+  }
+
   .dashboard-stats {
     grid-template-columns: 1fr;
   }

@@ -11,8 +11,8 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap-grid.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap-utilities.min.css">
-<link rel="stylesheet" href="{{BASE_DIR}}/public/css/appstyle.css?v=20261022-10">
-<link rel="stylesheet" href="{{BASE_DIR}}/public/css/theme.css?v=20261022-11">
+<link rel="stylesheet" href="{{BASE_DIR}}/public/css/appstyle.css?v=20261024-01">
+<link rel="stylesheet" href="{{BASE_DIR}}/public/css/theme.css?v=20261024-01">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
 {{foreach SiteLinks}}
   <link rel="stylesheet" href="{{~BASE_DIR}}/{{this}}" />
