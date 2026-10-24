@@ -62,8 +62,9 @@ class Kardex extends PrivateController
     {
         $this->getParams();
 
-        if ($this->isCsvExport()) {
-            $this->exportCsv();
+        $exportFormat = $this->getExportFormat();
+        if ($exportFormat !== '') {
+            $this->export($exportFormat);
             return;
         }
 
@@ -247,7 +248,9 @@ class Kardex extends PrivateController
             'HasDistribucion' => $this->hasDistribucion($distribucion),
             'ChartTopAlt' => $this->buildTopAlt($topArticulos),
             'HasTopArticulos' => count($topArticulos) > 0,
-            'ExportUrl' => $this->buildExportUrl(),
+            'ExportUrl' => $this->buildExportUrl('csv'),
+            'ExportXlsxUrl' => $this->buildExportUrl('xlsx'),
+            'ExportPdfUrl' => $this->buildExportUrl('pdf'),
             'SortMovimientoUrl' => $movimientoSort['url'],
             'SortMovimientoActive' => $movimientoSort['active'],
             'SortMovimientoIcon' => $movimientoSort['icon'],
@@ -627,17 +630,19 @@ class Kardex extends PrivateController
         return false;
     }
 
-    private function isCsvExport(): bool
+    private function getExportFormat(): string
     {
-        return strtolower(trim(strval($_GET['export'] ?? ''))) === 'csv';
+        $format = strtolower(trim(strval($_GET['export'] ?? '')));
+
+        return in_array($format, ['csv', 'xlsx', 'pdf'], true) ? $format : '';
     }
 
-    private function buildExportUrl(): string
+    private function buildExportUrl(string $format = 'csv'): string
     {
         $params = $this->filterParams();
         $params['orderBy'] = $this->orderBy;
         $params['orderDescending'] = $this->orderDescending ? 1 : 0;
-        $params['export'] = 'csv';
+        $params['export'] = $format;
 
         return 'index.php?' . http_build_query($params);
     }
@@ -646,7 +651,7 @@ class Kardex extends PrivateController
      * Exporta todos los movimientos que coinciden con los filtros actuales,
      * sin limitarse a la pagina visible.
      */
-    private function exportCsv(): void
+    private function export(string $format): void
     {
         $rows = DaoKardex::getMovimientosForExport(
             $this->search,
@@ -687,7 +692,7 @@ class Kardex extends PrivateController
             ];
         }
 
-        ReportExport::stream('kardex_' . date('Ymd_His') . '.csv', [
+        $headers = [
             'ID',
             'Fecha',
             'Hora',
@@ -702,7 +707,77 @@ class Kardex extends PrivateController
             'Usuario',
             'Cuenta',
             'Observación',
-        ], $data);
+        ];
+
+        $sections = [[
+            'title' => 'Kardex de movimientos',
+            'headers' => $headers,
+            'rows' => $data,
+        ]];
+
+        $baseName = 'kardex_' . date('Ymd_His');
+        $meta = [
+            'title' => 'Kardex de movimientos',
+            'creator' => 'ActivosIT',
+            $this->buildFilterSummary(),
+            'Generado el ' . date('d/m/Y H:i'),
+        ];
+
+        if ($format === 'xlsx') {
+            ReportExport::streamXlsxSections($baseName . '.xlsx', $sections, $meta);
+            return;
+        }
+
+        if ($format === 'pdf') {
+            ReportExport::streamPdfSections(
+                $baseName . '.pdf',
+                'Kardex de movimientos',
+                $sections,
+                $meta
+            );
+            return;
+        }
+
+        ReportExport::stream($baseName . '.csv', $headers, $data);
+    }
+
+    private function buildFilterSummary(): string
+    {
+        $parts = [];
+
+        if ($this->search !== '') {
+            $parts[] = 'Búsqueda: ' . $this->search;
+        }
+
+        if ($this->tipo !== '') {
+            $parts[] = 'Tipo: ' . (self::TIPOS[$this->tipo]['label'] ?? $this->tipo);
+        }
+
+        if ($this->articuloId > 0) {
+            $articulo = DaoKardex::getArticuloLabel($this->articuloId);
+            $parts[] = 'Artículo: ' . ($articulo !== '' ? $articulo : '#' . $this->articuloId);
+        }
+
+        if ($this->desde !== '' || $this->hasta !== '') {
+            $parts[] = 'Desde: ' . ($this->desde !== '' ? $this->formatDate($this->desde) : 'sin límite');
+            $parts[] = 'Hasta: ' . ($this->hasta !== '' ? $this->formatDate($this->hasta) : 'sin límite');
+        }
+
+        if (count($parts) === 0) {
+            return 'Sin filtros aplicados';
+        }
+
+        return 'Filtros aplicados: ' . implode(' · ', $parts);
+    }
+
+    private function formatDate(string $value): string
+    {
+        $date = \DateTime::createFromFormat('Y-m-d', $value);
+        if (!$date || $date->format('Y-m-d') !== $value) {
+            return $value;
+        }
+
+        return $date->format('d/m/Y');
     }
 
     private function truncate(string $value, int $length): string

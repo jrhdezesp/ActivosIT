@@ -5,9 +5,13 @@
     "license": "MIT",
     "require": {
         "php": ">=7.4",
+        "ext-dom": "*",
         "ext-json": "*",
+        "ext-mbstring": "*",
         "ext-pdo": "*",
-        "ext-pdo_mysql": "*"
+        "ext-pdo_mysql": "*",
+        "ext-zip": "*",
+        "dompdf/dompdf": "^3.1.6"
     },
     "autoload": {
         "psr-4": {
