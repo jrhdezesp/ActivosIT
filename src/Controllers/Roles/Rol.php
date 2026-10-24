@@ -3,7 +3,9 @@
 namespace Controllers\Roles;
 
 use Controllers\PrivateController;
+use Dao\Funciones\Funciones as FuncionesDao;
 use Dao\Roles\Roles as RolesDao;
+use Utilities\Bitacora;
 use Utilities\CSRF;
 use Utilities\Site;
 use Utilities\Validators;
@@ -133,6 +135,14 @@ class Rol extends PrivateController
             $this->rol['rolesest']
         );
         if ($result > 0) {
+            Bitacora::registrar(
+                'CREAR_ROL',
+                'Seguridad',
+                Bitacora::RESULTADO_EXITO,
+                null,
+                null,
+                $this->auditRolData()
+            );
             Site::redirectToWithMsg(
                 'index.php?page=Roles_Roles',
                 'Rol creado exitosamente'
@@ -142,12 +152,21 @@ class Rol extends PrivateController
 
     private function handleUpdate()
     {
+        $before = RolesDao::getRolById($this->rol['rolescod']);
         $result = RolesDao::updateRol(
             $this->rol['rolescod'],
             $this->rol['rolesdsc'],
             $this->rol['rolesest']
         );
         if ($result > 0) {
+            Bitacora::registrar(
+                'ACTUALIZAR_ROL',
+                'Seguridad',
+                Bitacora::RESULTADO_EXITO,
+                null,
+                $this->auditRolData($before),
+                $this->auditRolData()
+            );
             Site::redirectToWithMsg(
                 'index.php?page=Roles_Roles',
                 'Rol actualizado exitosamente'
@@ -157,13 +176,33 @@ class Rol extends PrivateController
 
     private function handleDelete()
     {
+        $before = RolesDao::getRolById($this->rol['rolescod']);
         $result = RolesDao::deleteRol($this->rol['rolescod']);
         if ($result > 0) {
+            Bitacora::registrar(
+                'DESACTIVAR_ROL',
+                'Seguridad',
+                Bitacora::RESULTADO_EXITO,
+                null,
+                $this->auditRolData($before),
+                ['rolescod' => $this->rol['rolescod'], 'rolesest' => 'INA']
+            );
             Site::redirectToWithMsg(
                 'index.php?page=Roles_Roles',
                 'Rol desactivado exitosamente'
             );
         }
+    }
+
+    private function auditRolData($rol = null): array
+    {
+        $rol = is_array($rol) ? $rol : $this->rol;
+
+        return [
+            'rolescod' => strval($rol['rolescod'] ?? ''),
+            'rolesdsc' => strval($rol['rolesdsc'] ?? ''),
+            'rolesest' => strval($rol['rolesest'] ?? ''),
+        ];
     }
 
     private function loadFuncionesData(): void
@@ -195,10 +234,40 @@ class Rol extends PrivateController
             throw new \Exception('El estado de la funcion para el rol es invalido.', 1);
         }
 
+        if (!FuncionesDao::getFuncionById($fncod)) {
+            Bitacora::registrar(
+                'ACTUALIZAR_FUNCIONES_ROL',
+                'Seguridad',
+                Bitacora::RESULTADO_ERROR,
+                null,
+                null,
+                [
+                    'rolescod' => $this->rol['rolescod'],
+                    'fncod' => $fncod,
+                    'fnrolest' => $fnrolest,
+                    'motivo' => 'Funcion inexistente',
+                ]
+            );
+            throw new \Exception('La funcion seleccionada no existe.', 1);
+        }
+
         RolesDao::upsertRolFuncion(
             $this->rol['rolescod'],
             $fncod,
             $fnrolest
+        );
+
+        Bitacora::registrar(
+            'ACTUALIZAR_FUNCIONES_ROL',
+            'Seguridad',
+            Bitacora::RESULTADO_EXITO,
+            null,
+            null,
+            [
+                'rolescod' => $this->rol['rolescod'],
+                'fncod' => $fncod,
+                'fnrolest' => $fnrolest,
+            ]
         );
 
         Site::redirectToWithMsg(

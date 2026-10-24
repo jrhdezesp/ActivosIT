@@ -4,6 +4,7 @@ namespace Controllers\Inventario;
 
 use Controllers\PrivateController;
 use Dao\Inventario\Entradas as DaoEntradas;
+use Utilities\Bitacora;
 use Utilities\CSRF;
 use Utilities\Security;
 use Utilities\Site;
@@ -429,6 +430,8 @@ class Entrada extends PrivateController
             ];
         }
 
+        $before = null;
+
         DaoEntradas::beginTransaction();
 
         try {
@@ -441,6 +444,7 @@ class Entrada extends PrivateController
                     throw new \RuntimeException('Solo se pueden editar documentos en borrador.');
                 }
 
+                $before = $current;
                 if (!DaoEntradas::updateDocumento($this->id, $data)) {
                     throw new \RuntimeException('No se pudo actualizar el documento de entrada.');
                 }
@@ -458,6 +462,27 @@ class Entrada extends PrivateController
             DaoEntradas::rollback();
             throw $ex;
         }
+
+        if ($confirm) {
+            $tipoOperacion = 'CONFIRMAR_ENTRADA';
+        } elseif ($this->mode === 'INS') {
+            $tipoOperacion = 'CREAR_ENTRADA';
+        } else {
+            $tipoOperacion = 'ACTUALIZAR_ENTRADA';
+        }
+
+        $auditData = $data;
+        $auditData['estado_doc'] = $confirm ? 'CONFIRMADO' : 'BORRADOR';
+        $auditData['detalles'] = $detalles;
+
+        Bitacora::registrar(
+            $tipoOperacion,
+            'Inventario',
+            Bitacora::RESULTADO_EXITO,
+            intval($docId),
+            $before,
+            $auditData
+        );
 
         $msg = $confirm ? 'confirmed' : ($this->mode === 'INS' ? 'created' : 'updated');
         Site::redirectTo('index.php?page=Inventario_Entradas&msg=' . $msg);
@@ -489,6 +514,15 @@ class Entrada extends PrivateController
             DaoEntradas::rollback();
             throw $ex;
         }
+
+        Bitacora::registrar(
+            'ANULAR_ENTRADA',
+            'Inventario',
+            Bitacora::RESULTADO_EXITO,
+            $this->id,
+            $doc,
+            ['estado_doc' => 'ANULADO']
+        );
 
         Site::redirectTo('index.php?page=Inventario_Entradas&msg=annulled');
     }

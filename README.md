@@ -92,7 +92,7 @@ mysql -u root -p activosit < docs/scripts/05_inventario.sql
 mysql -u root -p activosit < docs/scripts/06_operaciones.sql
 ```
 
-> Para una base ya existente, **no vuelvas a ejecutar los scripts completos**: aplica solo la migración incremental `docs/scripts/07_inventario_permisos.sql` (ver [Migración de permisos de inventario](#migración-de-permisos-de-inventario)). Así evitas sobrescribir datos y existencias.
+> Para una base ya existente, **no vuelvas a ejecutar los scripts completos**: aplica solo las migraciones incrementales de permisos que correspondan (ver [Migraciones de permisos](#migraciones-de-permisos)). Así evitas sobrescribir datos y existencias.
 
 En phpMyAdmin: pestaña **Importar** y seleccionar cada archivo en el mismo orden.
 
@@ -161,7 +161,7 @@ Reglas:
 - Bitácora de auditoría de solo lectura con filtros, detalle y exportación CSV.
 
 ### En diseño / pendiente
-- Instrumentación de auditoría en los módulos de negocio (la cobertura actual registra inicio y cierre de sesión, además del alta de cuentas).
+- Auditoría de consultas y exportaciones de reportes (opcional; hoy se auditan las operaciones que modifican datos y los eventos de autenticación).
 
 > La existencia de un artículo **no se edita manualmente** después de crearlo: se calcula a partir de los movimientos de inventario.
 
@@ -190,15 +190,30 @@ Ruta **Inventario → Salidas** (`Inventario_Salidas`); permisos `CTR` 37 y 38.
 - El destino es obligatorio; la autorización y el motivo son opcionales. Los motivos disponibles son los que aplican a `AJUSTE_SALIDA` o `BAJA`.
 - El listado permite buscar por correlativo, destino, autorización, observaciones o tipo, filtrar por estado y tipo de documento, y ordenar por documento, fecha o estado.
 
-### Migración de permisos de inventario
+### Centro de reportes
 
-Si actualizas una base ya existente, no vuelvas a ejecutar los scripts completos. Aplica solo el script incremental:
+Rutas **Reportes → Centro de reportes** (`Reportes_Reportes`), **Kardex** (`Reportes_Kardex`) y **Equipos por custodio** (`Reportes_EquiposCustodio`); permisos `Menu_CentroReportes`, `Menu_Kardex`, `Menu_EquiposCustodio` y los `CTR` de cada controlador.
+
+- Indicadores de inventario, equipos, movimientos y asignaciones, con filtros por fecha, tipo, artículo y texto.
+- Gráficos con Chart.js 4.4.4 servido localmente desde `public/js/vendor/chart.umd.min.js`; no requiere CDN.
+- Exportación CSV de cada reporte con BOM UTF-8, separador `;` y saneo de fórmulas.
+- Acceso para Administrador, Auditor y Técnico de Soporte; la bitácora de auditoría queda reservada a Administrador y Auditor.
+
+Para una base existente, aplica `docs/scripts/11_reportes_permisos.sql` (idempotente).
+
+### Migraciones de permisos
+
+Si actualizas una base ya existente, no vuelvas a ejecutar los scripts completos. Aplica las migraciones incrementales en este orden:
 
 ```bash
 mysql -u root -p activosit < docs/scripts/07_inventario_permisos.sql
+mysql -u root -p activosit < docs/scripts/09_mantenimientos_permisos.sql
+mysql -u root -p activosit < docs/scripts/10_asignaciones_permisos.sql
+mysql -u root -p activosit < docs/scripts/11_reportes_permisos.sql
+mysql -u root -p activosit < docs/scripts/12_auditoria_permisos.sql
 ```
 
-Asegura los permisos de Equipos, Entradas y Salidas, es idempotente y no modifica existencias ni documentos. Instrucciones detalladas en [`docs/migraciones/2026-10-23_inventario.md`](docs/migraciones/2026-10-23_inventario.md). Cierra sesión y vuelve a entrar para refrescar el menú.
+Todas son idempotentes y no modifican existencias, documentos ni eventos. Cierra sesión y vuelve a entrar para refrescar el menú.
 
 ### Bitácora de auditoría
 
@@ -208,13 +223,7 @@ Ruta **Auditoría** (`Auditoria_Auditoria`); permisos `Menu_Auditoria` y `Contro
 - Resumen de eventos totales, exitosos, denegados y con error, calculado con los filtros activos.
 - Detalle de cada evento con metadatos, dirección IP y los datos anteriores/nuevos en formato JSON.
 - Exportación CSV de los eventos filtrados con BOM UTF-8, separador `;` y saneo de fórmulas.
-- Instrumentación actual: inicio de sesión exitoso o denegado, cierre de sesión y alta de cuenta.
-
-Para una base existente, aplica el script incremental (es idempotente y no altera eventos ni datos de negocio):
-
-```bash
-mysql -u root -p activosit < docs/scripts/12_auditoria_permisos.sql
-```
+- Instrumentación actual: inicio de sesión exitoso o denegado, cierre de sesión, alta de cuentas y operaciones de negocio sobre artículos, equipos, entradas, salidas, asignaciones, mantenimientos, catálogos y seguridad administrativa.
 
 ---
 

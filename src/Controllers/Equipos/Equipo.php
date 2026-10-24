@@ -4,6 +4,7 @@ namespace Controllers\Equipos;
 
 use Controllers\PrivateController;
 use Dao\Equipos\Equipos as DaoEquipos;
+use Utilities\Bitacora;
 use Utilities\CSRF;
 use Utilities\Site;
 use Views\Renderer;
@@ -308,6 +309,14 @@ class Equipo extends PrivateController
                 if (!DaoEquipos::insertEquipo($data)) {
                     throw new \RuntimeException('No se pudo registrar el equipo.');
                 }
+                Bitacora::registrar(
+                    'CREAR_EQUIPO',
+                    'Equipos',
+                    Bitacora::RESULTADO_EXITO,
+                    null,
+                    null,
+                    $data
+                );
                 Site::redirectTo('index.php?page=Equipos_Equipos&msg=created');
             }
 
@@ -315,6 +324,14 @@ class Equipo extends PrivateController
                 if (!DaoEquipos::updateEquipo($this->id, $data)) {
                     throw new \RuntimeException('No se pudo actualizar el equipo.');
                 }
+                Bitacora::registrar(
+                    'ACTUALIZAR_EQUIPO',
+                    'Equipos',
+                    Bitacora::RESULTADO_EXITO,
+                    $this->id,
+                    $this->originalItem,
+                    $data
+                );
                 Site::redirectTo('index.php?page=Equipos_Equipos&msg=updated');
             }
         } catch (\PDOException $ex) {
@@ -346,6 +363,15 @@ class Equipo extends PrivateController
         if (!DaoEquipos::deactivateEquipo($this->id)) {
             throw new \RuntimeException('No se pudo desactivar el equipo.');
         }
+
+        Bitacora::registrar(
+            'DESACTIVAR_EQUIPO',
+            'Equipos',
+            Bitacora::RESULTADO_EXITO,
+            $this->id,
+            $this->record,
+            ['estado_registro' => 0]
+        );
 
         Site::redirectTo('index.php?page=Equipos_Equipos&msg=deactivated');
     }

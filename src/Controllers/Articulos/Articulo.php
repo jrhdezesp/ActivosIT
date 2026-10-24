@@ -4,6 +4,7 @@ namespace Controllers\Articulos;
 
 use Controllers\PrivateController;
 use Dao\Articulos\Articulos as DaoArticulos;
+use Utilities\Bitacora;
 use Utilities\CSRF;
 use Utilities\Site;
 use Views\Renderer;
@@ -254,6 +255,14 @@ class Articulo extends PrivateController
                 if (!DaoArticulos::insertArticulo($data)) {
                     throw new \RuntimeException('No se pudo crear el artículo.');
                 }
+                Bitacora::registrar(
+                    'CREAR_ARTICULO',
+                    'Artículos',
+                    Bitacora::RESULTADO_EXITO,
+                    null,
+                    null,
+                    $data
+                );
                 Site::redirectTo('index.php?page=Articulos_Articulos&msg=created');
             }
 
@@ -261,6 +270,14 @@ class Articulo extends PrivateController
                 if (!DaoArticulos::updateArticulo($this->id, $data)) {
                     throw new \RuntimeException('No se pudo actualizar el artículo.');
                 }
+                Bitacora::registrar(
+                    'ACTUALIZAR_ARTICULO',
+                    'Artículos',
+                    Bitacora::RESULTADO_EXITO,
+                    $this->id,
+                    $this->originalItem,
+                    $data
+                );
                 Site::redirectTo('index.php?page=Articulos_Articulos&msg=updated');
             }
         } catch (\PDOException $ex) {
@@ -285,6 +302,15 @@ class Articulo extends PrivateController
         if (!DaoArticulos::deactivateArticulo($this->id)) {
             throw new \RuntimeException('No se pudo desactivar el artículo.');
         }
+
+        Bitacora::registrar(
+            'DESACTIVAR_ARTICULO',
+            'Artículos',
+            Bitacora::RESULTADO_EXITO,
+            $this->id,
+            $this->record,
+            ['estado_registro' => 0]
+        );
 
         Site::redirectTo('index.php?page=Articulos_Articulos&msg=deactivated');
     }

@@ -4,6 +4,7 @@ namespace Controllers\Catalogos;
 
 use Controllers\PrivateController;
 use Dao\Catalogos\Catalogos as DaoCatalogos;
+use Utilities\Bitacora;
 use Utilities\CSRF;
 use Utilities\Site;
 use Views\Renderer;
@@ -136,13 +137,30 @@ class Catalogo extends PrivateController
                 if (!DaoCatalogos::insertItem($this->type, $this->item)) {
                     throw new \RuntimeException('No se pudo crear el registro.');
                 }
+                Bitacora::registrar(
+                    'CREAR_CATALOGO',
+                    'Catálogos',
+                    Bitacora::RESULTADO_EXITO,
+                    null,
+                    null,
+                    ['tipo' => $this->type, 'item' => $this->item]
+                );
                 Site::redirectTo($this->listUrl() . '&msg=created');
             }
 
             if ($this->mode === 'UPD') {
+                $before = DaoCatalogos::getItem($this->type, $this->id);
                 if (!DaoCatalogos::updateItem($this->type, $this->id, $this->item)) {
                     throw new \RuntimeException('No se pudo actualizar el registro.');
                 }
+                Bitacora::registrar(
+                    'ACTUALIZAR_CATALOGO',
+                    'Catálogos',
+                    Bitacora::RESULTADO_EXITO,
+                    $this->id,
+                    ['tipo' => $this->type, 'item' => $before],
+                    ['tipo' => $this->type, 'item' => $this->item]
+                );
                 Site::redirectTo($this->listUrl() . '&msg=updated');
             }
         } catch (\PDOException $ex) {
@@ -160,7 +178,8 @@ class Catalogo extends PrivateController
             throw new \InvalidArgumentException('El registro solicitado no es válido.');
         }
 
-        if (!DaoCatalogos::getItem($this->type, $this->id)) {
+        $before = DaoCatalogos::getItem($this->type, $this->id);
+        if (!$before) {
             throw new \RuntimeException('No se encontró el registro solicitado.');
         }
 
@@ -176,6 +195,15 @@ class Catalogo extends PrivateController
             }
             throw $ex;
         }
+
+        Bitacora::registrar(
+            'ELIMINAR_CATALOGO',
+            'Catálogos',
+            Bitacora::RESULTADO_EXITO,
+            $this->id,
+            ['tipo' => $this->type, 'item' => $before],
+            ['tipo' => $this->type, 'eliminado' => true]
+        );
 
         Site::redirectTo($this->listUrl() . '&msg=deleted');
     }
