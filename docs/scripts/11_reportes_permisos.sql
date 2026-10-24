@@ -3,7 +3,8 @@
 -- Fecha: 2026-10-23
 --
 -- Este script asegura los permisos de menu y los permisos de los
--- controladores del Centro de Reportes, Kardex y Equipos por Custodio.
+-- controladores del Centro de Reportes, Kardex, Equipos por Custodio y
+-- Reportes Operativos.
 -- Es idempotente: se puede ejecutar varias veces sin duplicar registros.
 --
 -- No modifica existencias, equipos, asignaciones ni movimientos.
@@ -26,9 +27,11 @@ VALUES
   ('Menu_CentroReportes',                        'Menú: centro de reportes',             'Reportes', 'MNU', 1),
   ('Menu_Kardex',                                'Menú: Kardex de movimientos',          'Reportes', 'MNU', 1),
   ('Menu_EquiposCustodio',                       'Menú: equipos por custodio',           'Reportes', 'MNU', 1),
+  ('Menu_ReportesOperativos',                    'Menú: reportes operativos',             'Reportes', 'MNU', 1),
   ('Controllers\\Reportes\\Reportes',            'Centro de reportes (indicadores)',     'Reportes', 'CTR', 1),
   ('Controllers\\Reportes\\Kardex',              'Kardex de movimientos (reporte)',      'Reportes', 'CTR', 1),
-  ('Controllers\\Reportes\\EquiposCustodio',     'Equipos por custodio (reporte)',       'Reportes', 'CTR', 1)
+  ('Controllers\\Reportes\\EquiposCustodio',     'Equipos por custodio (reporte)',       'Reportes', 'CTR', 1),
+  ('Controllers\\Reportes\\Operativos',          'Reportes operativos detallados',       'Reportes', 'CTR', 1)
 ON DUPLICATE KEY UPDATE
   `descripcion_permiso` = VALUES(`descripcion_permiso`),
   `modulo_permiso`      = VALUES(`modulo_permiso`),
@@ -46,9 +49,11 @@ JOIN `permisos` p
     'Menu_CentroReportes',
     'Menu_Kardex',
     'Menu_EquiposCustodio',
+    'Menu_ReportesOperativos',
     'Controllers\\Reportes\\Reportes',
     'Controllers\\Reportes\\Kardex',
-    'Controllers\\Reportes\\EquiposCustodio'
+    'Controllers\\Reportes\\EquiposCustodio',
+    'Controllers\\Reportes\\Operativos'
   )
 WHERE r.`nombre_rol` IN ('Administrador', 'Auditor', 'Tecnico de Soporte', 'Técnico de Soporte');
 
@@ -59,9 +64,11 @@ WHERE p.`nombre_permiso` IN (
   'Menu_CentroReportes',
   'Menu_Kardex',
   'Menu_EquiposCustodio',
+  'Menu_ReportesOperativos',
   'Controllers\\Reportes\\Reportes',
   'Controllers\\Reportes\\Kardex',
-  'Controllers\\Reportes\\EquiposCustodio'
+  'Controllers\\Reportes\\EquiposCustodio',
+  'Controllers\\Reportes\\Operativos'
 )
 ORDER BY p.`id_permiso`;
 
@@ -74,8 +81,10 @@ WHERE p.`nombre_permiso` IN (
   'Menu_CentroReportes',
   'Menu_Kardex',
   'Menu_EquiposCustodio',
+  'Menu_ReportesOperativos',
   'Controllers\\Reportes\\Reportes',
   'Controllers\\Reportes\\Kardex',
-  'Controllers\\Reportes\\EquiposCustodio'
+  'Controllers\\Reportes\\EquiposCustodio',
+  'Controllers\\Reportes\\Operativos'
 )
 ORDER BY r.`id_rol`, p.`id_permiso`;

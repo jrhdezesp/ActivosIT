@@ -11,6 +11,8 @@ parameters.env.*
 /vendor/
 .phpdoc
 data
+backups/
+*.sql.gz
 .vscode
 .idea
 docs/manual_tecnico
