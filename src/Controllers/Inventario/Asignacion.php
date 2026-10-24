@@ -4,6 +4,7 @@ namespace Controllers\Inventario;
 
 use Controllers\PrivateController;
 use Dao\Inventario\Asignaciones as DaoAsignaciones;
+use Utilities\Bitacora;
 use Utilities\CSRF;
 use Utilities\Security;
 use Utilities\Site;
@@ -312,6 +313,7 @@ class Asignacion extends PrivateController
         ];
 
         $oldEquipoId = 0;
+        $before = null;
 
         DaoAsignaciones::beginTransaction();
 
@@ -324,6 +326,7 @@ class Asignacion extends PrivateController
                     throw new \RuntimeException('Solo se pueden editar asignaciones activas.');
                 }
 
+                $before = $current;
                 $oldEquipoId = intval($current['id_equipo'] ?? 0);
             }
 
@@ -364,6 +367,15 @@ class Asignacion extends PrivateController
             DaoAsignaciones::rollback();
             throw $ex;
         }
+
+        Bitacora::registrar(
+            $this->mode === 'INS' ? 'CREAR_ASIGNACION' : 'ACTUALIZAR_ASIGNACION',
+            'Asignaciones',
+            Bitacora::RESULTADO_EXITO,
+            intval($id),
+            $before,
+            $data
+        );
 
         $msg = $this->mode === 'INS' ? 'created' : 'updated';
         Site::redirectTo('index.php?page=Inventario_Asignaciones&msg=' . $msg);
@@ -408,6 +420,21 @@ class Asignacion extends PrivateController
             DaoAsignaciones::rollback();
             throw $ex;
         }
+
+        Bitacora::registrar(
+            'DEVOLVER_EQUIPO',
+            'Asignaciones',
+            Bitacora::RESULTADO_EXITO,
+            $this->id,
+            $current,
+            [
+                'fecha_devolucion' => $fechaDevolucion,
+                'condicion_devolucion' => $this->nullIfEmpty(
+                    strval($this->returnItem['condicion_devolucion'])
+                ),
+                'id_usuario_devolucion' => $userId,
+            ]
+        );
 
         Site::redirectTo('index.php?page=Inventario_Asignaciones&msg=returned');
     }

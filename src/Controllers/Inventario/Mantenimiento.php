@@ -4,6 +4,7 @@ namespace Controllers\Inventario;
 
 use Controllers\PrivateController;
 use Dao\Mantenimientos\Mantenimientos as DaoMantenimientos;
+use Utilities\Bitacora;
 use Utilities\CSRF;
 use Utilities\Security;
 use Utilities\Site;
@@ -297,6 +298,7 @@ class Mantenimiento extends PrivateController
         }
 
         $oldEquipoId = 0;
+        $before = null;
 
         DaoMantenimientos::beginTransaction();
 
@@ -309,6 +311,7 @@ class Mantenimiento extends PrivateController
                     throw new \RuntimeException('Solo se pueden editar mantenimientos en proceso.');
                 }
 
+                $before = $current;
                 $oldEquipoId = intval($current['id_equipo'] ?? 0);
                 if (!DaoMantenimientos::updateMantenimiento($this->id, $data)) {
                     throw new \RuntimeException('No se pudo actualizar el mantenimiento.');
@@ -328,10 +331,24 @@ class Mantenimiento extends PrivateController
         }
 
         if ($completar) {
+            $tipoOperacion = 'COMPLETAR_MANTENIMIENTO';
             $msg = 'completed';
+        } elseif ($this->mode === 'INS') {
+            $tipoOperacion = 'CREAR_MANTENIMIENTO';
+            $msg = 'created';
         } else {
-            $msg = $this->mode === 'INS' ? 'created' : 'updated';
+            $tipoOperacion = 'ACTUALIZAR_MANTENIMIENTO';
+            $msg = 'updated';
         }
+
+        Bitacora::registrar(
+            $tipoOperacion,
+            'Mantenimientos',
+            Bitacora::RESULTADO_EXITO,
+            intval($id),
+            $before,
+            $data
+        );
 
         Site::redirectTo('index.php?page=Inventario_Mantenimientos&msg=' . $msg);
     }
@@ -362,6 +379,15 @@ class Mantenimiento extends PrivateController
             DaoMantenimientos::rollback();
             throw $ex;
         }
+
+        Bitacora::registrar(
+            'CANCELAR_MANTENIMIENTO',
+            'Mantenimientos',
+            Bitacora::RESULTADO_EXITO,
+            $this->id,
+            $current,
+            ['estado_mantenimiento' => 'CANCELADO']
+        );
 
         Site::redirectTo('index.php?page=Inventario_Mantenimientos&msg=cancelled');
     }

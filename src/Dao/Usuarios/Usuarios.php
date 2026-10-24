@@ -175,7 +175,12 @@ class Usuarios extends Table
             'estado' => $estado,
         ];
 
-        return self::executeNonQuery($sqlstr, $params);
+        $conn = self::getConn();
+        if (!self::executeNonQuery($sqlstr, $params, $conn)) {
+            return 0;
+        }
+
+        return intval($conn->lastInsertId());
     }
 
     public static function updateUsuario(

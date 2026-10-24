@@ -182,7 +182,19 @@ INSERT INTO `permisos` (`id_permiso`, `nombre_permiso`, `descripcion_permiso`, `
 (36, 'Controllers\\Inventario\\Entrada',               'Formulario de entrada',                          'Inventario', 'CTR', 1),
 -- Controladores del módulo de salidas de inventario.
 (37, 'Controllers\\Inventario\\Salidas',               'Salidas de inventario (listado)',                'Inventario', 'CTR', 1),
-(38, 'Controllers\\Inventario\\Salida',                'Formulario de salida',                           'Inventario', 'CTR', 1);
+(38, 'Controllers\\Inventario\\Salida',                'Formulario de salida',                           'Inventario', 'CTR', 1),
+-- Controladores del módulo de mantenimientos.
+(39, 'Controllers\\Inventario\\Mantenimientos',        'Mantenimientos de equipos (listado)',             'Inventario', 'CTR', 1),
+(40, 'Controllers\\Inventario\\Mantenimiento',         'Formulario de mantenimiento',                    'Inventario', 'CTR', 1),
+-- Controladores del módulo de asignaciones.
+(41, 'Controllers\\Inventario\\Asignaciones',          'Asignaciones de equipos (listado)',              'Inventario', 'CTR', 1),
+(42, 'Controllers\\Inventario\\Asignacion',            'Formulario de asignación y devolución',          'Inventario', 'CTR', 1),
+-- Controladores del centro de reportes.
+(43, 'Controllers\\Reportes\\Reportes',                'Centro de reportes',                             'Reportes',   'CTR', 1),
+(44, 'Controllers\\Reportes\\Kardex',                  'Kardex de movimientos',                          'Reportes',   'CTR', 1),
+(45, 'Controllers\\Reportes\\EquiposCustodio',         'Equipos por custodio',                           'Reportes',   'CTR', 1),
+-- Controlador de la bitácora de auditoría.
+(46, 'Controllers\\Auditoria\\Auditoria',              'Bitácora de auditoría',                          'Auditoría',  'CTR', 1);
 
 -- Asignación de Roles a Usuarios
 INSERT INTO `usuarios_roles` (`id_usuario`, `id_rol`) VALUES
@@ -192,19 +204,26 @@ INSERT INTO `usuarios_roles` (`id_usuario`, `id_rol`) VALUES
 
 -- Asignación de Permisos a Roles
 INSERT INTO `roles_permisos` (`id_rol`, `id_permiso`) VALUES
--- Administrador: todos los permisos (1..38)
+-- Administrador: todos los permisos (1..46)
 (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8),
 (1, 9), (1, 10), (1, 11), (1, 12), (1, 13), (1, 14), (1, 15), (1, 16),
 (1, 17), (1, 18), (1, 19), (1, 20), (1, 21), (1, 22), (1, 23), (1, 24),
 (1, 25), (1, 26), (1, 27), (1, 28), (1, 29), (1, 30), (1, 31), (1, 32),
-(1, 33), (1, 34), (1, 35), (1, 36), (1, 37), (1, 38),
--- Auditor: consulta de catálogo, artículos, equipos, entradas, salidas y su perfil
-(2, 1), (2, 2), (2, 3), (2, 14), (2, 15), (2, 16), (2, 17), (2, 18), (2, 19), (2, 32),
-(2, 33), (2, 34), (2, 35), (2, 36), (2, 37), (2, 38),
--- Técnico de Soporte: operación de activos, equipos, entradas, salidas y catálogos
+(1, 33), (1, 34), (1, 35), (1, 36), (1, 37), (1, 38), (1, 39), (1, 40),
+(1, 41), (1, 42), (1, 43), (1, 44), (1, 45), (1, 46),
+-- Auditor: consulta de catálogo, artículos, equipos, entradas, salidas,
+-- asignaciones, mantenimientos, reportes, auditoría y su perfil.
+(2, 1), (2, 2), (2, 3), (2, 14), (2, 15), (2, 16), (2, 17), (2, 18),
+(2, 19), (2, 20), (2, 21), (2, 28), (2, 29), (2, 30), (2, 31), (2, 32),
+(2, 33), (2, 34), (2, 35), (2, 36), (2, 37), (2, 38), (2, 39), (2, 41),
+(2, 43), (2, 44), (2, 45), (2, 46),
+-- Técnico de Soporte: operación de activos, equipos, entradas, salidas,
+-- asignaciones, mantenimientos, reportes y catálogos.
 (3, 1), (3, 2), (3, 3), (3, 4), (3, 5), (3, 6), (3, 14), (3, 15),
-(3, 16), (3, 17), (3, 18), (3, 19), (3, 26), (3, 27), (3, 32), (3, 33), (3, 34),
-(3, 35), (3, 36), (3, 37), (3, 38),
+(3, 16), (3, 17), (3, 18), (3, 19), (3, 20), (3, 21), (3, 26), (3, 27),
+(3, 28), (3, 29), (3, 30), (3, 32), (3, 33), (3, 34), (3, 35), (3, 36),
+(3, 37), (3, 38), (3, 39), (3, 40), (3, 41), (3, 42), (3, 43), (3, 44),
+(3, 45),
 -- Público: únicamente su perfil
 (4, 14), (4, 32);
 

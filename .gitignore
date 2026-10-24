@@ -7,7 +7,8 @@ parameters.env.*
 .htaccess
 
 .DS_Store
-vendor
+# Dependencias de Composer: solo se ignora el vendor de la raiz.
+/vendor/
 .phpdoc
 data
 .vscode

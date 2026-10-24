@@ -4,6 +4,7 @@ namespace Controllers\Inventario;
 
 use Controllers\PrivateController;
 use Dao\Inventario\Salidas as DaoSalidas;
+use Utilities\Bitacora;
 use Utilities\CSRF;
 use Utilities\Security;
 use Utilities\Site;
@@ -432,6 +433,8 @@ class Salida extends PrivateController
 
         // El borrador se guarda en su propia transaccion. Si la confirmacion
         // falla (por ejemplo, por existencias), el documento no se pierde.
+        $before = null;
+
         DaoSalidas::beginTransaction();
 
         try {
@@ -444,6 +447,7 @@ class Salida extends PrivateController
                     throw new \RuntimeException('Solo se pueden editar documentos en borrador.');
                 }
 
+                $before = $current;
                 if (!DaoSalidas::updateDocumento($this->id, $data)) {
                     throw new \RuntimeException('No se pudo actualizar el documento de salida.');
                 }
@@ -458,6 +462,19 @@ class Salida extends PrivateController
             throw $ex;
         }
 
+        $auditData = $data;
+        $auditData['estado_doc'] = 'BORRADOR';
+        $auditData['detalles'] = $detalles;
+
+        Bitacora::registrar(
+            $this->mode === 'INS' ? 'CREAR_SALIDA' : 'ACTUALIZAR_SALIDA',
+            'Inventario',
+            Bitacora::RESULTADO_EXITO,
+            intval($docId),
+            $before,
+            $auditData
+        );
+
         if ($confirm) {
             try {
                 DaoSalidas::beginTransaction();
@@ -465,11 +482,28 @@ class Salida extends PrivateController
                 DaoSalidas::commit();
             } catch (\Throwable $ex) {
                 DaoSalidas::rollback();
+                Bitacora::registrar(
+                    'CONFIRMAR_SALIDA',
+                    'Inventario',
+                    Bitacora::RESULTADO_ERROR,
+                    intval($docId),
+                    ['estado_doc' => 'BORRADOR'],
+                    ['error' => $ex->getMessage()]
+                );
                 Site::redirectToWithMsg(
                     'index.php?page=Inventario_Salida&mode=UPD&id=' . $docId . '&msg=confirm_error',
                     $ex->getMessage()
                 );
             }
+
+            Bitacora::registrar(
+                'CONFIRMAR_SALIDA',
+                'Inventario',
+                Bitacora::RESULTADO_EXITO,
+                intval($docId),
+                ['estado_doc' => 'BORRADOR'],
+                ['estado_doc' => 'CONFIRMADO']
+            );
         }
 
         $msg = $confirm ? 'confirmed' : ($this->mode === 'INS' ? 'created' : 'updated');
@@ -502,6 +536,15 @@ class Salida extends PrivateController
             DaoSalidas::rollback();
             throw $ex;
         }
+
+        Bitacora::registrar(
+            'ANULAR_SALIDA',
+            'Inventario',
+            Bitacora::RESULTADO_EXITO,
+            $this->id,
+            $doc,
+            ['estado_doc' => 'ANULADO']
+        );
 
         Site::redirectTo('index.php?page=Inventario_Salidas&msg=annulled');
     }

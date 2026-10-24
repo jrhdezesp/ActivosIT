@@ -3,7 +3,9 @@
 namespace Controllers\Usuarios;
 
 use Controllers\PrivateController;
+use Dao\Roles\Roles as RolesDao;
 use Dao\Usuarios\Usuarios as UsuariosDao;
+use Utilities\Bitacora;
 use Utilities\CSRF;
 use Utilities\Site;
 use Utilities\Validators;
@@ -155,6 +157,16 @@ class Usuario extends PrivateController
             $this->usuario['usertipo']
         );
         if ($result > 0) {
+            $auditData = $this->auditUserData();
+            $auditData['usercod'] = intval($result);
+            Bitacora::registrar(
+                'CREAR_USUARIO',
+                'Seguridad',
+                Bitacora::RESULTADO_EXITO,
+                intval($result),
+                null,
+                $auditData
+            );
             Site::redirectToWithMsg(
                 'index.php?page=Usuarios_Usuarios',
                 'Usuario creado exitosamente'
@@ -164,6 +176,7 @@ class Usuario extends PrivateController
 
     private function handleUpdate()
     {
+        $before = UsuariosDao::getUsuarioById(intval($this->usuario['usercod']));
         $result = UsuariosDao::updateUsuario(
             $this->usuario['usercod'],
             $this->usuario['useremail'],
@@ -173,6 +186,14 @@ class Usuario extends PrivateController
             $this->usuario['usertipo']
         );
         if ($result > 0) {
+            Bitacora::registrar(
+                'ACTUALIZAR_USUARIO',
+                'Seguridad',
+                Bitacora::RESULTADO_EXITO,
+                intval($this->usuario['usercod']),
+                $this->auditUserData($before),
+                $this->auditUserData()
+            );
             Site::redirectToWithMsg(
                 'index.php?page=Usuarios_Usuarios',
                 'Usuario actualizado exitosamente'
@@ -185,8 +206,17 @@ class Usuario extends PrivateController
         if (intval($this->usuario['usercod']) === intval(\Utilities\Security::getUserId())) {
             throw new \Exception('No puede desactivar su propia cuenta.', 1);
         }
+        $before = UsuariosDao::getUsuarioById(intval($this->usuario['usercod']));
         $result = UsuariosDao::deleteUsuario($this->usuario['usercod']);
         if ($result > 0) {
+            Bitacora::registrar(
+                'DESACTIVAR_USUARIO',
+                'Seguridad',
+                Bitacora::RESULTADO_EXITO,
+                intval($this->usuario['usercod']),
+                $this->auditUserData($before),
+                ['userest' => 'INA']
+            );
             Site::redirectToWithMsg(
                 'index.php?page=Usuarios_Usuarios',
                 'Usuario desactivado exitosamente'
@@ -223,16 +253,54 @@ class Usuario extends PrivateController
             throw new \Exception('El estado del rol para el usuario es invalido.', 1);
         }
 
+        if (!RolesDao::getRolById($rolescod)) {
+            Bitacora::registrar(
+                'ACTUALIZAR_ROLES_USUARIO',
+                'Seguridad',
+                Bitacora::RESULTADO_ERROR,
+                intval($this->usuario['usercod']),
+                null,
+                [
+                    'rolescod' => $rolescod,
+                    'roleuserest' => $roleuserest,
+                    'motivo' => 'Rol inexistente',
+                ]
+            );
+            throw new \Exception('El rol seleccionado no existe.', 1);
+        }
+
         UsuariosDao::upsertUsuarioRol(
             intval($this->usuario['usercod']),
             $rolescod,
             $roleuserest
         );
 
+        Bitacora::registrar(
+            'ACTUALIZAR_ROLES_USUARIO',
+            'Seguridad',
+            Bitacora::RESULTADO_EXITO,
+            intval($this->usuario['usercod']),
+            null,
+            ['rolescod' => $rolescod, 'roleuserest' => $roleuserest]
+        );
+
         Site::redirectToWithMsg(
             sprintf('index.php?page=Usuarios_Usuario&mode=%s&usercod=%d', $this->mode, $this->usuario['usercod']),
             'Rol del usuario actualizado exitosamente'
         );
+    }
+
+    private function auditUserData($user = null): array
+    {
+        $user = is_array($user) ? $user : $this->usuario;
+
+        return [
+            'usercod' => intval($user['usercod'] ?? 0),
+            'useremail' => strval($user['useremail'] ?? ''),
+            'username' => strval($user['username'] ?? ''),
+            'userest' => strval($user['userest'] ?? ''),
+            'usertipo' => strval($user['usertipo'] ?? ''),
+        ];
     }
 
     private function setViewData(): void

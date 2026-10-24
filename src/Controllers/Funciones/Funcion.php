@@ -4,6 +4,7 @@ namespace Controllers\Funciones;
 
 use Controllers\PrivateController;
 use Dao\Funciones\Funciones as FuncionesDao;
+use Utilities\Bitacora;
 use Utilities\CSRF;
 use Utilities\Site;
 use Utilities\Validators;
@@ -135,6 +136,14 @@ class Funcion extends PrivateController
             $this->funcion['fntyp']
         );
         if ($result > 0) {
+            Bitacora::registrar(
+                'CREAR_FUNCION',
+                'Seguridad',
+                Bitacora::RESULTADO_EXITO,
+                null,
+                null,
+                $this->auditFuncionData()
+            );
             Site::redirectToWithMsg(
                 'index.php?page=Funciones_Funciones',
                 'Función creada exitosamente'
@@ -144,6 +153,7 @@ class Funcion extends PrivateController
 
     private function handleUpdate()
     {
+        $before = FuncionesDao::getFuncionById($this->funcion['fncod']);
         $result = FuncionesDao::updateFuncion(
             $this->funcion['fncod'],
             $this->funcion['fndsc'],
@@ -151,6 +161,14 @@ class Funcion extends PrivateController
             $this->funcion['fntyp']
         );
         if ($result > 0) {
+            Bitacora::registrar(
+                'ACTUALIZAR_FUNCION',
+                'Seguridad',
+                Bitacora::RESULTADO_EXITO,
+                null,
+                $this->auditFuncionData($before),
+                $this->auditFuncionData()
+            );
             Site::redirectToWithMsg(
                 'index.php?page=Funciones_Funciones',
                 'Función actualizada exitosamente'
@@ -160,13 +178,34 @@ class Funcion extends PrivateController
 
     private function handleDelete()
     {
+        $before = FuncionesDao::getFuncionById($this->funcion['fncod']);
         $result = FuncionesDao::deleteFuncion($this->funcion['fncod']);
         if ($result > 0) {
+            Bitacora::registrar(
+                'DESACTIVAR_FUNCION',
+                'Seguridad',
+                Bitacora::RESULTADO_EXITO,
+                null,
+                $this->auditFuncionData($before),
+                ['fncod' => $this->funcion['fncod'], 'fnest' => 'INA']
+            );
             Site::redirectToWithMsg(
                 'index.php?page=Funciones_Funciones',
                 'Permiso desactivado exitosamente'
             );
         }
+    }
+
+    private function auditFuncionData($funcion = null): array
+    {
+        $funcion = is_array($funcion) ? $funcion : $this->funcion;
+
+        return [
+            'fncod' => strval($funcion['fncod'] ?? ''),
+            'fndsc' => strval($funcion['fndsc'] ?? ''),
+            'fnest' => strval($funcion['fnest'] ?? ''),
+            'fntyp' => strval($funcion['fntyp'] ?? ''),
+        ];
     }
 
     private function setViewData(): void
