@@ -75,6 +75,9 @@ class Articulo extends PrivateController
                 'codigo_interno_articulo',
                 'nombre_articulo',
                 'descripcion_articulo',
+                'marca_articulo',
+                'modelo_articulo',
+                'observaciones_articulo',
                 'id_clasificacion',
                 'id_unidad_medida',
                 'tipo_control',
@@ -104,6 +107,9 @@ class Articulo extends PrivateController
             'codigo_interno_articulo' => '',
             'nombre_articulo' => '',
             'descripcion_articulo' => '',
+            'marca_articulo' => '',
+            'modelo_articulo' => '',
+            'observaciones_articulo' => '',
             'id_clasificacion' => '0',
             'id_unidad_medida' => '0',
             'tipo_control' => 'CANTIDAD',
@@ -119,6 +125,9 @@ class Articulo extends PrivateController
             'codigo_interno_articulo' => strval($row['codigo_interno_articulo'] ?? ''),
             'nombre_articulo' => strval($row['nombre_articulo'] ?? ''),
             'descripcion_articulo' => strval($row['descripcion_articulo'] ?? ''),
+            'marca_articulo' => strval($row['marca_articulo'] ?? ''),
+            'modelo_articulo' => strval($row['modelo_articulo'] ?? ''),
+            'observaciones_articulo' => strval($row['observaciones_articulo'] ?? ''),
             'id_clasificacion' => strval($row['id_clasificacion'] ?? '0'),
             'id_unidad_medida' => strval($row['id_unidad_medida'] ?? '0'),
             'tipo_control' => strval($row['tipo_control'] ?? ''),
@@ -172,6 +181,17 @@ class Articulo extends PrivateController
         $this->item['descripcion_articulo'] = $description;
         if ($this->textLength($description) > 65535) {
             $this->errors['descripcion_articulo'] = 'La descripción supera el máximo permitido.';
+        }
+
+        foreach ([
+            'marca_articulo' => 100,
+            'modelo_articulo' => 150,
+            'observaciones_articulo' => 65535,
+        ] as $field => $maxLength) {
+            $this->item[$field] = trim(strval($this->item[$field] ?? ''));
+            if ($this->textLength($this->item[$field]) > $maxLength) {
+                $this->errors[$field] = 'El contenido supera el máximo permitido.';
+            }
         }
 
         $clasificacionId = intval($this->item['id_clasificacion'] ?? 0);
@@ -242,6 +262,9 @@ class Articulo extends PrivateController
             'codigo_interno_articulo' => strval($this->item['codigo_interno_articulo']),
             'nombre_articulo' => strval($this->item['nombre_articulo']),
             'descripcion_articulo' => $description === '' ? null : $description,
+            'marca_articulo' => $this->nullIfEmpty(strval($this->item['marca_articulo'])),
+            'modelo_articulo' => $this->nullIfEmpty(strval($this->item['modelo_articulo'])),
+            'observaciones_articulo' => $this->nullIfEmpty(strval($this->item['observaciones_articulo'])),
             'id_clasificacion' => intval($this->item['id_clasificacion']),
             'id_unidad_medida' => intval($this->item['id_unidad_medida']),
             'tipo_control' => strval($this->item['tipo_control']),
@@ -381,6 +404,9 @@ class Articulo extends PrivateController
             'FormCode' => strval($this->item['codigo_interno_articulo'] ?? ''),
             'FormName' => strval($this->item['nombre_articulo'] ?? ''),
             'FormArticleDescription' => strval($this->item['descripcion_articulo'] ?? ''),
+            'FormBrand' => strval($this->item['marca_articulo'] ?? ''),
+            'FormModel' => strval($this->item['modelo_articulo'] ?? ''),
+            'FormArticleObservations' => strval($this->item['observaciones_articulo'] ?? ''),
             'FormClasificacion' => $selectedClasificacion,
             'FormUnidad' => $selectedUnidad,
             'FormTipoControl' => strval($this->item['tipo_control'] ?? ''),
@@ -391,6 +417,9 @@ class Articulo extends PrivateController
             'FormCodeError' => strval($this->errors['codigo_interno_articulo'] ?? ''),
             'FormNameError' => strval($this->errors['nombre_articulo'] ?? ''),
             'FormDescriptionError' => strval($this->errors['descripcion_articulo'] ?? ''),
+            'FormBrandError' => strval($this->errors['marca_articulo'] ?? ''),
+            'FormModelError' => strval($this->errors['modelo_articulo'] ?? ''),
+            'FormArticleObservationsError' => strval($this->errors['observaciones_articulo'] ?? ''),
             'FormClasificacionError' => strval($this->errors['id_clasificacion'] ?? ''),
             'FormUnidadError' => strval($this->errors['id_unidad_medida'] ?? ''),
             'FormTipoControlError' => strval($this->errors['tipo_control'] ?? ''),
@@ -523,5 +552,12 @@ class Articulo extends PrivateController
     private function textLength(string $value): int
     {
         return function_exists('mb_strlen') ? mb_strlen($value, 'UTF-8') : strlen($value);
+    }
+
+    private function nullIfEmpty(string $value): ?string
+    {
+        $value = trim($value);
+
+        return $value === '' ? null : $value;
     }
 }

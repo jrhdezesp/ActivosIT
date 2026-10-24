@@ -91,6 +91,8 @@ class Mantenimiento extends PrivateController
                 'tecnico_responsable',
                 'diagnostico_inicial',
                 'trabajo_realizado',
+                'resultado_mantenimiento',
+                'recomendaciones',
                 'repuestos_utilizados',
                 'costo_mantenimiento',
             ];
@@ -112,6 +114,8 @@ class Mantenimiento extends PrivateController
             'tecnico_responsable' => '',
             'diagnostico_inicial' => '',
             'trabajo_realizado' => '',
+            'resultado_mantenimiento' => '',
+            'recomendaciones' => '',
             'repuestos_utilizados' => '',
             'costo_mantenimiento' => '0.00',
             'estado_mantenimiento' => 'EN_PROCESO',
@@ -128,6 +132,9 @@ class Mantenimiento extends PrivateController
             'tecnico_responsable' => strval($row['tecnico_responsable'] ?? ''),
             'diagnostico_inicial' => strval($row['diagnostico_inicial'] ?? ''),
             'trabajo_realizado' => strval($row['trabajo_realizado'] ?? ''),
+            'resultado_mantenimiento' => strval($row['resultado_mantenimiento'] ?? ''),
+            'recomendaciones' => strval($row['recomendaciones'] ?? ''),
+            'motivo_cancelacion' => strval($row['motivo_cancelacion'] ?? ''),
             'repuestos_utilizados' => strval($row['repuestos_utilizados'] ?? ''),
             'costo_mantenimiento' => number_format(
                 floatval($row['costo_mantenimiento'] ?? 0),
@@ -249,6 +256,16 @@ class Mantenimiento extends PrivateController
             $this->errors['trabajo_realizado'] = 'Describe el trabajo realizado antes de completar el mantenimiento.';
         }
 
+        foreach (['resultado_mantenimiento', 'recomendaciones'] as $field) {
+            $this->item[$field] = trim(strval($this->item[$field] ?? ''));
+            if ($this->textLength($this->item[$field]) > 65535) {
+                $this->errors[$field] = 'El contenido supera el máximo permitido.';
+            }
+        }
+        if ($completar && $this->item['resultado_mantenimiento'] === '') {
+            $this->errors['resultado_mantenimiento'] = 'Describe el resultado final antes de completar el mantenimiento.';
+        }
+
         $repuestos = trim(strval($this->item['repuestos_utilizados'] ?? ''));
         $this->item['repuestos_utilizados'] = $repuestos;
         if ($this->textLength($repuestos) > 65535) {
@@ -283,6 +300,8 @@ class Mantenimiento extends PrivateController
             'fecha_recepcion' => $this->normalizeDateTime(strval($this->item['fecha_recepcion'])),
             'diagnostico_inicial' => $this->nullIfEmpty(strval($this->item['diagnostico_inicial'])),
             'trabajo_realizado' => $this->nullIfEmpty(strval($this->item['trabajo_realizado'])),
+            'resultado_mantenimiento' => $this->nullIfEmpty(strval($this->item['resultado_mantenimiento'])),
+            'recomendaciones' => $this->nullIfEmpty(strval($this->item['recomendaciones'])),
             'tecnico_responsable' => strval($this->item['tecnico_responsable']),
             'repuestos_utilizados' => $this->nullIfEmpty(strval($this->item['repuestos_utilizados'])),
             'costo_mantenimiento' => strval($this->item['costo_mantenimiento']),
@@ -370,7 +389,11 @@ class Mantenimiento extends PrivateController
         DaoMantenimientos::beginTransaction();
 
         try {
-            if (!DaoMantenimientos::cancelarMantenimiento($this->id, date('Y-m-d H:i:s'))) {
+            $motivo = trim(strval($_POST['motivo_cancelacion'] ?? ''));
+            if ($motivo === '') {
+                throw new \InvalidArgumentException('Indica el motivo de cancelación.');
+            }
+            if (!DaoMantenimientos::cancelarMantenimiento($this->id, date('Y-m-d H:i:s'), $motivo)) {
                 throw new \RuntimeException('No se pudo cancelar el mantenimiento.');
             }
             DaoMantenimientos::syncEquipoEstado(intval($current['id_equipo'] ?? 0));
@@ -386,7 +409,7 @@ class Mantenimiento extends PrivateController
             Bitacora::RESULTADO_EXITO,
             $this->id,
             $current,
-            ['estado_mantenimiento' => 'CANCELADO']
+            ['estado_mantenimiento' => 'CANCELADO', 'motivo_cancelacion' => $motivo]
         );
 
         Site::redirectTo('index.php?page=Inventario_Mantenimientos&msg=cancelled');
@@ -483,6 +506,9 @@ class Mantenimiento extends PrivateController
             'FormTecnico' => strval($this->item['tecnico_responsable'] ?? ''),
             'FormDiagnostico' => strval($this->item['diagnostico_inicial'] ?? ''),
             'FormTrabajo' => strval($this->item['trabajo_realizado'] ?? ''),
+            'FormResultado' => strval($this->item['resultado_mantenimiento'] ?? ''),
+            'FormRecomendaciones' => strval($this->item['recomendaciones'] ?? ''),
+            'FormMotivoCancelacion' => strval($this->item['motivo_cancelacion'] ?? ''),
             'FormRepuestos' => strval($this->item['repuestos_utilizados'] ?? ''),
             'FormCosto' => strval($this->item['costo_mantenimiento'] ?? '0.00'),
             'FormFechaFinalizacionDisplay' => $fechaFinalDisplay,
@@ -492,6 +518,8 @@ class Mantenimiento extends PrivateController
             'FormTecnicoError' => strval($this->errors['tecnico_responsable'] ?? ''),
             'FormDiagnosticoError' => strval($this->errors['diagnostico_inicial'] ?? ''),
             'FormTrabajoError' => strval($this->errors['trabajo_realizado'] ?? ''),
+            'FormResultadoError' => strval($this->errors['resultado_mantenimiento'] ?? ''),
+            'FormRecomendacionesError' => strval($this->errors['recomendaciones'] ?? ''),
             'FormRepuestosError' => strval($this->errors['repuestos_utilizados'] ?? ''),
             'FormCostoError' => strval($this->errors['costo_mantenimiento'] ?? ''),
             'EquiposOptionsHtml' => $this->buildEquipoOptionsHtml($selectedEquipo),

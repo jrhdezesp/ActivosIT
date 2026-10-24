@@ -94,6 +94,12 @@
             {{if FormCondicionEntregaError}}<p class="form-error">{{!FormCondicionEntregaError}}</p>{{endif FormCondicionEntregaError}}
           </div>
 
+          <div class="form-field form-field--full {{if FormAccesoriosError}}has-error{{endif FormAccesoriosError}}">
+            <label for="accesorios_entregados" class="form-label">Accesorios entregados</label>
+            <textarea name="accesorios_entregados" id="accesorios_entregados" maxlength="65535" rows="3" placeholder="Ej. cargador, mouse, maletín, adaptador HDMI." {{FormReadonly}}>{{!FormAccesorios}}</textarea>
+            {{if FormAccesoriosError}}<p class="form-error">{{!FormAccesoriosError}}</p>{{endif FormAccesoriosError}}
+          </div>
+
           <div class="form-field form-field--full {{if FormObservacionesError}}has-error{{endif FormObservacionesError}}">
             <label for="observaciones" class="form-label">Observaciones</label>
             <textarea name="observaciones" id="observaciones" maxlength="65535" rows="2" placeholder="Notas adicionales sobre la asignación." {{FormReadonly}}>{{!FormObservaciones}}</textarea>

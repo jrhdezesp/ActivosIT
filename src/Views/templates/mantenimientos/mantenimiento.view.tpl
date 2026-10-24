@@ -57,6 +57,12 @@
         {{endif FormWarning}}
 
         <div class="form-grid form-grid--2">
+          {{if FormDanger}}
+          <div class="form-field form-field--full">
+            <label for="motivo_cancelacion" class="form-label form-label--required">Motivo de cancelación</label>
+            <textarea name="motivo_cancelacion" id="motivo_cancelacion" maxlength="65535" rows="3" required placeholder="Indica por qué se cancela el mantenimiento."></textarea>
+          </div>
+          {{endif FormDanger}}
           <div class="form-field form-field--full {{if FormEquipoError}}has-error{{endif FormEquipoError}}">
             <label for="id_equipo" class="form-label {{if FormRequired}}form-label--required{{endif FormRequired}}">Equipo</label>
             <select name="id_equipo" id="id_equipo" {{FormRequired}} {{FormDisabled}}>
@@ -117,6 +123,25 @@
             <textarea name="trabajo_realizado" id="trabajo_realizado" maxlength="65535" rows="3" placeholder="Detalla las tareas ejecutadas sobre el equipo." {{FormReadonly}}>{{!FormTrabajo}}</textarea>
             {{if FormTrabajoError}}<p class="form-error">{{!FormTrabajoError}}</p>{{endif FormTrabajoError}}
           </div>
+
+          <div class="form-field form-field--full {{if FormResultadoError}}has-error{{endif FormResultadoError}}">
+            <label for="resultado_mantenimiento" class="form-label">Resultado final</label>
+            <textarea name="resultado_mantenimiento" id="resultado_mantenimiento" maxlength="65535" rows="3" placeholder="Describe el resultado y la condición final del equipo." {{FormReadonly}}>{{!FormResultado}}</textarea>
+            {{if FormResultadoError}}<p class="form-error">{{!FormResultadoError}}</p>{{endif FormResultadoError}}
+          </div>
+
+          <div class="form-field form-field--full {{if FormRecomendacionesError}}has-error{{endif FormRecomendacionesError}}">
+            <label for="recomendaciones" class="form-label">Recomendaciones</label>
+            <textarea name="recomendaciones" id="recomendaciones" maxlength="65535" rows="3" placeholder="Recomendaciones para el siguiente mantenimiento o uso del equipo." {{FormReadonly}}>{{!FormRecomendaciones}}</textarea>
+            {{if FormRecomendacionesError}}<p class="form-error">{{!FormRecomendacionesError}}</p>{{endif FormRecomendacionesError}}
+          </div>
+
+          {{if FormMotivoCancelacion}}
+          <div class="form-field form-field--full">
+            <label for="motivo_cancelacion_registrado" class="form-label">Motivo de cancelación</label>
+            <textarea id="motivo_cancelacion_registrado" rows="3" readonly class="entry-form__readonly">{{!FormMotivoCancelacion}}</textarea>
+          </div>
+          {{endif FormMotivoCancelacion}}
 
           <div class="form-field form-field--full {{if FormRepuestosError}}has-error{{endif FormRepuestosError}}">
             <label for="repuestos_utilizados" class="form-label">Repuestos utilizados</label>

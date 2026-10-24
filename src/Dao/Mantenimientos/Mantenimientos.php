@@ -266,12 +266,13 @@ class Mantenimientos extends Table
         self::executeNonQuery(
             'INSERT INTO mantenimientos ('
             . 'id_equipo, id_tipo_mantenimiento, fecha_recepcion,'
-            . ' diagnostico_inicial, trabajo_realizado, tecnico_responsable,'
+            . ' diagnostico_inicial, trabajo_realizado, resultado_mantenimiento,'
+            . ' recomendaciones, tecnico_responsable,'
             . ' repuestos_utilizados, costo_mantenimiento, fecha_finalizacion,'
             . ' estado_mantenimiento, id_usuario_registro'
             . ') VALUES ('
             . ':equipo, :tipo, :fechaRecepcion,'
-            . ' :diagnostico, :trabajo, :tecnico,'
+            . ' :diagnostico, :trabajo, :resultado, :recomendaciones, :tecnico,'
             . ' :repuestos, :costo, :fechaFinalizacion,'
             . ' :estado, :usuario'
             . ')',
@@ -281,6 +282,8 @@ class Mantenimientos extends Table
                 'fechaRecepcion' => $data['fecha_recepcion'],
                 'diagnostico' => $data['diagnostico_inicial'],
                 'trabajo' => $data['trabajo_realizado'],
+                'resultado' => $data['resultado_mantenimiento'],
+                'recomendaciones' => $data['recomendaciones'],
                 'tecnico' => $data['tecnico_responsable'],
                 'repuestos' => $data['repuestos_utilizados'],
                 'costo' => $data['costo_mantenimiento'],
@@ -310,6 +313,8 @@ class Mantenimientos extends Table
             . ' fecha_recepcion = :fechaRecepcion,'
             . ' diagnostico_inicial = :diagnostico,'
             . ' trabajo_realizado = :trabajo,'
+            . ' resultado_mantenimiento = :resultado,'
+            . ' recomendaciones = :recomendaciones,'
             . ' tecnico_responsable = :tecnico,'
             . ' repuestos_utilizados = :repuestos,'
             . ' costo_mantenimiento = :costo,'
@@ -322,6 +327,8 @@ class Mantenimientos extends Table
                 'fechaRecepcion' => $data['fecha_recepcion'],
                 'diagnostico' => $data['diagnostico_inicial'],
                 'trabajo' => $data['trabajo_realizado'],
+                'resultado' => $data['resultado_mantenimiento'],
+                'recomendaciones' => $data['recomendaciones'],
                 'tecnico' => $data['tecnico_responsable'],
                 'repuestos' => $data['repuestos_utilizados'],
                 'costo' => $data['costo_mantenimiento'],
@@ -332,13 +339,17 @@ class Mantenimientos extends Table
         );
     }
 
-    public static function cancelarMantenimiento(int $id, string $fechaFinalizacion): bool
+    public static function cancelarMantenimiento(
+        int $id,
+        string $fechaFinalizacion,
+        ?string $motivoCancelacion
+    ): bool
     {
         return self::executeNonQuery(
             "UPDATE mantenimientos SET estado_mantenimiento = 'CANCELADO',"
-            . ' fecha_finalizacion = :fecha'
+            . ' fecha_finalizacion = :fecha, motivo_cancelacion = :motivo'
             . " WHERE id_mantenimiento = :id AND estado_mantenimiento = 'EN_PROCESO'",
-            ['fecha' => $fechaFinalizacion, 'id' => $id]
+            ['fecha' => $fechaFinalizacion, 'motivo' => $motivoCancelacion, 'id' => $id]
         );
     }
 

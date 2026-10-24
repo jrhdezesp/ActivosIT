@@ -39,11 +39,15 @@ class Articulos extends Table
         if ($search !== '') {
             $conditions[] = '(a.codigo_interno_articulo LIKE :searchCode'
                 . ' OR a.nombre_articulo LIKE :searchName'
-                . ' OR a.descripcion_articulo LIKE :searchDescription)';
+                . ' OR a.descripcion_articulo LIKE :searchDescription'
+                . ' OR a.marca_articulo LIKE :searchBrand'
+                . ' OR a.modelo_articulo LIKE :searchModel)';
             $searchValue = '%' . $search . '%';
             $params['searchCode'] = $searchValue;
             $params['searchName'] = $searchValue;
             $params['searchDescription'] = $searchValue;
+            $params['searchBrand'] = $searchValue;
+            $params['searchModel'] = $searchValue;
         }
 
         if ($status !== '') {
@@ -226,16 +230,20 @@ class Articulos extends Table
         return self::executeNonQuery(
             'INSERT INTO articulos ('
             . 'codigo_interno_articulo, nombre_articulo, descripcion_articulo,'
+            . ' marca_articulo, modelo_articulo, observaciones_articulo,'
             . ' id_clasificacion, id_unidad_medida, tipo_control,'
             . ' existencia_minima, existencia_actual, estado_registro, fecha_creacion'
             . ') VALUES ('
-            . ':codigo, :nombre, :descripcion, :clasificacion, :unidad, :control,'
+            . ':codigo, :nombre, :descripcion, :marca, :modelo, :observaciones, :clasificacion, :unidad, :control,'
             . ' :existenciaMinima, :existenciaActual, :estado, NOW()'
             . ')',
             [
                 'codigo' => $data['codigo_interno_articulo'],
                 'nombre' => $data['nombre_articulo'],
                 'descripcion' => $data['descripcion_articulo'],
+                'marca' => $data['marca_articulo'],
+                'modelo' => $data['modelo_articulo'],
+                'observaciones' => $data['observaciones_articulo'],
                 'clasificacion' => intval($data['id_clasificacion']),
                 'unidad' => intval($data['id_unidad_medida']),
                 'control' => $data['tipo_control'],
@@ -252,6 +260,8 @@ class Articulos extends Table
             'UPDATE articulos SET'
             . ' codigo_interno_articulo = :codigo, nombre_articulo = :nombre,'
             . ' descripcion_articulo = :descripcion, id_clasificacion = :clasificacion,'
+            . ' marca_articulo = :marca, modelo_articulo = :modelo,'
+            . ' observaciones_articulo = :observaciones,'
             . ' id_unidad_medida = :unidad, tipo_control = :control,'
             . ' existencia_minima = :existenciaMinima,'
             . ' estado_registro = :estado, fecha_modificacion = NOW()'
@@ -260,6 +270,9 @@ class Articulos extends Table
                 'codigo' => $data['codigo_interno_articulo'],
                 'nombre' => $data['nombre_articulo'],
                 'descripcion' => $data['descripcion_articulo'],
+                'marca' => $data['marca_articulo'],
+                'modelo' => $data['modelo_articulo'],
+                'observaciones' => $data['observaciones_articulo'],
                 'clasificacion' => intval($data['id_clasificacion']),
                 'unidad' => intval($data['id_unidad_medida']),
                 'control' => $data['tipo_control'],

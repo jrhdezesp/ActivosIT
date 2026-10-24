@@ -54,6 +54,24 @@
             {{if FormDescriptionError}}<p class="form-error">{{!FormDescriptionError}}</p>{{endif FormDescriptionError}}
           </div>
 
+          <div class="form-field {{if FormBrandError}}has-error{{endif FormBrandError}}">
+            <label for="marca_articulo" class="form-label">Marca</label>
+            <input type="text" name="marca_articulo" id="marca_articulo" value="{{!FormBrand}}" maxlength="100" {{FormReadonly}} placeholder="Ej. Dell" />
+            {{if FormBrandError}}<p class="form-error">{{!FormBrandError}}</p>{{endif FormBrandError}}
+          </div>
+
+          <div class="form-field {{if FormModelError}}has-error{{endif FormModelError}}">
+            <label for="modelo_articulo" class="form-label">Modelo</label>
+            <input type="text" name="modelo_articulo" id="modelo_articulo" value="{{!FormModel}}" maxlength="150" {{FormReadonly}} placeholder="Ej. Latitude 3420" />
+            {{if FormModelError}}<p class="form-error">{{!FormModelError}}</p>{{endif FormModelError}}
+          </div>
+
+          <div class="form-field form-field--full {{if FormArticleObservationsError}}has-error{{endif FormArticleObservationsError}}">
+            <label for="observaciones_articulo" class="form-label">Observaciones del artículo</label>
+            <textarea name="observaciones_articulo" id="observaciones_articulo" maxlength="65535" {{FormReadonly}} rows="3" placeholder="Notas generales del artículo.">{{!FormArticleObservations}}</textarea>
+            {{if FormArticleObservationsError}}<p class="form-error">{{!FormArticleObservationsError}}</p>{{endif FormArticleObservationsError}}
+          </div>
+
           <div class="form-field {{if FormClasificacionError}}has-error{{endif FormClasificacionError}}">
             <label for="id_clasificacion" class="form-label {{if FormRequired}}form-label--required{{endif FormRequired}}">Clasificación</label>
             <select name="id_clasificacion" id="id_clasificacion" {{FormRequired}} {{FormDisabled}}>
