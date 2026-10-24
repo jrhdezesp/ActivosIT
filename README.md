@@ -214,9 +214,10 @@ mysql -u root -p activosit < docs/scripts/09_mantenimientos_permisos.sql
 mysql -u root -p activosit < docs/scripts/10_asignaciones_permisos.sql
 mysql -u root -p activosit < docs/scripts/11_reportes_permisos.sql
 mysql -u root -p activosit < docs/scripts/12_auditoria_permisos.sql
+mysql -u root -p activosit < docs/scripts/13_modelo_operativo.sql
 ```
 
-Todas son idempotentes y no modifican existencias, documentos ni eventos. Cierra sesión y vuelve a entrar para refrescar el menú.
+Todas son idempotentes y no modifican existencias, documentos ni eventos. La migración 13 agrega marca, modelo y observaciones de artículos, resultado y recomendaciones de mantenimiento, motivo de cancelación y accesorios entregados en asignaciones. Cierra sesión y vuelve a entrar para refrescar el menú.
 
 ### Bitácora de auditoría
 

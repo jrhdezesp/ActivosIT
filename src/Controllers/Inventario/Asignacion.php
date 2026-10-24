@@ -100,6 +100,7 @@ class Asignacion extends PrivateController
             'departamento_destino' => '',
             'fecha_asignacion' => date('Y-m-d\TH:i'),
             'condicion_entrega' => '',
+            'accesorios_entregados' => '',
             'observaciones' => '',
         ];
 
@@ -117,6 +118,7 @@ class Asignacion extends PrivateController
             'departamento_destino' => strval($row['departamento_destino'] ?? ''),
             'fecha_asignacion' => $this->toInputDateTime(strval($row['fecha_asignacion'] ?? '')),
             'condicion_entrega' => strval($row['condicion_entrega'] ?? ''),
+            'accesorios_entregados' => strval($row['accesorios_entregados'] ?? ''),
             'observaciones' => strval($row['observaciones'] ?? ''),
         ];
     }
@@ -141,6 +143,7 @@ class Asignacion extends PrivateController
             'departamento_destino',
             'fecha_asignacion',
             'condicion_entrega',
+            'accesorios_entregados',
             'observaciones',
         ];
 
@@ -255,6 +258,12 @@ class Asignacion extends PrivateController
             $this->errors['observaciones'] = 'Las observaciones superan el máximo permitido.';
         }
 
+        $accesorios = trim(strval($this->item['accesorios_entregados'] ?? ''));
+        $this->item['accesorios_entregados'] = $accesorios;
+        if ($this->textLength($accesorios) > 65535) {
+            $this->errors['accesorios_entregados'] = 'Los accesorios superan el máximo permitido.';
+        }
+
         return count($this->errors) === 0;
     }
 
@@ -309,6 +318,7 @@ class Asignacion extends PrivateController
             'id_usuario_entrega' => $userId,
             'fecha_asignacion' => $fechaAsignacion,
             'condicion_entrega' => $this->nullIfEmpty(strval($this->item['condicion_entrega'])),
+            'accesorios_entregados' => $this->nullIfEmpty(strval($this->item['accesorios_entregados'])),
             'observaciones' => $this->nullIfEmpty(strval($this->item['observaciones'])),
         ];
 
@@ -529,6 +539,7 @@ class Asignacion extends PrivateController
             'FormDepartamento' => strval($this->item['departamento_destino'] ?? ''),
             'FormFechaAsignacion' => strval($this->item['fecha_asignacion'] ?? ''),
             'FormCondicionEntrega' => strval($this->item['condicion_entrega'] ?? ''),
+            'FormAccesorios' => strval($this->item['accesorios_entregados'] ?? ''),
             'FormObservaciones' => strval($this->item['observaciones'] ?? ''),
             'FormFechaDevolucion' => strval($this->returnItem['fecha_devolucion'] ?? ''),
             'FormCondicionDevolucion' => strval($this->returnItem['condicion_devolucion'] ?? ''),
@@ -538,6 +549,7 @@ class Asignacion extends PrivateController
             'FormDepartamentoError' => strval($this->errors['departamento_destino'] ?? ''),
             'FormFechaAsignacionError' => strval($this->errors['fecha_asignacion'] ?? ''),
             'FormCondicionEntregaError' => strval($this->errors['condicion_entrega'] ?? ''),
+            'FormAccesoriosError' => strval($this->errors['accesorios_entregados'] ?? ''),
             'FormObservacionesError' => strval($this->errors['observaciones'] ?? ''),
             'FormFechaDevolucionError' => strval($this->returnErrors['fecha_devolucion'] ?? ''),
             'FormCondicionDevolucionError' => strval($this->returnErrors['condicion_devolucion'] ?? ''),

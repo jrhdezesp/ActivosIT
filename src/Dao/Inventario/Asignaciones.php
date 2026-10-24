@@ -299,11 +299,11 @@ class Asignaciones extends Table
         self::executeNonQuery(
             'INSERT INTO asignaciones_devoluciones ('
             . 'id_equipo, persona_responsable, departamento_destino,'
-            . ' id_usuario_entrega, fecha_asignacion, condicion_entrega,'
+            . ' id_usuario_entrega, fecha_asignacion, condicion_entrega, accesorios_entregados,'
             . ' estado_asignacion, observaciones'
             . ') VALUES ('
             . ':equipo, :persona, :departamento,'
-            . ' :usuarioEntrega, :fechaAsignacion, :condicionEntrega,'
+            . ' :usuarioEntrega, :fechaAsignacion, :condicionEntrega, :accesorios,'
             . " 'ACTIVA', :observaciones"
             . ')',
             [
@@ -313,6 +313,7 @@ class Asignaciones extends Table
                 'usuarioEntrega' => intval($data['id_usuario_entrega']),
                 'fechaAsignacion' => $data['fecha_asignacion'],
                 'condicionEntrega' => $data['condicion_entrega'],
+                'accesorios' => $data['accesorios_entregados'],
                 'observaciones' => $data['observaciones'],
             ]
         );
@@ -336,6 +337,7 @@ class Asignaciones extends Table
             . ' departamento_destino = :departamento,'
             . ' fecha_asignacion = :fechaAsignacion,'
             . ' condicion_entrega = :condicionEntrega,'
+            . ' accesorios_entregados = :accesorios,'
             . ' observaciones = :observaciones'
             . " WHERE id_asignacion = :id AND estado_asignacion = 'ACTIVA'",
             [
@@ -344,6 +346,7 @@ class Asignaciones extends Table
                 'departamento' => $data['departamento_destino'],
                 'fechaAsignacion' => $data['fecha_asignacion'],
                 'condicionEntrega' => $data['condicion_entrega'],
+                'accesorios' => $data['accesorios_entregados'],
                 'observaciones' => $data['observaciones'],
                 'id' => $id,
             ]
