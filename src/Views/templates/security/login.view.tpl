@@ -11,7 +11,7 @@
             <h1>Iniciar Sesión</h1>
           </div>
 
-          <form class="auth-form" method="post" action="index.php?page=sec_login{{if redirto}}&redirto={{!redirto}}{{endif redirto}}">
+          <form class="auth-form" method="post" action="index.php?page=Sec_Login{{if redirto}}&redirto={{!redirto}}{{endif redirto}}">
             <input type="hidden" name="csrf_token" value="{{csrf_token}}" />
 
             <div class="auth-field">

@@ -40,12 +40,21 @@ class Site
     }
     public static function getPageRequest()
     {
+        $hasExplicitPage = isset($_GET["page"]);
         $pageRequest = Context::getContextByKey("PUBLIC_DEFAULT_CONTROLLER");
         if (\Utilities\Security::isLogged()) {
             $pageRequest = Context::getContextByKey("PRIVATE_DEFAULT_CONTROLLER");
+            if ($pageRequest === "" || strcasecmp($pageRequest, "Index") === 0) {
+                $pageRequest = "Dashboard_Dashboard";
+            }
         }
-        if (isset($_GET["page"]) && is_string($_GET["page"])) {
-            $pageRequest = str_replace(array("_", "-", "."), "\\", $_GET["page"]);
+        $pageRequestIsValid = true;
+        if (isset($_GET["page"])) {
+            if (!is_string($_GET["page"]) || trim($_GET["page"]) === "") {
+                $pageRequestIsValid = false;
+            } else {
+                $pageRequest = str_replace(array("_", "-", "."), "\\", $_GET["page"]);
+            }
         }
         // Solo se expone al contexto el parametro redirto. No se deben volcar
         // todos los parametros GET porque podrian sobrescribir configuracion
@@ -53,13 +62,34 @@ class Site
         $redirto = $_GET["redirto"] ?? "";
         Context::setContext("redirto", is_string($redirto) ? $redirto : "");
         Context::setContext("request_uri", $_SERVER["REQUEST_URI"] ?? "");
-        $pageRequest = "Controllers\\" . $pageRequest;
+        $pageRequest = "Controllers\\"
+            . str_replace(array("_", "-", "."), "\\", $pageRequest);
 
-        // Solo se permite instanciar controladores registrados.
-        if (
-            !class_exists($pageRequest)
-            || !is_subclass_of($pageRequest, \Controllers\IController::class)
-        ) {
+        if (\Utilities\Security::isLogged()) {
+            $publicEntryPoints = array(
+                "Controllers\\Index",
+                "Controllers\\Sec\\Login",
+                "Controllers\\Sec\\Register",
+                "Controllers\\NoAuth",
+            );
+            if ($hasExplicitPage && in_array($pageRequest, $publicEntryPoints, true)) {
+                self::redirectTo("index.php?page=Dashboard_Dashboard");
+            }
+        } elseif ($pageRequest !== "Controllers\\Sec\\Login"
+            && $pageRequest !== "Controllers\\Sec\\Logout") {
+            self::redirectTo("index.php?page=Sec_Login");
+        }
+
+        // Solo se permite instanciar controladores concretos y registrados.
+        if ($pageRequestIsValid && class_exists($pageRequest)) {
+            $reflection = new \ReflectionClass($pageRequest);
+            $pageRequestIsValid = $reflection->isInstantiable()
+                && $reflection->implementsInterface(\Controllers\IController::class);
+        } else {
+            $pageRequestIsValid = false;
+        }
+
+        if (!$pageRequestIsValid) {
             Context::setContext("ERROR_CODE", 404);
             return "Controllers\\Error";
         }
@@ -161,6 +191,5 @@ class Site
     {
         error_log($ex);
         \Utilities\Context::setContext("ERROR_CODE", $errorCode);
-        \Utilities\Context::setContext("ERROR_MSG", (string) $ex);
     }
 }

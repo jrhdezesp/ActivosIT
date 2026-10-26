@@ -13,9 +13,6 @@ class Login extends \Controllers\PublicController
     public function run() :void
     {
         $this->csrf_token = \Utilities\CSRF::token('login');
-        if (!\Utilities\Site::isLocalUrl(\Utilities\Context::getContextByKey('redirto'))) {
-            \Utilities\Context::setContext('redirto', '');
-        }
         if ($this->isPostBack() && !\Utilities\CSRF::validate('login', $_POST['csrf_token'] ?? '')) {
             $this->txtEmail = strval($_POST['txtEmail'] ?? '');
             $this->generalError = "El formulario expiró o no es válido. Intente de nuevo.";
@@ -109,13 +106,7 @@ class Login extends \Controllers\PublicController
                                 'nombre' => $dbUser["username"],
                             ]
                         );
-                        if (\Utilities\Context::getContextByKey("redirto") !== "") {
-                            \Utilities\Site::redirectTo(
-                                \Utilities\Context::getContextByKey("redirto")
-                            );
-                        } else {
-                            \Utilities\Site::redirectTo("index.php?page=Dashboard_Dashboard");
-                        }
+                        \Utilities\Site::redirectTo("index.php?page=Dashboard_Dashboard");
                     }
                 } else {
                     error_log(
