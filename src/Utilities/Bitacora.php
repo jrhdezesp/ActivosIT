@@ -54,12 +54,25 @@ class Bitacora
     }
 
     /**
-     * Solo se usa REMOTE_ADDR. No se confia en cabeceras como
-     * X-Forwarded-For porque el cliente puede falsificarlas.
+     * Obtiene la direccion IP del cliente. Solo se usa REMOTE_ADDR como
+     * fuente primaria porque el cliente puede falsificar cabeceras como
+     * X-Forwarded-For. Se normaliza ::1 a 127.0.0.1 para consistencia.
      */
     public static function getClientIp(): ?string
     {
         $ip = trim(strval($_SERVER['REMOTE_ADDR'] ?? ''));
+
+        // Eliminar puerto si viene incluido (ej: 127.0.0.1:8080)
+        if (strpos($ip, ':') !== false && strpos($ip, '::') === false) {
+            $parts = explode(':', $ip);
+            $ip = $parts[0];
+        }
+
+        // Normalizar IPv6 loopback a IPv4
+        if ($ip === '::1') {
+            $ip = '127.0.0.1';
+        }
+
         if ($ip === '' || filter_var($ip, FILTER_VALIDATE_IP) === false) {
             return null;
         }

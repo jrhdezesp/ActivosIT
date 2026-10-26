@@ -48,15 +48,23 @@ JOIN `permisos` p
   ON p.`nombre_permiso` IN (
     'Menu_Equipos',
     'Controllers\\Equipos\\Equipos',
-    'Controllers\\Equipos\\Equipo',
     'Menu_Entradas',
     'Controllers\\Inventario\\Entradas',
-    'Controllers\\Inventario\\Entrada',
     'Menu_Salidas',
-    'Controllers\\Inventario\\Salidas',
-    'Controllers\\Inventario\\Salida'
+    'Controllers\\Inventario\\Salidas'
   )
 WHERE r.`nombre_rol` IN ('Administrador', 'Auditor', 'Tecnico de Soporte', 'Técnico de Soporte');
+
+INSERT IGNORE INTO `roles_permisos` (`id_rol`, `id_permiso`)
+SELECT r.`id_rol`, p.`id_permiso`
+FROM `roles` r
+JOIN `permisos` p
+  ON p.`nombre_permiso` IN (
+    'Controllers\\Equipos\\Equipo',
+    'Controllers\\Inventario\\Entrada',
+    'Controllers\\Inventario\\Salida'
+  )
+WHERE r.`nombre_rol` IN ('Administrador', 'Tecnico de Soporte', 'Técnico de Soporte');
 
 -- 3. Verificacion de permisos.
 SELECT p.`id_permiso`, p.`nombre_permiso`, p.`modulo_permiso`, p.`tipo_permiso`, p.`estado_permiso`

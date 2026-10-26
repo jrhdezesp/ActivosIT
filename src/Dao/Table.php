@@ -39,8 +39,8 @@ abstract class Table
             $pConn = self::getConn();
         }
         $query = $pConn->prepare($sqlstr);
-        foreach ($params as $key=>&$value) {
-            $query->bindParam(":".$key, $value, self::getBindType($value));
+        foreach ($params as $key => $value) {
+            $query->bindValue(":" . $key, $value, self::getBindType($value));
         }
         $query->execute();
         $query->setFetchMode(\PDO::FETCH_ASSOC);
@@ -56,8 +56,8 @@ abstract class Table
             $pConn = self::getConn();
         }
         $query = $pConn->prepare($sqlstr);
-        foreach ($params as $key => &$value) {
-            $query->bindParam(":" . $key, $value, self::getBindType($value));
+        foreach ($params as $key => $value) {
+            $query->bindValue(":" . $key, $value, self::getBindType($value));
         }
         $query->execute();
         $query->setFetchMode(\PDO::FETCH_ASSOC);
@@ -74,8 +74,8 @@ abstract class Table
             $pConn = self::getConn();
         }
         $query = $pConn->prepare($sqlstr);
-        foreach ($params as $key => &$value) {
-            $query->bindParam(":" . $key, $value, self::getBindType($value));
+        foreach ($params as $key => $value) {
+            $query->bindValue(":" . $key, $value, self::getBindType($value));
         }
         return $query->execute();
     }
