@@ -353,6 +353,33 @@ class Equipos extends Table
         );
     }
 
+    public static function tieneHistorialOperativo(int $equipoId): bool
+    {
+        if ($equipoId <= 0) {
+            return false;
+        }
+
+        // Verificar asignaciones (activas o devueltas)
+        $asignaciones = self::obtenerUnRegistro(
+            'SELECT COUNT(*) AS total FROM asignaciones_devoluciones WHERE id_equipo = :id',
+            ['id' => $equipoId]
+        );
+        if (intval($asignaciones['total'] ?? 0) > 0) {
+            return true;
+        }
+
+        // Verificar mantenimientos (cualquier estado)
+        $mantenimientos = self::obtenerUnRegistro(
+            'SELECT COUNT(*) AS total FROM mantenimientos WHERE id_equipo = :id',
+            ['id' => $equipoId]
+        );
+        if (intval($mantenimientos['total'] ?? 0) > 0) {
+            return true;
+        }
+
+        return false;
+    }
+
     public static function deactivateEquipo(int $id): bool
     {
         return self::executeNonQuery(

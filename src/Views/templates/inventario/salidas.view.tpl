@@ -5,12 +5,14 @@
       <h1 class="data-panel__title">Salidas de inventario</h1>
       <p class="data-panel__description">Registra y confirma el despacho, la baja o el ajuste negativo de artículos y equipos.</p>
     </div>
+    {{if CanManage}}
     <div class="data-panel__actions">
       <a class="button button--primary" href="{{!CreateUrl}}">
         <i class="fa-solid fa-plus" aria-hidden="true"></i>
         Nueva salida
       </a>
     </div>
+    {{endif CanManage}}
   </div>
 
   <div class="article-summary" aria-label="Resumen de salidas">
@@ -120,7 +122,9 @@
               <i class="fa-solid {{SortEstadoIcon}}" aria-hidden="true"></i>
             </a>
           </th>
+          {{if CanManage}}
           <th class="data-table__col--actions is-right" scope="col">Acciones</th>
+          {{endif CanManage}}
         </tr>
       </thead>
       <tbody>
@@ -128,9 +132,10 @@
         <tr>
           <td>
             <div class="equipment-stack">
-              <a class="data-table__link" href="{{!editUrl}}" title="Ver {{!correlativo}}">
+              {{if ~CanManage}}<a class="data-table__link" href="{{!editUrl}}" title="Ver {{!correlativo}}">
                 <span class="data-table__code">{{!correlativo}}</span>
-              </a>
+              </a>{{endif ~CanManage}}
+              {{ifnot ~CanManage}}<span class="data-table__code">{{!correlativo}}</span>{{endifnot ~CanManage}}
               <span class="data-table__subtext" title="{{!tipo}}">{{!tipo}}</span>
             </div>
           </td>
@@ -158,6 +163,7 @@
               {{!estadoLabel}}
             </span>
           </td>
+          {{if ~CanManage}}
           <td>
             <div class="data-table__actions">
               <a class="table-action" href="{{!editUrl}}" title="{{!rowActionTitle}} {{!correlativo}}" aria-label="{{!rowActionTitle}} {{!correlativo}}">
@@ -170,6 +176,7 @@
               {{endif canAnnul}}
             </div>
           </td>
+          {{endif ~CanManage}}
         </tr>
         {{endfor Salidas}}
       </tbody>
@@ -183,10 +190,12 @@
     <h2 class="empty-state__title">{{!EmptyTitle}}</h2>
     <p class="empty-state__description">{{!EmptyDescription}}</p>
     <div class="empty-state__actions">
+      {{if CanManage}}
       <a class="button button--primary button--sm" href="{{!CreateUrl}}">
         <i class="fa-solid fa-plus" aria-hidden="true"></i>
         Nueva salida
       </a>
+      {{endif CanManage}}
       {{if HasFilters}}
       <a class="button button--ghost button--sm" href="{{!ClearUrl}}">
         <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>

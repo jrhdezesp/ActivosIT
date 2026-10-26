@@ -203,7 +203,7 @@ class Mantenimientos extends PrivateController
         $tipo = trim(strval($row['nombre_tipo'] ?? ''));
         $tecnico = trim(strval($row['tecnico_responsable'] ?? ''));
 
-        $equipoLabel = $serie !== '' ? $serie : 'Equipo #' . $id;
+        $equipoLabel = $serie !== '' ? $serie : 'Equipo #' . intval($row['id_equipo'] ?? 0);
         if ($patrimonial !== '') {
             $equipoLabel .= ' · ' . $patrimonial;
         }

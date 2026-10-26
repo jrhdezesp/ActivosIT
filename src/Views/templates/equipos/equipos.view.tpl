@@ -5,12 +5,14 @@
       <h1 class="data-panel__title">Equipos individuales</h1>
       <p class="data-panel__description">Controla los equipos serializados, su ubicación, garantía y estado operativo.</p>
     </div>
+    {{if CanManage}}
     <div class="data-panel__actions">
       <a class="button button--primary" href="{{!CreateUrl}}">
         <i class="fa-solid fa-plus" aria-hidden="true"></i>
         Nuevo equipo
       </a>
     </div>
+    {{endif CanManage}}
   </div>
 
   <div class="article-summary" aria-label="Resumen de equipos activos">
@@ -128,7 +130,9 @@
               <i class="fa-solid {{SortDateIcon}}" aria-hidden="true"></i>
             </a>
           </th>
+          {{if CanManage}}
           <th class="data-table__col--actions is-right" scope="col">Acciones</th>
+          {{endif CanManage}}
         </tr>
       </thead>
       <tbody>
@@ -136,16 +140,18 @@
         <tr>
           <td>
             <div class="equipment-stack">
-              <a class="data-table__link" href="{{!editUrl}}" title="Editar {{!serial}}">
+              {{if ~CanManage}}<a class="data-table__link" href="{{!editUrl}}" title="Editar {{!serial}}">
                 <span class="data-table__code">{{!serial}}</span>
-              </a>
+              </a>{{endif ~CanManage}}
+              {{ifnot ~CanManage}}<span class="data-table__code">{{!serial}}</span>{{endifnot ~CanManage}}
               <span class="data-table__subtext" title="{{!patrimonial}}">{{!patrimonial}}</span>
               {{if isInactive}}<span class="badge badge--danger">Inactivo</span>{{endif isInactive}}
             </div>
           </td>
           <td>
             <div class="data-table__stack">
-              <a class="data-table__link data-table__truncate" href="{{!editUrl}}" title="Editar {{!article}}">{{!article}}</a>
+              {{if ~CanManage}}<a class="data-table__link data-table__truncate" href="{{!editUrl}}" title="Editar {{!article}}">{{!article}}</a>{{endif ~CanManage}}
+              {{ifnot ~CanManage}}<span class="data-table__truncate">{{!article}}</span>{{endifnot ~CanManage}}
               <span class="data-table__subtext">{{!articleCode}}</span>
             </div>
           </td>
@@ -168,6 +174,7 @@
               {{endif warrantyBadge}}
             </div>
           </td>
+          {{if ~CanManage}}
           <td>
             <div class="data-table__actions">
               <a class="table-action" href="{{!editUrl}}" title="Editar {{!serial}}" aria-label="Editar {{!serial}}">
@@ -178,6 +185,7 @@
               </a>
             </div>
           </td>
+          {{endif ~CanManage}}
         </tr>
         {{endfor Equipos}}
       </tbody>
@@ -191,10 +199,12 @@
     <h2 class="empty-state__title">{{!EmptyTitle}}</h2>
     <p class="empty-state__description">{{!EmptyDescription}}</p>
     <div class="empty-state__actions">
+      {{if CanManage}}
       <a class="button button--primary button--sm" href="{{!CreateUrl}}">
         <i class="fa-solid fa-plus" aria-hidden="true"></i>
         Nuevo equipo
       </a>
+      {{endif CanManage}}
       {{if HasFilters}}
       <a class="button button--ghost button--sm" href="{{!ClearUrl}}">
         <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>

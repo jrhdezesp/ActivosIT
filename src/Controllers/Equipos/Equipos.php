@@ -119,6 +119,7 @@ class Equipos extends PrivateController
 
     private function buildViewData(array $result): array
     {
+        $canManage = $this->isFeatureAutorized('Controllers\\Equipos\\Equipo');
         $equipos = [];
         foreach ($result['equipos'] as $row) {
             $equipos[] = $this->mapEquipo($row);
@@ -203,6 +204,7 @@ class Equipos extends PrivateController
             'FlashIcon' => $flash['icon'] ?? '',
             'FlashTitle' => $flash['title'] ?? '',
             'FlashMessage' => $flash['message'] ?? '',
+            'CanManage' => $canManage,
             'CreateUrl' => 'index.php?page=Equipos_Equipo&mode=INS',
         ];
     }

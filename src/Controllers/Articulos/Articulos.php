@@ -83,6 +83,7 @@ class Articulos extends PrivateController
 
     private function buildViewData(array $result): array
     {
+        $canManage = $this->isFeatureAutorized('Controllers\\Articulos\\Articulo');
         $articles = [];
         foreach ($result['articulos'] as $row) {
             $articles[] = $this->mapArticle($row);
@@ -165,6 +166,7 @@ class Articulos extends PrivateController
             'FlashIcon' => $flash['icon'] ?? '',
             'FlashTitle' => $flash['title'] ?? '',
             'FlashMessage' => $flash['message'] ?? '',
+            'CanManage' => $canManage,
             'CreateUrl' => 'index.php?page=Articulos_Articulo&mode=INS',
         ];
     }

@@ -115,13 +115,25 @@ class Mantenimientos extends Table
 
     public static function getMantenimientoById(int $id): ?array
     {
+        return self::getMantenimientoByIdLock($id, false);
+    }
+
+    public static function getMantenimientoForUpdate(int $id): ?array
+    {
+        return self::getMantenimientoByIdLock($id, true);
+    }
+
+    private static function getMantenimientoByIdLock(int $id, bool $forUpdate): ?array
+    {
         if ($id <= 0) {
             return null;
         }
 
+        $lock = $forUpdate ? ' FOR UPDATE' : '';
+
         $row = self::obtenerUnRegistro(
             self::SELECT_FIELDS . self::FROM_JOINS
-            . ' WHERE m.id_mantenimiento = :id LIMIT 1',
+            . ' WHERE m.id_mantenimiento = :id LIMIT 1' . $lock,
             ['id' => $id]
         );
 
@@ -135,7 +147,7 @@ class Mantenimientos extends Table
             . " COALESCE(SUM(estado_mantenimiento = 'EN_PROCESO'), 0) AS en_proceso,"
             . " COALESCE(SUM(estado_mantenimiento = 'COMPLETADO'), 0) AS completados,"
             . " COALESCE(SUM(estado_mantenimiento = 'CANCELADO'), 0) AS cancelados,"
-            . " COALESCE(SUM(costo_mantenimiento), 0) AS costo_total"
+            . " COALESCE(SUM(CASE WHEN estado_mantenimiento <> 'CANCELADO' THEN costo_mantenimiento ELSE 0 END), 0) AS costo_total"
             . " FROM mantenimientos",
             []
         );
@@ -194,6 +206,10 @@ class Mantenimientos extends Table
         } else {
             $sql .= ' WHERE 1 = 1';
         }
+
+        // Excluir equipos dados de baja (no deben entrar a mantenimiento)
+        $sql .= " AND (eq.id_equipo = :includeIdBaja OR eq.estado_operativo <> 'DE_BAJA')";
+        $params['includeIdBaja'] = $includeId;
 
         $sql .= ' AND (eq.id_equipo = :includeIdKeep'
             . ' OR NOT EXISTS ('

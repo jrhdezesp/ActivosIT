@@ -165,7 +165,7 @@
               {{!estadoLabel}}
             </span>
           </td>
-          {{if CanManage}}
+          {{if ~CanManage}}
           <td>
             <div class="data-table__actions">
               <a class="table-action" href="{{!editUrl}}" title="{{!rowActionTitle}}" aria-label="{{!rowActionTitle}}">
@@ -178,7 +178,7 @@
               {{endif canCancel}}
             </div>
           </td>
-          {{endif CanManage}}
+          {{endif ~CanManage}}
         </tr>
         {{endfor Mantenimientos}}
       </tbody>

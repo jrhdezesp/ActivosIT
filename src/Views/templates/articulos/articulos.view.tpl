@@ -5,12 +5,14 @@
       <h1 class="data-panel__title">Catálogo de artículos</h1>
       <p class="data-panel__description">Administra los artículos por cantidad y los equipos que se controlan por número de serie.</p>
     </div>
+    {{if CanManage}}
     <div class="data-panel__actions">
       <a class="button button--primary" href="{{!CreateUrl}}">
         <i class="fa-solid fa-plus" aria-hidden="true"></i>
         Nuevo artículo
       </a>
     </div>
+    {{endif CanManage}}
   </div>
 
   <div class="article-summary" aria-label="Resumen de artículos activos">
@@ -119,7 +121,9 @@
             </a>
           </th>
           <th class="data-table__col--status is-center" scope="col">Estado</th>
+          {{if CanManage}}
           <th class="data-table__col--actions is-right" scope="col">Acciones</th>
+          {{endif CanManage}}
         </tr>
       </thead>
       <tbody>
@@ -128,7 +132,8 @@
           <td><span class="data-table__code" title="{{!code}}">{{!code}}</span></td>
           <td>
             <div class="data-table__stack">
-              <a class="data-table__link data-table__truncate" href="{{!editUrl}}" title="Editar {{!name}}">{{!name}}</a>
+              {{if ~CanManage}}<a class="data-table__link data-table__truncate" href="{{!editUrl}}" title="Editar {{!name}}">{{!name}}</a>{{endif ~CanManage}}
+              {{ifnot ~CanManage}}<span class="data-table__truncate">{{!name}}</span>{{endifnot ~CanManage}}
               <span class="data-table__subtext" title="{{!description}}">{{!description}}</span>
               <span class="data-table__subtext">{{!classification}} · {{!unit}}</span>
             </div>
@@ -144,6 +149,7 @@
             {{endif isLow}}
           </td>
           <td class="is-center"><span class="badge {{statusClass}}">{{!statusLabel}}</span></td>
+          {{if ~CanManage}}
           <td>
             <div class="data-table__actions">
               <a class="table-action" href="{{!editUrl}}" title="Editar {{!name}}" aria-label="Editar {{!name}}">
@@ -154,6 +160,7 @@
               </a>
             </div>
           </td>
+          {{endif ~CanManage}}
         </tr>
         {{endfor Articulos}}
       </tbody>
@@ -167,10 +174,12 @@
     <h2 class="empty-state__title">{{!EmptyTitle}}</h2>
     <p class="empty-state__description">{{!EmptyDescription}}</p>
     <div class="empty-state__actions">
+      {{if CanManage}}
       <a class="button button--primary button--sm" href="{{!CreateUrl}}">
         <i class="fa-solid fa-plus" aria-hidden="true"></i>
         Nuevo artículo
       </a>
+      {{endif CanManage}}
       {{if HasFilters}}
       <a class="button button--ghost button--sm" href="{{!ClearUrl}}">
         <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>

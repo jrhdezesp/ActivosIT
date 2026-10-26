@@ -99,6 +99,7 @@ class Entradas extends PrivateController
 
     private function buildViewData(array $result): array
     {
+        $canManage = $this->isFeatureAutorized('Controllers\\Inventario\\Entrada');
         $entradas = [];
         foreach ($result['entradas'] as $row) {
             $entradas[] = $this->mapEntrada($row);
@@ -172,6 +173,7 @@ class Entradas extends PrivateController
             'FlashIcon' => $flash['icon'] ?? '',
             'FlashTitle' => $flash['title'] ?? '',
             'FlashMessage' => $flash['message'] ?? '',
+            'CanManage' => $canManage,
             'CreateUrl' => 'index.php?page=Inventario_Entrada&mode=INS',
         ];
     }

@@ -210,6 +210,8 @@ class Mantenimiento extends PrivateController
             && $equipoId !== intval($this->record['id_equipo'] ?? 0)
         ) {
             $this->errors['id_equipo'] = 'El equipo seleccionado está inactivo.';
+        } elseif (strval($equipo['estado_operativo'] ?? '') === 'DE_BAJA') {
+            $this->errors['id_equipo'] = 'No se puede registrar mantenimiento sobre un equipo dado de baja.';
         } elseif (DaoMantenimientos::tieneMantenimientoActivo($equipoId, $this->id)) {
             $this->errors['id_equipo'] = 'El equipo ya tiene otro mantenimiento en proceso.';
         }
@@ -230,7 +232,7 @@ class Mantenimiento extends PrivateController
         $fechaRecepcion = $this->normalizeDateTime(strval($this->item['fecha_recepcion'] ?? ''));
         if ($fechaRecepcion === null) {
             $this->errors['fecha_recepcion'] = 'Ingresa una fecha y hora válidas.';
-        } elseif (strtotime($fechaRecepcion) > time() + 300) {
+        } elseif (strtotime($fechaRecepcion) > time()) {
             $this->errors['fecha_recepcion'] = 'La fecha de recepción no puede ser futura.';
         }
 
@@ -323,9 +325,13 @@ class Mantenimiento extends PrivateController
 
         try {
             if ($this->mode === 'INS') {
+                // Re-validar bajo bloqueo para evitar concurrencia
+                if (DaoMantenimientos::tieneMantenimientoActivo(intval($data['id_equipo']))) {
+                    throw new \RuntimeException('El equipo ya tiene otro mantenimiento en proceso.');
+                }
                 $id = DaoMantenimientos::insertMantenimiento($data);
             } else {
-                $current = DaoMantenimientos::getMantenimientoById($this->id);
+                $current = DaoMantenimientos::getMantenimientoForUpdate($this->id);
                 if (!$current || strval($current['estado_mantenimiento'] ?? '') !== 'EN_PROCESO') {
                     throw new \RuntimeException('Solo se pueden editar mantenimientos en proceso.');
                 }
@@ -378,7 +384,7 @@ class Mantenimiento extends PrivateController
             throw new \InvalidArgumentException('El mantenimiento solicitado no es válido.');
         }
 
-        $current = DaoMantenimientos::getMantenimientoById($this->id);
+        $current = DaoMantenimientos::getMantenimientoForUpdate($this->id);
         if (!$current) {
             throw new \RuntimeException('No se encontró el mantenimiento solicitado.');
         }

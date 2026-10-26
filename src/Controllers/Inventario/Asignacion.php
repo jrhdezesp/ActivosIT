@@ -202,9 +202,9 @@ class Asignacion extends PrivateController
 
         if ($equipoId <= 0 || !$equipo) {
             $this->errors['id_equipo'] = 'Selecciona un equipo válido.';
-        } elseif (intval($equipo['estado_registro'] ?? 0) !== 1 && !$isSameEquipo) {
+        } elseif (intval($equipo['estado_registro'] ?? 0) !== 1) {
             $this->errors['id_equipo'] = 'El equipo seleccionado está inactivo.';
-        } elseif (strval($equipo['estado_operativo'] ?? '') === 'DE_BAJA' && !$isSameEquipo) {
+        } elseif (strval($equipo['estado_operativo'] ?? '') === 'DE_BAJA') {
             $this->errors['id_equipo'] = 'El equipo está de baja y no se puede asignar.';
         } else {
             if (
@@ -218,7 +218,7 @@ class Asignacion extends PrivateController
                 $this->errors['id_equipo'] = 'El equipo ya tiene una asignación activa.';
             }
 
-            if (!$isSameEquipo && DaoAsignaciones::tieneMantenimientoActivo($equipoId)) {
+            if (DaoAsignaciones::tieneMantenimientoActivo($equipoId)) {
                 $this->errors['id_equipo'] = 'El equipo está en mantenimiento y no se puede asignar.';
             }
         }
@@ -242,7 +242,7 @@ class Asignacion extends PrivateController
         $fechaAsignacion = $this->normalizeDateTime(strval($this->item['fecha_asignacion'] ?? ''));
         if ($fechaAsignacion === null) {
             $this->errors['fecha_asignacion'] = 'Ingresa una fecha y hora válidas.';
-        } elseif (strtotime($fechaAsignacion) > time() + 300) {
+        } elseif (strtotime($fechaAsignacion) > time()) {
             $this->errors['fecha_asignacion'] = 'La fecha de asignación no puede ser futura.';
         }
 
@@ -277,7 +277,7 @@ class Asignacion extends PrivateController
 
         if ($fechaDevolucion === null) {
             $this->returnErrors['fecha_devolucion'] = 'Ingresa una fecha y hora válidas.';
-        } elseif (strtotime($fechaDevolucion) > time() + 300) {
+        } elseif (strtotime($fechaDevolucion) > time()) {
             $this->returnErrors['fecha_devolucion'] = 'La fecha de devolución no puede ser futura.';
         } else {
             $fechaAsignacion = $this->normalizeDateTime(

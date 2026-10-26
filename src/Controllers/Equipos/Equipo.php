@@ -173,9 +173,15 @@ class Equipo extends PrivateController
         $this->errors = [];
         $excludeId = $this->mode === 'UPD' ? $this->id : 0;
 
-        $articuloId = intval($this->item['id_articulo'] ?? 0);
-        $this->item['id_articulo'] = strval($articuloId);
-        $articulo = DaoEquipos::getArticuloById($articuloId);
+        if ($this->mode === 'UPD') {
+            $newArticuloId = intval($this->item['id_articulo']);
+            $originalArticuloId = intval($this->originalItem['id_articulo'] ?? 0);
+            if ($newArticuloId !== $originalArticuloId) {
+                if (\Dao\Equipos\Equipos::tieneHistorialOperativo($this->id)) {
+                    $this->errors['id_articulo'] = 'No se puede cambiar el artículo de un equipo con historial de asignaciones o mantenimientos.';
+                }
+            }
+        }
         if ($articuloId <= 0 || !$articulo) {
             $this->errors['id_articulo'] = 'Selecciona un artículo válido.';
         } elseif (strval($articulo['tipo_control'] ?? '') !== 'SERIE') {
@@ -240,6 +246,21 @@ class Equipo extends PrivateController
         $operativo = strval($this->item['estado_operativo'] ?? '');
         if (!in_array($operativo, self::ESTADOS_OPERATIVOS, true)) {
             $this->errors['estado_operativo'] = 'Selecciona un estado operativo válido.';
+        } elseif ($this->mode === 'INS' && $operativo !== 'DISPONIBLE') {
+            $this->errors['estado_operativo'] = 'Un equipo nuevo solo puede registrarse como Disponible.';
+        } elseif ($this->mode === 'UPD') {
+            // Validar coherencia con asignaciones y mantenimientos activos
+            $tieneAsignacion = \Dao\Inventario\Asignaciones::tieneAsignacionActiva($this->id);
+            $tieneMantenimiento = \Dao\Inventario\Asignaciones::tieneMantenimientoActivo($this->id);
+
+            if ($tieneAsignacion && $operativo !== 'ASIGNADO') {
+                $this->errors['estado_operativo'] = 'El equipo tiene una asignación activa; su estado debe ser Asignado.';
+            } elseif ($tieneMantenimiento && $operativo !== 'EN_MANTENIMIENTO') {
+                $this->errors['estado_operativo'] = 'El equipo tiene un mantenimiento en proceso; su estado debe ser En mantenimiento.';
+            } elseif (!$tieneAsignacion && !$tieneMantenimiento
+                && !in_array($operativo, ['DISPONIBLE', 'EN_REVISION', 'DE_BAJA'], true)) {
+                $this->errors['estado_operativo'] = 'Selecciona un estado operativo válido.';
+            }
         }
 
         $adquisicion = $this->normalizeDate(
@@ -358,6 +379,18 @@ class Equipo extends PrivateController
 
         if (!DaoEquipos::getEquipoById($this->id)) {
             throw new \RuntimeException('No se encontró el equipo solicitado.');
+        }
+
+        // No se puede desactivar un equipo con asignación o mantenimiento activo
+        if (\Dao\Inventario\Asignaciones::tieneAsignacionActiva($this->id)) {
+            throw new \RuntimeException(
+                'No se puede desactivar el equipo porque tiene una asignación activa.'
+            );
+        }
+        if (\Dao\Inventario\Asignaciones::tieneMantenimientoActivo($this->id)) {
+            throw new \RuntimeException(
+                'No se puede desactivar el equipo porque tiene un mantenimiento en proceso.'
+            );
         }
 
         if (!DaoEquipos::deactivateEquipo($this->id)) {

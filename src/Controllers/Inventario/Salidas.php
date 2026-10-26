@@ -99,6 +99,7 @@ class Salidas extends PrivateController
 
     private function buildViewData(array $result): array
     {
+        $canManage = $this->isFeatureAutorized('Controllers\\Inventario\\Salida');
         $salidas = [];
         foreach ($result['salidas'] as $row) {
             $salidas[] = $this->mapSalida($row);
@@ -172,6 +173,7 @@ class Salidas extends PrivateController
             'FlashIcon' => $flash['icon'] ?? '',
             'FlashTitle' => $flash['title'] ?? '',
             'FlashMessage' => $flash['message'] ?? '',
+            'CanManage' => $canManage,
             'CreateUrl' => 'index.php?page=Inventario_Salida&mode=INS',
         ];
     }
