@@ -52,7 +52,8 @@ Si `vendor/` no existe la aplicación muestra un error explícito: es obligatori
 La instalación incluye **Dompdf** para la exportación PDF; el Excel se genera con `ZipArchive` (`ext-zip`).
 
 ### 3. Configuración del entorno
-`parameters.env` **no se versiona** (está en `.gitignore`). Créelo a partir de la plantilla:
+`parameters.env` **no se versiona** (está en `.gitignore`) y debe mantenerse fuera del
+`DocumentRoot` en producción. Créelo a partir de una copia local de la plantilla:
 
 ```bash
 # Windows
@@ -98,7 +99,10 @@ mysql -u root -p activosit < docs/scripts/06_operaciones.sql
 En phpMyAdmin: pestaña **Importar** y seleccionar cada archivo en el mismo orden.
 
 ### 5. Ejecutar
-Con Apache, apunte el *DocumentRoot* a la raíz del proyecto (o copie el proyecto dentro de `htdocs`).
+Con Apache, apunte el *DocumentRoot* a la raíz del proyecto solo si aplica las reglas
+de [`.htaccess`](.htaccess). En producción es preferible publicar únicamente el
+front controller y los recursos estáticos, manteniendo `parameters.env`, `src/`,
+`docs/`, `scripts/` y `vendor/` fuera del árbol público.
 Con el servidor embebido de PHP:
 
 ```bash
@@ -108,13 +112,15 @@ php -S 127.0.0.1:8080 -t .
 Luego abra `http://127.0.0.1:8080/index.php`.
 
 ### 6. Cuentas iniciales
-| Correo | Contraseña | Rol |
-|---|---|---|
-| `admin@pinturasamericanas.com` | `[REDACTED_DEFAULT_PASSWORD]` | Administrador |
-| `soporte@pinturasamericanas.com` | `[REDACTED_DEFAULT_PASSWORD]` | Técnico de Soporte |
-| `auditoria@pinturasamericanas.com` | `[REDACTED_DEFAULT_PASSWORD]` | Auditor |
+El script `01_security.sql` no crea contraseñas predeterminadas. Después de
+crear el esquema, genere las cuentas administrativas con contraseñas únicas y
+privadas mediante el procedimiento de bootstrap definido por el responsable
+de despliegue. No documente contraseñas operativas en el repositorio.
 
-> Cambie estas contraseñas después del primer acceso. Las cuentas creadas por auto-registro reciben el rol **Público**, que solo permite acceder a *Mi perfil*.
+Las cuentas creadas por auto-registro reciben el rol **Público**, que solo
+permite acceder a *Mi perfil*. Las cuentas privilegiadas deben crearse o
+habilitarse únicamente durante el despliegue y sus contraseñas deben rotarse
+si ya fueron expuestas.
 
 ### 7. Verificación rápida
 ```bash
@@ -226,9 +232,10 @@ mysql -u root -p activosit < docs/scripts/10_asignaciones_permisos.sql
 mysql -u root -p activosit < docs/scripts/11_reportes_permisos.sql
 mysql -u root -p activosit < docs/scripts/12_auditoria_permisos.sql
 mysql -u root -p activosit < docs/scripts/13_modelo_operativo.sql
+mysql -u root -p activosit < docs/scripts/14_auditor_solo_consulta.sql
 ```
 
-Todas son idempotentes y no modifican existencias, documentos ni eventos. La migración 13 agrega marca, modelo y observaciones de artículos, resultado y recomendaciones de mantenimiento, motivo de cancelación y accesorios entregados en asignaciones. Cierra sesión y vuelve a entrar para refrescar el menú.
+Todas son idempotentes y no modifican existencias, documentos ni eventos. La migración 13 agrega marca, modelo y observaciones de artículos, resultado y recomendaciones de mantenimiento, motivo de cancelación y accesorios entregados en asignaciones. La migración 14 retira los permisos de formulario del rol Auditor y lo deja en modo consulta. Cierra sesión y vuelve a entrar para refrescar el menú.
 
 ### Bitácora de auditoría
 

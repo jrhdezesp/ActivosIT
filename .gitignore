@@ -5,6 +5,7 @@ parameters.env.*
 .env.*
 !.env.example
 .htaccess
+renameTo_parameters.env
 
 .DS_Store
 # Dependencias de Composer: solo se ignora el vendor de la raiz.

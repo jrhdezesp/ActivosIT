@@ -113,19 +113,10 @@ CREATE TABLE `bitacora` (
 -- 2. DATOS SEMILLA (SEEDS)
 -- -----------------------------------------------------------------------------
 
--- Usuarios iniciales.
--- Contraseña para las tres cuentas: [REDACTED_DEFAULT_PASSWORD]
---
--- El hash es bcrypt estandar (sin HMAC) para que sea reproducible en cualquier
--- instalacion. Security::verifyPassword acepta ambos esquemas: bcrypt directo y
--- bcrypt sobre el HMAC de PWD_HASH, por lo que las claves creadas desde la
--- aplicacion siguen funcionando.
---
--- IMPORTANTE: cambie estas contraseñas despues del primer acceso.
-INSERT INTO `usuarios` (`id_usuario`, `user_usuario`, `clave_usuario`, `nombre_usuario`, `tipo_usuario`, `estado_usuario`, `ultimo_acceso_usuario`) VALUES
-(1, 'admin@pinturasamericanas.com', '[REDACTED_DEFAULT_BCRYPT_HASH]', 'Administrador de IT', 'ADM', 1, NULL),
-(2, 'soporte@pinturasamericanas.com', '[REDACTED_DEFAULT_BCRYPT_HASH]', 'Técnico de Soporte', 'TEC', 1, NULL),
-(3, 'auditoria@pinturasamericanas.com', '[REDACTED_DEFAULT_BCRYPT_HASH]', 'Auditor de Activos', 'AUD', 1, NULL);
+-- No se crean usuarios privilegiados desde el script.
+-- Las contraseñas predeterminadas son inseguras y no deben almacenarse en Git.
+-- Cree las cuentas administrativas durante el despliegue con credenciales
+-- únicas, privadas y rotadas antes de habilitarlas.
 
 -- Roles iniciales
 INSERT INTO `roles` (`id_rol`, `nombre_rol`, `descripcion_rol`, `estado_rol`) VALUES
@@ -213,9 +204,9 @@ INSERT INTO `roles_permisos` (`id_rol`, `id_permiso`) VALUES
 (1, 41), (1, 42), (1, 43), (1, 44), (1, 45), (1, 46),
 -- Auditor: consulta de catálogo, artículos, equipos, entradas, salidas,
 -- asignaciones, mantenimientos, reportes, auditoría y su perfil.
-(2, 1), (2, 2), (2, 3), (2, 14), (2, 15), (2, 16), (2, 17), (2, 18),
+(2, 1), (2, 2), (2, 14), (2, 15), (2, 16), (2, 17), (2, 18),
 (2, 19), (2, 20), (2, 21), (2, 28), (2, 29), (2, 30), (2, 31), (2, 32),
-(2, 33), (2, 34), (2, 35), (2, 36), (2, 37), (2, 38), (2, 39), (2, 41),
+(2, 33), (2, 35), (2, 37), (2, 39), (2, 41),
 (2, 43), (2, 44), (2, 45), (2, 46),
 -- Técnico de Soporte: operación de activos, equipos, entradas, salidas,
 -- asignaciones, mantenimientos, reportes y catálogos.
