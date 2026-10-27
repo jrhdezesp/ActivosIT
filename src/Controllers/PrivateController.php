@@ -2,6 +2,9 @@
 
 namespace Controllers;
 
+/**
+ * Base para paginas que requieren una cuenta activa y permiso de acceso.
+ */
 abstract class PrivateController extends PublicController
 {
     private function _isAuthorized()
@@ -21,6 +24,7 @@ abstract class PrivateController extends PublicController
             throw new PrivateNoLoggedException();
         }
     }
+    /** Indica si la cuenta puede usar una funcion adicional de la pagina. */
     protected function isFeatureAutorized($feature) :bool
     {
         return \Utilities\Security::isAuthorized(
@@ -28,6 +32,7 @@ abstract class PrivateController extends PublicController
             $feature
         );
     }
+    /** Confirma el acceso antes de permitir que se muestre la pagina privada. */
     public function __construct()
     {
         parent::__construct();

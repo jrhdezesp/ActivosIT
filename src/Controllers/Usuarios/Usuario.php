@@ -11,6 +11,9 @@ use Utilities\Site;
 use Utilities\Validators;
 use Views\Renderer;
 
+/**
+ * Atiende la creacion, consulta y actualizacion de una cuenta de usuario.
+ */
 class Usuario extends PrivateController
 {
     private $viewData = [];
@@ -31,8 +34,12 @@ class Usuario extends PrivateController
         'userest' => 'ACT',
         'usertipo' => 'PBL',
     ];
+    // Roles que se muestran o se asignan a la cuenta seleccionada.
     private $rolesUsuario = [];
 
+    /**
+     * Carga la cuenta, procesa sus datos o roles y muestra el formulario.
+     */
     public function run(): void
     {
         try {
@@ -75,6 +82,9 @@ class Usuario extends PrivateController
         }
     }
 
+    /**
+     * Revisa la informacion de la cuenta antes de guardar los cambios.
+     */
     private function validateData()
     {
         $errors = [];
@@ -129,6 +139,9 @@ class Usuario extends PrivateController
         return true;
     }
 
+    /**
+     * Dirige la solicitud a la accion de crear, actualizar o desactivar.
+     */
     private function handlePostAction()
     {
         switch ($this->mode) {

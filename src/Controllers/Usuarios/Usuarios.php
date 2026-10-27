@@ -8,6 +8,9 @@ use Utilities\Context;
 use Utilities\Paging;
 use Views\Renderer;
 
+/**
+ * Presenta las cuentas de usuario con busqueda, filtros y paginacion.
+ */
 class Usuarios extends PrivateController
 {
     private $partialName = '';
@@ -21,6 +24,9 @@ class Usuarios extends PrivateController
     private $usuariosCount = 0;
     private $pages = 0;
 
+    /**
+     * Recupera las cuentas y prepara la informacion para el listado.
+     */
     public function run(): void
     {
         $this->getParamsFromContext();

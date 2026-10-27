@@ -9,8 +9,12 @@ use Utilities\CSRF;
 use Utilities\Site;
 use Views\Renderer;
 
+/**
+ * Atiende el formulario para registrar, actualizar o desactivar un equipo.
+ */
 class Equipo extends PrivateController
 {
+    // Estados que describen la situacion actual de un equipo.
     private const ESTADOS_OPERATIVOS = [
         'DISPONIBLE',
         'ASIGNADO',
@@ -36,14 +40,19 @@ class Equipo extends PrivateController
 
     private $mode = 'INS';
     private $id = 0;
+    // Datos del formulario y copia previa del equipo seleccionado.
     private $item = [];
     private $record = [];
     private $originalItem = [];
+    // Mensajes de revision y opciones que se ofrecen para completar el equipo.
     private $errors = [];
     private $articulos = [];
     private $ubicaciones = [];
     private $motivos = [];
 
+    /**
+     * Carga el equipo, procesa los cambios enviados y muestra el formulario.
+     */
     public function run(): void
     {
         try {
@@ -168,6 +177,9 @@ class Equipo extends PrivateController
         $this->motivos = DaoEquipos::getMotivosOptions($includeMotivo);
     }
 
+    /**
+     * Comprueba los datos del equipo antes de guardarlos.
+     */
     private function validateData(): bool
     {
         $this->errors = [];
@@ -301,6 +313,9 @@ class Equipo extends PrivateController
         return count($this->errors) === 0;
     }
 
+    /**
+     * Registra un equipo nuevo o guarda los cambios del equipo actual.
+     */
     private function handleSave(): void
     {
         $serie = trim(strval($this->item['numero_serie_equipo'] ?? ''));
@@ -371,6 +386,9 @@ class Equipo extends PrivateController
         }
     }
 
+    /**
+     * Desactiva el equipo seleccionado y conserva su historial.
+     */
     private function handleDeactivate(): void
     {
         if ($this->id <= 0) {

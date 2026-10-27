@@ -11,6 +11,9 @@ use Utilities\Site;
 use Utilities\Validators;
 use Views\Renderer;
 
+/**
+ * Atiende la creacion, consulta y actualizacion de un rol y sus funciones.
+ */
 class Rol extends PrivateController
 {
     private $viewData = [];
@@ -29,8 +32,12 @@ class Rol extends PrivateController
         'rolesdsc' => '',
         'rolesest' => 'ACT',
     ];
+    // Funciones que pueden asignarse al rol seleccionado.
     private $funcionesRol = [];
 
+    /**
+     * Carga el rol, procesa sus datos o funciones y muestra el formulario.
+     */
     public function run(): void
     {
         try {
@@ -73,6 +80,9 @@ class Rol extends PrivateController
         }
     }
 
+    /**
+     * Revisa los datos principales antes de guardar el rol.
+     */
     private function validateData()
     {
         $errors = [];
@@ -109,6 +119,9 @@ class Rol extends PrivateController
         return true;
     }
 
+    /**
+     * Dirige la solicitud a la accion de crear, actualizar o desactivar el rol.
+     */
     private function handlePostAction()
     {
         switch ($this->mode) {

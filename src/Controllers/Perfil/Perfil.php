@@ -9,8 +9,12 @@ use Utilities\Security;
 use Utilities\Site;
 use Views\Renderer;
 
+/**
+ * Muestra los datos de la cuenta y los roles activos de la persona conectada.
+ */
 class Perfil extends PrivateController
 {
+    // Abreviaturas usadas al presentar fechas en el perfil.
     private const MONTHS = [
         1 => 'ene',
         2 => 'feb',
@@ -26,6 +30,9 @@ class Perfil extends PrivateController
         12 => 'dic',
     ];
 
+    /**
+     * Reune los datos de la cuenta y los prepara para su consulta.
+     */
     public function run(): void
     {
         $userId = intval(Security::getUserId());

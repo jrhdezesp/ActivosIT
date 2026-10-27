@@ -6,6 +6,9 @@ use Controllers\PublicController;
 use \Utilities\Validators;
 use Exception;
 
+/**
+ * Permite solicitar el registro de una cuenta nueva.
+ */
 class Register extends PublicController
 {
     private $txtEmail = "";
@@ -15,6 +18,9 @@ class Register extends PublicController
     private $hasErrors = false;
     private $generalError = "";
     private $csrf_token = "";
+    /**
+     * Revisa los datos enviados y muestra el resultado del registro.
+     */
     public function run() :void
     {
         $this->csrf_token = \Utilities\CSRF::token('register');

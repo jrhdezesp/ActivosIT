@@ -8,6 +8,9 @@ use Utilities\Context;
 use Utilities\Paging;
 use Views\Renderer;
 
+/**
+ * Presenta los roles disponibles y permite encontrarlos por sus datos.
+ */
 class Roles extends PrivateController
 {
     private $partialName = '';
@@ -21,6 +24,9 @@ class Roles extends PrivateController
     private $rolesCount = 0;
     private $pages = 0;
 
+    /**
+     * Recupera los roles y conserva los filtros usados en el listado.
+     */
     public function run(): void
     {
         $this->getParamsFromContext();

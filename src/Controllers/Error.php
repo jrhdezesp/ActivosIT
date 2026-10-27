@@ -2,8 +2,12 @@
 
 namespace Controllers;
 
+/**
+ * Presenta una respuesta clara cuando una solicitud no puede completarse.
+ */
 class Error extends PublicController
 {
+    /** Selecciona el mensaje apropiado y presenta la pagina de error. */
     public function run(): void
     {
         $errorCode = intval(\Utilities\Context::getContextByKey("ERROR_CODE"));

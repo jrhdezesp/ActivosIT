@@ -7,8 +7,12 @@ use Utilities\Nav;
 use Utilities\NavRenderer;
 use Views\Renderer;
 
+/**
+ * Muestra la estructura del menu disponible para revisar su organizacion.
+ */
 class Navegacion extends PrivateController
 {
+    /** Prepara los grupos y accesos que aparecen en la pantalla de navegacion. */
     public function run(): void
     {
         $entries = NavRenderer::forEditor(Nav::getPrivateNavigation());

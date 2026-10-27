@@ -8,6 +8,9 @@ use Utilities\Paging;
 use Utilities\ReportExport;
 use Views\Renderer;
 
+/**
+ * Presenta informes operativos que se pueden consultar y descargar.
+ */
 class Operativos extends PrivateController
 {
     private string $type = 'inventario';
@@ -20,6 +23,9 @@ class Operativos extends PrivateController
     private int $itemsPerPage = 10;
     private const ITEMS_PER_PAGE_OPTIONS = [5, 10, 20, 50, 100];
 
+    /**
+     * Reune los filtros, obtiene el informe y muestra o descarga sus resultados.
+     */
     public function run(): void
     {
         $this->readParams();

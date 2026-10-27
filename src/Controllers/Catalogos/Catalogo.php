@@ -9,6 +9,9 @@ use Utilities\CSRF;
 use Utilities\Site;
 use Views\Renderer;
 
+/**
+ * Atiende el formulario para crear, actualizar o eliminar un dato de catalogo.
+ */
 class Catalogo extends PrivateController
 {
     private $type = '';
@@ -18,6 +21,9 @@ class Catalogo extends PrivateController
     private $item = [];
     private $errors = [];
 
+    /**
+     * Prepara el formulario y procesa el cambio solicitado al catalogo.
+     */
     public function run(): void
     {
         try {
@@ -91,6 +97,9 @@ class Catalogo extends PrivateController
         return $item;
     }
 
+    /**
+     * Revisa los campos requeridos y las opciones disponibles del catalogo.
+     */
     private function validateData(): bool
     {
         $this->errors = [];
@@ -130,6 +139,9 @@ class Catalogo extends PrivateController
         return count($this->errors) === 0;
     }
 
+    /**
+     * Guarda un dato nuevo o actualiza el dato existente.
+     */
     private function handleSave(): void
     {
         try {
@@ -172,6 +184,9 @@ class Catalogo extends PrivateController
         }
     }
 
+    /**
+     * Elimina el dato elegido cuando ya no esta siendo utilizado.
+     */
     private function handleDelete(): void
     {
         if ($this->id <= 0) {

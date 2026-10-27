@@ -9,17 +9,25 @@ use Utilities\CSRF;
 use Utilities\Site;
 use Views\Renderer;
 
+/**
+ * Atiende el formulario para crear, actualizar o desactivar un articulo.
+ */
 class Articulo extends PrivateController
 {
     private $mode = 'INS';
     private $id = 0;
+    // Datos que se muestran en el formulario y copia previa para comparar cambios.
     private $item = [];
     private $record = [];
     private $originalItem = [];
+    // Mensajes de revision y opciones que se ofrecen en los selectores.
     private $errors = [];
     private $clasificaciones = [];
     private $unidades = [];
 
+    /**
+     * Carga el formulario, procesa los cambios enviados y muestra el resultado.
+     */
     public function run(): void
     {
         try {
@@ -45,6 +53,9 @@ class Articulo extends PrivateController
         }
     }
 
+    /**
+     * Prepara los datos del articulo elegido o los valores enviados por el usuario.
+     */
     private function getParams(): void
     {
         $this->mode = strtoupper(strval($_GET['mode'] ?? 'INS'));
@@ -152,6 +163,9 @@ class Articulo extends PrivateController
         $this->unidades = DaoArticulos::getUnidadesOptions(true, $includeUnidad);
     }
 
+    /**
+     * Revisa que la informacion del articulo este completa y sea aceptable.
+     */
     private function validateData(): bool
     {
         $this->errors = [];
@@ -255,6 +269,9 @@ class Articulo extends PrivateController
         return count($this->errors) === 0;
     }
 
+    /**
+     * Guarda un articulo nuevo o actualiza el que ya existe.
+     */
     private function handleSave(): void
     {
         $description = trim(strval($this->item['descripcion_articulo'] ?? ''));
@@ -312,6 +329,9 @@ class Articulo extends PrivateController
         }
     }
 
+    /**
+     * Desactiva el articulo seleccionado sin eliminar su historial.
+     */
     private function handleDeactivate(): void
     {
         if ($this->id <= 0) {

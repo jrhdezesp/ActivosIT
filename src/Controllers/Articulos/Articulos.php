@@ -7,8 +7,12 @@ use Dao\Articulos\Articulos as DaoArticulos;
 use Utilities\Paging;
 use Views\Renderer;
 
+/**
+ * Presenta el listado de articulos con busqueda, filtros y paginacion.
+ */
 class Articulos extends PrivateController
 {
+    // Campos disponibles para ordenar los resultados del listado.
     private const ORDER_FIELDS = [
         'codigo_interno_articulo',
         'nombre_articulo',
@@ -28,6 +32,9 @@ class Articulos extends PrivateController
     private $pageNumber = 1;
     private $itemsPerPage = 10;
 
+    /**
+     * Obtiene los articulos solicitados y prepara la pagina del listado.
+     */
     public function run(): void
     {
         $this->getParams();

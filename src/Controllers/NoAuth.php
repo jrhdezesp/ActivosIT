@@ -1,8 +1,12 @@
 <?php
 namespace Controllers;
 
+/**
+ * Informa que la cuenta actual no puede acceder a la seccion solicitada.
+ */
 class NoAuth extends PublicController
 {
+    /** Muestra el aviso de acceso no permitido. */
     public function run() :void
     {
         http_response_code(403);

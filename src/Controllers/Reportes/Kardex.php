@@ -9,6 +9,9 @@ use Utilities\ReportCharts;
 use Utilities\ReportExport;
 use Views\Renderer;
 
+/**
+ * Muestra los cambios de existencias de articulos y permite consultarlos por periodo.
+ */
 class Kardex extends PrivateController
 {
     private const ORDER_FIELDS = [
@@ -58,6 +61,9 @@ class Kardex extends PrivateController
     private $pageNumber = 1;
     private $itemsPerPage = 10;
 
+    /**
+     * Presenta los movimientos del articulo elegido y sus opciones de descarga.
+     */
     public function run(): void
     {
         $this->getParams();

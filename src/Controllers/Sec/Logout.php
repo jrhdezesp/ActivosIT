@@ -1,7 +1,12 @@
 <?php
 namespace Controllers\Sec;
+
+/**
+ * Cierra la sesion actual y regresa a la pagina de inicio.
+ */
 class Logout extends \Controllers\PublicController
 {
+    /** Registra la salida de la cuenta y finaliza su sesion. */
     public function run():void
     {
         $user = \Utilities\Security::getUser();

@@ -10,20 +10,31 @@ use Utilities\DateHelper;
 use Utilities\Security;
 use Utilities\Site;
 use Views\Renderer;
+
+/**
+ * Atiende el formulario para registrar o corregir una entrada de inventario.
+ */
 class Entrada extends PrivateController
 {
     private $mode = 'INS';
     private $id = 0;
+    // Datos generales del documento que se presenta en el formulario.
     private $doc = [];
     private $item = [];
+    // Lineas actuales y originales, usadas para revisar los cambios del documento.
     private $detalles = [];
     private $originalDetalles = [];
+    // Mensajes de revision del documento y de cada linea.
     private $errors = [];
     private $lineErrors = [];
     private $tipos = [];
     private $motivos = [];
     private $articulos = [];
     private $equipos = [];
+
+    /**
+     * Carga el documento, procesa el formulario y muestra su estado actual.
+     */
     public function run(): void
     {
         try {
@@ -232,6 +243,10 @@ class Entrada extends PrivateController
         return $this->mode === 'INS'
             || strval($this->doc['estado_doc'] ?? '') === 'BORRADOR';
     }
+
+    /**
+     * Revisa el encabezado y las lineas antes de confirmar la entrada.
+     */
     private function validateData(): bool
     {
         $this->errors = [];
@@ -384,6 +399,10 @@ class Entrada extends PrivateController
 
         return count($this->errors) === 0;
     }
+
+    /**
+     * Guarda el documento de entrada y sus articulos o equipos.
+     */
     private function handleSave(): void
     {
         $confirm = strval($_POST['accion'] ?? '') === 'confirmar';

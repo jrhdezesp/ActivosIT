@@ -10,6 +10,9 @@ use Utilities\Site;
 use Utilities\Validators;
 use Views\Renderer;
 
+/**
+ * Administra una funcion del sistema, como una pantalla o una accion permitida.
+ */
 class Funcion extends PrivateController
 {
     private $viewData = [];
@@ -30,6 +33,9 @@ class Funcion extends PrivateController
         'fntyp' => 'CTR',
     ];
 
+    /**
+     * Carga, valida y procesa el formulario de una funcion.
+     */
     public function run(): void
     {
         try {
@@ -68,6 +74,9 @@ class Funcion extends PrivateController
         }
     }
 
+    /**
+     * Revisa la descripcion, el estado y el tipo de la funcion.
+     */
     private function validateData()
     {
         $errors = [];
@@ -109,6 +118,9 @@ class Funcion extends PrivateController
         return true;
     }
 
+    /**
+     * Dirige la solicitud a la accion de crear, actualizar o desactivar.
+     */
     private function handlePostAction()
     {
         switch ($this->mode) {

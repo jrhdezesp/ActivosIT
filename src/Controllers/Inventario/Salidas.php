@@ -7,6 +7,9 @@ use Dao\Inventario\Salidas as DaoSalidas;
 use Utilities\Paging;
 use Views\Renderer;
 
+/**
+ * Presenta el historial de salidas con opciones de busqueda y filtro.
+ */
 class Salidas extends PrivateController
 {
     private const ORDER_FIELDS = [
@@ -44,6 +47,7 @@ class Salidas extends PrivateController
     private $pageNumber = 1;
     private $itemsPerPage = 10;
 
+    /** Obtiene y muestra las salidas que coinciden con la consulta. */
     public function run(): void
     {
         $this->getParams();

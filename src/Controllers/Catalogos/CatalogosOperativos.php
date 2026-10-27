@@ -2,8 +2,12 @@
 
 namespace Controllers\Catalogos;
 
+/**
+ * Presenta los catalogos operativos usados por los procesos del sistema.
+ */
 class CatalogosOperativos extends CatalogosList
 {
+    /** Muestra los grupos de catalogos operativos. */
     public function run(): void
     {
         $this->renderCatalogPage(

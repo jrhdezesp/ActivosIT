@@ -7,6 +7,9 @@ use Dao\Inventario\Entradas as DaoEntradas;
 use Utilities\Paging;
 use Views\Renderer;
 
+/**
+ * Presenta el historial de entradas con opciones de busqueda y filtro.
+ */
 class Entradas extends PrivateController
 {
     private const ORDER_FIELDS = [
@@ -44,6 +47,7 @@ class Entradas extends PrivateController
     private $pageNumber = 1;
     private $itemsPerPage = 10;
 
+    /** Obtiene y muestra las entradas que coinciden con la consulta. */
     public function run(): void
     {
         $this->getParams();

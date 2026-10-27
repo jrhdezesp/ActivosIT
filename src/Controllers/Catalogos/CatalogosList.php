@@ -6,8 +6,14 @@ use Controllers\PrivateController;
 use Dao\Catalogos\Catalogos as DaoCatalogos;
 use Views\Renderer;
 
+/**
+ * Comparte la presentacion de las listas de catalogos generales y operativos.
+ */
 abstract class CatalogosList extends PrivateController
 {
+    /**
+     * Reune los catalogos de una pagina y los presenta con sus filtros.
+     */
     protected function renderCatalogPage(
         string $pageType,
         string $route,

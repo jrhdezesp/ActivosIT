@@ -7,6 +7,9 @@ use Dao\Inventario\Asignaciones as DaoAsignaciones;
 use Utilities\Paging;
 use Views\Renderer;
 
+/**
+ * Presenta el historial de equipos asignados y sus devoluciones.
+ */
 class Asignaciones extends PrivateController
 {
     private const ORDER_FIELDS = [
@@ -40,6 +43,7 @@ class Asignaciones extends PrivateController
     private $pageNumber = 1;
     private $itemsPerPage = 10;
 
+    /** Obtiene y muestra las asignaciones que coinciden con la consulta. */
     public function run(): void
     {
         $this->getParams();

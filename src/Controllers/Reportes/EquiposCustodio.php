@@ -9,6 +9,9 @@ use Utilities\ReportCharts;
 use Utilities\ReportExport;
 use Views\Renderer;
 
+/**
+ * Presenta los equipos agrupados o filtrados por la persona responsable.
+ */
 class EquiposCustodio extends PrivateController
 {
     private const ITEMS_PER_PAGE_OPTIONS = [5, 10, 20, 50, 100];
@@ -26,6 +29,9 @@ class EquiposCustodio extends PrivateController
     private $pageNumber = 1;
     private $itemsPerPage = 10;
 
+    /**
+     * Busca los equipos por custodio y prepara el resultado para consulta o descarga.
+     */
     public function run(): void
     {
         $this->getParams();

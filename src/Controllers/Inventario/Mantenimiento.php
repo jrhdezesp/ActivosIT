@@ -10,15 +10,25 @@ use Utilities\DateHelper;
 use Utilities\Security;
 use Utilities\Site;
 use Views\Renderer;
+
+/**
+ * Atiende el registro, seguimiento y cierre de un mantenimiento de equipo.
+ */
 class Mantenimiento extends PrivateController
 {
     private $mode = 'INS';
     private $id = 0;
+    // Datos del mantenimiento seleccionado y los valores del formulario.
     private $record = [];
     private $item = [];
+    // Mensajes de revision y opciones disponibles para el formulario.
     private $errors = [];
     private $tipos = [];
     private $equipos = [];
+
+    /**
+     * Carga el mantenimiento, procesa sus cambios y presenta el formulario.
+     */
     public function run(): void
     {
         try {
@@ -189,6 +199,10 @@ class Mantenimiento extends PrivateController
         return $this->mode === 'INS'
             || strval($this->record['estado_mantenimiento'] ?? '') === 'EN_PROCESO';
     }
+
+    /**
+     * Revisa los datos requeridos para registrar o completar el mantenimiento.
+     */
     private function validateData(): bool
     {
         $this->errors = [];
@@ -288,6 +302,10 @@ class Mantenimiento extends PrivateController
 
         return count($this->errors) === 0;
     }
+
+    /**
+     * Guarda el mantenimiento o sus cambios de seguimiento.
+     */
     private function handleSave(): void
     {
         $userId = intval(Security::getUserId());
@@ -374,6 +392,10 @@ class Mantenimiento extends PrivateController
 
         Site::redirectTo('index.php?page=Inventario_Mantenimientos&msg=' . $msg);
     }
+
+    /**
+     * Cancela el mantenimiento seleccionado cuando su estado lo permite.
+     */
     private function handleCancelar(): void
     {
         if ($this->id <= 0) {

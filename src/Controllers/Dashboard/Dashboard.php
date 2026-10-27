@@ -7,8 +7,12 @@ use Utilities\Context;
 use Utilities\NavRenderer;
 use Views\Renderer;
 
+/**
+ * Resume el estado del sistema y muestra accesos a sus secciones principales.
+ */
 class Dashboard extends PrivateController
 {
+    /** Prepara los indicadores y accesos que aparecen al iniciar. */
     public function run(): void
     {
         $navigation = Context::getContextByKey("NAVIGATION");

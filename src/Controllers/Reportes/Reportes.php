@@ -8,8 +8,12 @@ use Utilities\ReportCharts;
 use Utilities\ReportExport;
 use Views\Renderer;
 
+/**
+ * Presenta un resumen general de inventario, equipos y actividad reciente.
+ */
 class Reportes extends PrivateController
 {
+    // Forma de distinguir los movimientos en los resumenes y graficas.
     private const TIPOS_MOVIMIENTO = [
         'ENTRADA' => [
             'label' => 'Entrada',
@@ -37,6 +41,9 @@ class Reportes extends PrivateController
         ],
     ];
 
+    /**
+     * Reune los resumenes, presenta las graficas o entrega un reporte exportado.
+     */
     public function run(): void
     {
         $resumen = DaoReportes::getResumenGeneral();

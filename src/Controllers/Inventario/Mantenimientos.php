@@ -7,6 +7,9 @@ use Dao\Mantenimientos\Mantenimientos as DaoMantenimientos;
 use Utilities\Paging;
 use Views\Renderer;
 
+/**
+ * Presenta el historial de mantenimientos con sus filtros principales.
+ */
 class Mantenimientos extends PrivateController
 {
     private const ORDER_FIELDS = [
@@ -45,6 +48,7 @@ class Mantenimientos extends PrivateController
     private $pageNumber = 1;
     private $itemsPerPage = 10;
 
+    /** Obtiene y muestra los mantenimientos que coinciden con la consulta. */
     public function run(): void
     {
         $this->getParams();

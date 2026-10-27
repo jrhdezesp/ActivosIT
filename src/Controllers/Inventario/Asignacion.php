@@ -10,16 +10,26 @@ use Utilities\DateHelper;
 use Utilities\Security;
 use Utilities\Site;
 use Views\Renderer;
+
+/**
+ * Atiende la entrega y devolucion de equipos asignados a personas o areas.
+ */
 class Asignacion extends PrivateController
 {
     private $mode = 'INS';
     private $id = 0;
+    // Datos de la asignacion y del equipo durante una entrega o devolucion.
     private $record = [];
     private $item = [];
     private $returnItem = [];
+    // Mensajes separados para los datos de asignacion y de devolucion.
     private $errors = [];
     private $returnErrors = [];
     private $equipos = [];
+
+    /**
+     * Carga la asignacion, procesa una entrega o devolucion y muestra el formulario.
+     */
     public function run(): void
     {
         try {
@@ -188,6 +198,10 @@ class Asignacion extends PrivateController
         return $this->mode === 'UPD'
             && strval($this->record['estado_asignacion'] ?? '') === 'ACTIVA';
     }
+
+    /**
+     * Revisa que la asignacion tenga los datos necesarios para guardarse.
+     */
     private function validateData(): bool
     {
         $this->errors = [];
@@ -297,6 +311,10 @@ class Asignacion extends PrivateController
 
         return count($this->returnErrors) === 0;
     }
+
+    /**
+     * Registra una nueva asignacion del equipo seleccionado.
+     */
     private function handleSave(): void
     {
         $userId = intval(Security::getUserId());
@@ -387,6 +405,10 @@ class Asignacion extends PrivateController
         $msg = $this->mode === 'INS' ? 'created' : 'updated';
         Site::redirectTo('index.php?page=Inventario_Asignaciones&msg=' . $msg);
     }
+
+    /**
+     * Registra la devolucion del equipo y su condicion de retorno.
+     */
     private function handleReturn(): void
     {
         if ($this->id <= 0) {

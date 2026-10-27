@@ -1,5 +1,9 @@
 <?php
 namespace Controllers\Sec;
+
+/**
+ * Permite iniciar una sesion con una cuenta activa.
+ */
 class Login extends \Controllers\PublicController
 {
     private $txtEmail = "";
@@ -10,6 +14,9 @@ class Login extends \Controllers\PublicController
     private $hasError = false;
     private $csrf_token = "";
 
+    /**
+     * Revisa los datos de acceso y abre la sesion cuando son validos.
+     */
     public function run() :void
     {
         $this->csrf_token = \Utilities\CSRF::token('login');

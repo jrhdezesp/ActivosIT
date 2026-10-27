@@ -7,6 +7,9 @@ use Dao\Equipos\Equipos as DaoEquipos;
 use Utilities\Paging;
 use Views\Renderer;
 
+/**
+ * Presenta los equipos registrados y permite localizar grupos de equipos.
+ */
 class Equipos extends PrivateController
 {
     private const ORDER_FIELDS = [
@@ -21,6 +24,7 @@ class Equipos extends PrivateController
 
     private const ITEMS_PER_PAGE_OPTIONS = [1, 5, 10, 20, 50, 100];
 
+    // Textos e indicadores visuales para cada situacion del equipo.
     private const ESTADOS = [
         'DISPONIBLE' => [
             'label' => 'Disponible',
@@ -58,6 +62,9 @@ class Equipos extends PrivateController
     private $pageNumber = 1;
     private $itemsPerPage = 10;
 
+    /**
+     * Busca los equipos solicitados y presenta el listado correspondiente.
+     */
     public function run(): void
     {
         $this->getParams();

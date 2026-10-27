@@ -8,6 +8,9 @@ use Utilities\Context;
 use Utilities\Paging;
 use Views\Renderer;
 
+/**
+ * Presenta el listado de funciones que se pueden asignar a los roles.
+ */
 class Funciones extends PrivateController
 {
     private $partialName = '';
@@ -21,6 +24,7 @@ class Funciones extends PrivateController
     private $funcionesCount = 0;
     private $pages = 0;
 
+    /** Muestra las funciones disponibles con los filtros seleccionados. */
     public function run(): void
     {
         $this->getParamsFromContext();

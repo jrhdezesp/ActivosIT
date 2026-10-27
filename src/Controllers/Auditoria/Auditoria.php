@@ -9,6 +9,9 @@ use Utilities\ReportExport;
 use Utilities\Site;
 use Views\Renderer;
 
+/**
+ * Permite consultar, filtrar y exportar el historial de actividad.
+ */
 class Auditoria extends PrivateController
 {
     private const ORDER_FIELDS = [
@@ -20,6 +23,7 @@ class Auditoria extends PrivateController
 
     private const ITEMS_PER_PAGE_OPTIONS = [1, 5, 10, 20, 50, 100];
 
+    // Nombres e iconos que ayudan a reconocer los tipos de actividad.
     private const OPERACIONES = [
         'LOGIN' => [
             'label' => 'Inicio de sesión',
@@ -35,6 +39,7 @@ class Auditoria extends PrivateController
         ],
     ];
 
+    // Presentacion de los resultados registrados en el historial.
     private const RESULTADOS = [
         'EXITO' => [
             'label' => 'Exitoso',
@@ -64,6 +69,9 @@ class Auditoria extends PrivateController
     private $pageNumber = 1;
     private $itemsPerPage = 10;
 
+    /**
+     * Muestra un evento, el listado filtrado o el archivo solicitado.
+     */
     public function run(): void
     {
         $this->getParams();
