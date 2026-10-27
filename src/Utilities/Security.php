@@ -18,7 +18,7 @@ class Security {
     public static function logout()
     {
         unset($_SESSION["login"]);
-        \Utilities\Nav::invalidateNavData();
+        Nav::invalidateNavData();
         if (session_status() === PHP_SESSION_ACTIVE) {
             session_regenerate_id(true);
         }
@@ -35,7 +35,7 @@ class Security {
             "userName" => $userName,
             "userEmail" => $userEmail
         );
-        \Utilities\Nav::invalidateNavData();
+        Nav::invalidateNavData();
     }
     // Indica si existe una cuenta autenticada en la sesion actual.
     public static function isLogged():bool
@@ -61,7 +61,7 @@ class Security {
     // Consulta si la cuenta puede utilizar una funcion del sistema.
     public static function isAuthorized($userId, $function, $type = 'FNC'):bool
     {
-        if (\Utilities\Context::getContextByKey("DEVELOPMENT") == "1") {
+        if (Context::getContextByKey("DEVELOPMENT") == "1") {
             $functionInDb = DaoSecurity::getFeature($function);
             if (!$functionInDb) {
                 DaoSecurity::addNewFeature($function, $function, "ACT", $type);
@@ -72,7 +72,7 @@ class Security {
     // Consulta si la cuenta pertenece al rol indicado.
     public static function isInRol($userId, $rol):bool
     {
-        if (\Utilities\Context::getContextByKey("DEVELOPMENT") == "1") {
+        if (Context::getContextByKey("DEVELOPMENT") == "1") {
             $rolInDb = DaoSecurity::getRol($rol);
             if (!$rolInDb) {
                 DaoSecurity::addNewRol($rol, $rol, "ACT");

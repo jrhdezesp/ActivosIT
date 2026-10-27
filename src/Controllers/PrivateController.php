@@ -2,6 +2,8 @@
 
 namespace Controllers;
 
+use Utilities\Security;
+
 /**
  * Base para paginas que requieren una cuenta activa y permiso de acceso.
  */
@@ -9,8 +11,8 @@ abstract class PrivateController extends PublicController
 {
     private function _isAuthorized()
     {
-        $isAuthorized = \Utilities\Security::isAuthorized(
-            \Utilities\Security::getUserId(),
+        $isAuthorized = Security::isAuthorized(
+            Security::getUserId(),
             $this->name,
             'CTR'
         );
@@ -20,15 +22,15 @@ abstract class PrivateController extends PublicController
     }
     private function _isAuthenticated()
     {
-        if (!\Utilities\Security::isLogged()){
+        if (!Security::isLogged()){
             throw new PrivateNoLoggedException();
         }
     }
     /** Indica si la cuenta puede usar una funcion adicional de la pagina. */
     protected function isFeatureAutorized($feature) :bool
     {
-        return \Utilities\Security::isAuthorized(
-            \Utilities\Security::getUserId(),
+        return Security::isAuthorized(
+            Security::getUserId(),
             $feature
         );
     }

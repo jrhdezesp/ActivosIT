@@ -7,6 +7,7 @@ use Dao\Roles\Roles as RolesDao;
 use Dao\Usuarios\Usuarios as UsuariosDao;
 use Utilities\Bitacora;
 use Utilities\CSRF;
+use Utilities\Security;
 use Utilities\Site;
 use Utilities\Validators;
 use Views\Renderer;
@@ -216,7 +217,7 @@ class Usuario extends PrivateController
 
     private function handleDelete()
     {
-        if (intval($this->usuario['usercod']) === intval(\Utilities\Security::getUserId())) {
+        if (intval($this->usuario['usercod']) === intval(Security::getUserId())) {
             throw new \Exception('No puede desactivar su propia cuenta.', 1);
         }
         $before = UsuariosDao::getUsuarioById(intval($this->usuario['usercod']));

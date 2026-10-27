@@ -2,6 +2,8 @@
 
 namespace Controllers;
 
+use Views\Renderer;
+
 /**
  * Muestra la pagina publica inicial del sistema.
  */
@@ -12,6 +14,6 @@ class Index extends PublicController
     public function run() :void
     {
         $viewData = array();
-        \Views\Renderer::render("index", $viewData);
+        Renderer::render("index", $viewData);
     }
 }

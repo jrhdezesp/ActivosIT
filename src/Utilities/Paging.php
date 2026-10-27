@@ -2,7 +2,7 @@
 
 namespace Utilities;
 
-use \Views\Renderer;
+use Views\Renderer;
 
 // Prepara y muestra los controles de navegacion entre paginas.
 class Paging

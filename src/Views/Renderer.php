@@ -2,6 +2,8 @@
 
 namespace Views;
 
+use Utilities\Context;
+
 // Combina las plantillas con los datos preparados por el sistema.
 class Renderer
 {
@@ -18,7 +20,7 @@ class Renderer
             die("Error de renderizador: datos no es un arreglo");
         }
 
-        $global_context = \Utilities\Context::getContext();
+        $global_context = Context::getContext();
         if (is_array($global_context)) {
             $datos = array_merge($global_context, $datos);
         }
@@ -57,7 +59,7 @@ class Renderer
                 $htmlResult = self::_renderTemplate($template_code, $datos);
 
                 if ($render) {
-                    if(\Utilities\Context::getContextByKey("USE_URLREWRITE") == "1") {
+                    if(Context::getContextByKey("USE_URLREWRITE") == "1") {
                         echo self::rewriteUrl($htmlResult);
                     } else {
                         echo $htmlResult;
@@ -403,7 +405,7 @@ class Renderer
             PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY
         );
         $htmlBuffer = "";
-        $basedir = \Utilities\Context::getContextByKey("BASE_DIR");
+        $basedir = Context::getContextByKey("BASE_DIR");
         foreach ($template_code as $node) {
             if (strpos($node, "index.php?page=")  !== false) {
                 $pageStart = strpos($node, "=") + 1;

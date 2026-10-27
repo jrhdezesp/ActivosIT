@@ -1,6 +1,8 @@
 <?php
 namespace Dao;
 
+use Utilities\Context;
+
 class Dao {
     // Conexion compartida con la base de datos.
     private static $_conn = null;
@@ -20,13 +22,13 @@ class Dao {
         if (self::$_conn == null) {
             $_dds = sprintf(
                 "%s:host=%s;dbname=%s;port=%s;charset=utf8mb4",
-                \Utilities\Context::getContextByKey("DB_PROVIDER"),
-                \Utilities\Context::getContextByKey("DB_SERVER"),
-                \Utilities\Context::getContextByKey("DB_DATABASE"),
-                \Utilities\Context::getContextByKey("DB_PORT")
+                Context::getContextByKey("DB_PROVIDER"),
+                Context::getContextByKey("DB_SERVER"),
+                Context::getContextByKey("DB_DATABASE"),
+                Context::getContextByKey("DB_PORT")
             );
-            $_user = \Utilities\Context::getContextByKey("DB_USER");
-            $_pswd = \Utilities\Context::getContextByKey("DB_PSWD");
+            $_user = Context::getContextByKey("DB_USER");
+            $_pswd = Context::getContextByKey("DB_PSWD");
             if ($dds !== null) {
                 $_dds = $dds;
             }

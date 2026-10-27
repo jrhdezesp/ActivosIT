@@ -4,6 +4,7 @@ namespace Controllers\Dashboard;
 
 use Controllers\PrivateController;
 use Utilities\Context;
+use Utilities\Nav;
 use Utilities\NavRenderer;
 use Views\Renderer;
 
@@ -17,7 +18,7 @@ class Dashboard extends PrivateController
     {
         $navigation = Context::getContextByKey("NAVIGATION");
         if (!is_array($navigation)) {
-            $navigation = \Utilities\Nav::getPrivateNavigation();
+            $navigation = Nav::getPrivateNavigation();
         }
         $cards = NavRenderer::forDashboard($navigation);
         $cards = array_values(array_filter($cards, function ($card) {

@@ -2,14 +2,17 @@
 
 namespace Utilities;
 
+use Controllers\IController;
+use Views\Renderer;
+
 // Coordina la configuracion general y el flujo de cada solicitud.
 class Site
 {
     // Carga la configuracion y prepara valores generales del sistema.
     public static function configure()
     {
-        $donenv = new \Utilities\DotEnv(__DIR__ . "/../../parameters.env");
-        \Utilities\Context::setArrayToContext($donenv->load());
+        $donenv = new DotEnv(__DIR__ . "/../../parameters.env");
+        Context::setArrayToContext($donenv->load());
 
         $requiredKeys = [
             "DB_PROVIDER",
@@ -22,7 +25,7 @@ class Site
         ];
         $missingKeys = array();
         foreach ($requiredKeys as $key) {
-            if (trim((string) \Utilities\Context::getContextByKey($key)) === "") {
+            if (trim((string) Context::getContextByKey($key)) === "") {
                 $missingKeys[] = $key;
             }
         }
@@ -31,21 +34,21 @@ class Site
                 "Faltan variables obligatorias en parameters.env: " . implode(", ", $missingKeys)
             );
         }
-        if (\Utilities\Context::getContextByKey("PWD_HASH") === "ChangeThisSecretAsap") {
+        if (Context::getContextByKey("PWD_HASH") === "ChangeThisSecretAsap") {
             throw new \RuntimeException(
                 "PWD_HASH conserva el valor de ejemplo. Defina una cadena aleatoria y privada."
             );
         }
 
-        date_default_timezone_set(\Utilities\Context::getContextByKey("TIMEZONE"));
-        \Utilities\Context::setContext('CURRENT_YEAR', date("Y"));
+        date_default_timezone_set(Context::getContextByKey("TIMEZONE"));
+        Context::setContext('CURRENT_YEAR', date("Y"));
     }
     // Determina que controlador atendera la solicitud actual.
     public static function getPageRequest()
     {
         $hasExplicitPage = isset($_GET["page"]);
         $pageRequest = Context::getContextByKey("PUBLIC_DEFAULT_CONTROLLER");
-        if (\Utilities\Security::isLogged()) {
+        if (Security::isLogged()) {
             $pageRequest = Context::getContextByKey("PRIVATE_DEFAULT_CONTROLLER");
             if ($pageRequest === "" || strcasecmp($pageRequest, "Index") === 0) {
                 $pageRequest = "Dashboard_Dashboard";
@@ -68,7 +71,7 @@ class Site
         $pageRequest = "Controllers\\"
             . str_replace(array("_", "-", "."), "\\", $pageRequest);
 
-        if (\Utilities\Security::isLogged()) {
+        if (Security::isLogged()) {
             $publicEntryPoints = array(
                 "Controllers\\Index",
                 "Controllers\\Sec\\Login",
@@ -87,7 +90,7 @@ class Site
         if ($pageRequestIsValid && class_exists($pageRequest)) {
             $reflection = new \ReflectionClass($pageRequest);
             $pageRequestIsValid = $reflection->isInstantiable()
-                && $reflection->implementsInterface(\Controllers\IController::class);
+                && $reflection->implementsInterface(IController::class);
         } else {
             $pageRequestIsValid = false;
         }
@@ -106,7 +109,7 @@ class Site
             $url = "index.php";
         }
         if (Context::getContextByKey("USE_URLREWRITE") == "1") {
-            header("Location:" . \Views\Renderer::rewriteUrl($url));
+            header("Location:" . Renderer::rewriteUrl($url));
         } else {
             header("Location:" . $url);
         }
@@ -165,40 +168,40 @@ class Site
     // Agrega una hoja de estilo para que la plantilla la incluya.
     public static function addLink($href)
     {
-        $tmpLinks = \Utilities\Context::getContextByKey("SiteLinks");
+        $tmpLinks = Context::getContextByKey("SiteLinks");
         if ($tmpLinks === "") {
             $tmpLinks = array($href);
         } else {
             $tmpLinks[] = $href;
         }
-        \Utilities\Context::setContext("SiteLinks", $tmpLinks);
+        Context::setContext("SiteLinks", $tmpLinks);
     }
     // Agrega un script para cargar al inicio de la pagina.
     public static function addBeginScript($src)
     {
-        $tmpSrcs = \Utilities\Context::getContextByKey("BeginScripts");
+        $tmpSrcs = Context::getContextByKey("BeginScripts");
         if ($tmpSrcs === "") {
             $tmpSrcs = array($src);
         } else {
             $tmpSrcs[] = $src;
         }
-        \Utilities\Context::setContext("BeginScripts", $tmpSrcs);
+        Context::setContext("BeginScripts", $tmpSrcs);
     }
     // Agrega un script para cargar al final de la pagina.
     public static function addEndScript($src)
     {
-        $tmpSrcs = \Utilities\Context::getContextByKey("EndScripts");
+        $tmpSrcs = Context::getContextByKey("EndScripts");
         if ($tmpSrcs === "") {
             $tmpSrcs = array($src);
         } else {
             $tmpSrcs[] = $src;
         }
-        \Utilities\Context::setContext("EndScripts", $tmpSrcs);
+        Context::setContext("EndScripts", $tmpSrcs);
     }
     // Guarda el codigo de error y registra el detalle en el log del servidor.
     public static function logError($ex, $errorCode)
     {
         error_log($ex);
-        \Utilities\Context::setContext("ERROR_CODE", $errorCode);
+        Context::setContext("ERROR_CODE", $errorCode);
     }
 }

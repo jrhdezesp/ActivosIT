@@ -1,21 +1,26 @@
 <?php
 namespace Controllers\Sec;
 
+use Controllers\PublicController;
+use Utilities\Bitacora;
+use Utilities\Security;
+use Utilities\Site;
+
 /**
  * Cierra la sesion actual y regresa a la pagina de inicio.
  */
-class Logout extends \Controllers\PublicController
+class Logout extends PublicController
 {
     /** Registra la salida de la cuenta y finaliza su sesion. */
     public function run():void
     {
-        $user = \Utilities\Security::getUser();
+        $user = Security::getUser();
         if (is_array($user)) {
             $usuarioId = intval($user["userId"] ?? 0);
-            \Utilities\Bitacora::registrar(
+            Bitacora::registrar(
                 'LOGOUT',
                 'Seguridad',
-                \Utilities\Bitacora::RESULTADO_EXITO,
+                Bitacora::RESULTADO_EXITO,
                 null,
                 null,
                 [
@@ -25,7 +30,7 @@ class Logout extends \Controllers\PublicController
                 $usuarioId > 0 ? $usuarioId : null
             );
         }
-        \Utilities\Security::logout();
-        \Utilities\Site::redirectTo("index.php");
+        Security::logout();
+        Site::redirectTo("index.php");
     }
 }

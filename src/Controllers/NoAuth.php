@@ -1,6 +1,10 @@
 <?php
 namespace Controllers;
 
+use Utilities\Context;
+use Utilities\Security;
+use Views\Renderer;
+
 /**
  * Informa que la cuenta actual no puede acceder a la seccion solicitada.
  */
@@ -10,18 +14,18 @@ class NoAuth extends PublicController
     public function run() :void
     {
         http_response_code(403);
-        if (\Utilities\Security::isLogged()){
-            if (\Utilities\Context::getContextByKey("PRIVATE_LAYOUT") !== "") {
-                \Views\Renderer::render(
+        if (Security::isLogged()){
+            if (Context::getContextByKey("PRIVATE_LAYOUT") !== "") {
+                Renderer::render(
                     "noauth",
                     array(),
-                    \Utilities\Context::getContextByKey("PRIVATE_LAYOUT")
+                    Context::getContextByKey("PRIVATE_LAYOUT")
                 );
             } else {
-                \Views\Renderer::render("noauth", array());
+                Renderer::render("noauth", array());
             }
         } else {
-            \Views\Renderer::render("noauth", array());
+            Renderer::render("noauth", array());
         }
     }
 }

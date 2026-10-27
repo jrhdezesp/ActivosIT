@@ -2,10 +2,12 @@
 
 namespace Dao\Security;
 
+use Utilities\Enum;
+
 /**
  * Reune los estados que puede tener una cuenta.
  */
-final class Estados extends \Utilities\Enum
+final class Estados extends Enum
 {
     const ACTIVO  = "ACT";
     const INACTIVO = "INA";

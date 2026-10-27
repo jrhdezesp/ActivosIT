@@ -1,10 +1,19 @@
 <?php
 namespace Controllers\Sec;
 
+use Controllers\PublicController;
+use Dao\Security\Security as DaoSecurity;
+use Utilities\Bitacora;
+use Utilities\CSRF;
+use Utilities\Security;
+use Utilities\Site;
+use Utilities\Validators;
+use Views\Renderer;
+
 /**
  * Permite iniciar una sesion con una cuenta activa.
  */
-class Login extends \Controllers\PublicController
+class Login extends PublicController
 {
     private $txtEmail = "";
     private $txtPswd = "";
@@ -19,35 +28,35 @@ class Login extends \Controllers\PublicController
      */
     public function run() :void
     {
-        $this->csrf_token = \Utilities\CSRF::token('login');
-        if ($this->isPostBack() && !\Utilities\CSRF::validate('login', $_POST['csrf_token'] ?? '')) {
+        $this->csrf_token = CSRF::token('login');
+        if ($this->isPostBack() && !CSRF::validate('login', $_POST['csrf_token'] ?? '')) {
             $this->txtEmail = strval($_POST['txtEmail'] ?? '');
             $this->generalError = "El formulario expiró o no es válido. Intente de nuevo.";
-            \Utilities\Bitacora::registrar(
+            Bitacora::registrar(
                 'LOGIN',
                 'Seguridad',
-                \Utilities\Bitacora::RESULTADO_DENEGADO,
+                Bitacora::RESULTADO_DENEGADO,
                 null,
                 null,
                 ['email' => $this->txtEmail, 'motivo' => 'Token CSRF inválido']
             );
-            \Views\Renderer::render("security/login", get_object_vars($this));
+            Renderer::render("security/login", get_object_vars($this));
             return;
         }
         if ($this->isPostBack()) {
             $this->txtEmail = $_POST["txtEmail"] ?? "";
             $this->txtPswd = $_POST["txtPswd"] ?? "";
 
-            if (!\Utilities\Validators::IsValidEmail($this->txtEmail)) {
+            if (!Validators::IsValidEmail($this->txtEmail)) {
                 $this->errorEmail = "¡Correo no tiene el formato adecuado!";
                 $this->hasError = true;
             }
-            if (\Utilities\Validators::IsEmpty($this->txtPswd)) {
+            if (Validators::IsEmpty($this->txtPswd)) {
                 $this->errorPswd = "¡Debe ingresar una contraseña!";
                 $this->hasError = true;
             }
             if (! $this->hasError) {
-                if ($dbUser = \Dao\Security\Security::getUsuarioByEmail($this->txtEmail)) {
+                if ($dbUser = DaoSecurity::getUsuarioByEmail($this->txtEmail)) {
                     $isActive = ($dbUser["estado_usuario"] == 1 || $dbUser["userest"] === 'ACT');
                     if (!$isActive) {
                         $this->generalError = "¡Credenciales son incorrectas!";
@@ -59,10 +68,10 @@ class Login extends \Controllers\PublicController
                                 $dbUser["useremail"]
                             )
                         );
-                        \Utilities\Bitacora::registrar(
+                        Bitacora::registrar(
                             'LOGIN',
                             'Seguridad',
-                            \Utilities\Bitacora::RESULTADO_DENEGADO,
+                            Bitacora::RESULTADO_DENEGADO,
                             null,
                             null,
                             [
@@ -72,7 +81,7 @@ class Login extends \Controllers\PublicController
                             intval($dbUser["usercod"])
                         );
                     }
-                    if (! $this->hasError && !\Dao\Security\Security::verifyPassword($this->txtPswd, $dbUser["userpswd"])) {
+                    if (! $this->hasError && !DaoSecurity::verifyPassword($this->txtPswd, $dbUser["userpswd"])) {
                         $this->generalError = "¡Credenciales son incorrectas!";
                         $this->hasError = true;
                         error_log(
@@ -82,10 +91,10 @@ class Login extends \Controllers\PublicController
                                 $dbUser["useremail"]
                             )
                         );
-                        \Utilities\Bitacora::registrar(
+                        Bitacora::registrar(
                             'LOGIN',
                             'Seguridad',
-                            \Utilities\Bitacora::RESULTADO_DENEGADO,
+                            Bitacora::RESULTADO_DENEGADO,
                             null,
                             null,
                             [
@@ -96,16 +105,16 @@ class Login extends \Controllers\PublicController
                         );
                     }
                     if (! $this->hasError) {
-                        \Dao\Security\Security::updateUltimoAcceso($dbUser["usercod"]);
-                        \Utilities\Security::login(
+                        DaoSecurity::updateUltimoAcceso($dbUser["usercod"]);
+                        Security::login(
                             $dbUser["usercod"],
                             $dbUser["username"],
                             $dbUser["useremail"]
                         );
-                        \Utilities\Bitacora::registrar(
+                        Bitacora::registrar(
                             'LOGIN',
                             'Seguridad',
-                            \Utilities\Bitacora::RESULTADO_EXITO,
+                            Bitacora::RESULTADO_EXITO,
                             null,
                             null,
                             [
@@ -113,7 +122,7 @@ class Login extends \Controllers\PublicController
                                 'nombre' => $dbUser["username"],
                             ]
                         );
-                        \Utilities\Site::redirectTo("index.php?page=Dashboard_Dashboard");
+                        Site::redirectTo("index.php?page=Dashboard_Dashboard");
                     }
                 } else {
                     error_log(
@@ -122,10 +131,10 @@ class Login extends \Controllers\PublicController
                             $this->txtEmail
                         )
                     );
-                    \Utilities\Bitacora::registrar(
+                    Bitacora::registrar(
                         'LOGIN',
                         'Seguridad',
-                        \Utilities\Bitacora::RESULTADO_DENEGADO,
+                        Bitacora::RESULTADO_DENEGADO,
                         null,
                         null,
                         [
@@ -138,6 +147,6 @@ class Login extends \Controllers\PublicController
             }
         }
         $dataView = get_object_vars($this);
-        \Views\Renderer::render("security/login", $dataView);
+        Renderer::render("security/login", $dataView);
     }
 }

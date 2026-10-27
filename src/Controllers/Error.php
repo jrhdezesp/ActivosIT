@@ -2,6 +2,10 @@
 
 namespace Controllers;
 
+use Utilities\Context;
+use Utilities\Security;
+use Views\Renderer;
+
 /**
  * Presenta una respuesta clara cuando una solicitud no puede completarse.
  */
@@ -10,7 +14,7 @@ class Error extends PublicController
     /** Selecciona el mensaje apropiado y presenta la pagina de error. */
     public function run(): void
     {
-        $errorCode = intval(\Utilities\Context::getContextByKey("ERROR_CODE"));
+        $errorCode = intval(Context::getContextByKey("ERROR_CODE"));
         if ($errorCode < 400 || $errorCode > 599) {
             $errorCode = 404;
         }
@@ -19,14 +23,14 @@ class Error extends PublicController
 
         http_response_code($errorCode);
         header("X-Robots-Tag: noindex, nofollow");
-        \Views\Renderer::render(
+        Renderer::render(
             "error",
             [
                 "CLIENT_ERROR_CODE" => $errorCode,
                 "CLIENT_ERROR_TITLE" => $errorContent["title"],
                 "CLIENT_ERROR_MSG" => $errorContent["message"],
                 "CLIENT_ERROR_ICON" => $errorContent["icon"],
-                "login" => \Utilities\Security::getUser()
+                "login" => Security::getUser()
             ]
         );
     }
