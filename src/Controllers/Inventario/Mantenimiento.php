@@ -6,10 +6,10 @@ use Controllers\PrivateController;
 use Dao\Mantenimientos\Mantenimientos as DaoMantenimientos;
 use Utilities\Bitacora;
 use Utilities\CSRF;
+use Utilities\DateHelper;
 use Utilities\Security;
 use Utilities\Site;
 use Views\Renderer;
-
 class Mantenimiento extends PrivateController
 {
     private $mode = 'INS';
@@ -19,7 +19,6 @@ class Mantenimiento extends PrivateController
     private $errors = [];
     private $tipos = [];
     private $equipos = [];
-
     public function run(): void
     {
         try {
@@ -190,7 +189,6 @@ class Mantenimiento extends PrivateController
         return $this->mode === 'INS'
             || strval($this->record['estado_mantenimiento'] ?? '') === 'EN_PROCESO';
     }
-
     private function validateData(): bool
     {
         $this->errors = [];
@@ -229,7 +227,7 @@ class Mantenimiento extends PrivateController
             $this->errors['id_tipo_mantenimiento'] = 'El tipo de mantenimiento está inactivo.';
         }
 
-        $fechaRecepcion = $this->normalizeDateTime(strval($this->item['fecha_recepcion'] ?? ''));
+        $fechaRecepcion = DateHelper::normalizeDateTime(strval($this->item['fecha_recepcion'] ?? ''));
         if ($fechaRecepcion === null) {
             $this->errors['fecha_recepcion'] = 'Ingresa una fecha y hora válidas.';
         } elseif (strtotime($fechaRecepcion) > time()) {
@@ -290,7 +288,6 @@ class Mantenimiento extends PrivateController
 
         return count($this->errors) === 0;
     }
-
     private function handleSave(): void
     {
         $userId = intval(Security::getUserId());
@@ -299,7 +296,7 @@ class Mantenimiento extends PrivateController
         $data = [
             'id_equipo' => intval($this->item['id_equipo']),
             'id_tipo_mantenimiento' => intval($this->item['id_tipo_mantenimiento']),
-            'fecha_recepcion' => $this->normalizeDateTime(strval($this->item['fecha_recepcion'])),
+            'fecha_recepcion' => DateHelper::normalizeDateTime(strval($this->item['fecha_recepcion'])),
             'diagnostico_inicial' => $this->nullIfEmpty(strval($this->item['diagnostico_inicial'])),
             'trabajo_realizado' => $this->nullIfEmpty(strval($this->item['trabajo_realizado'])),
             'resultado_mantenimiento' => $this->nullIfEmpty(strval($this->item['resultado_mantenimiento'])),
@@ -308,7 +305,7 @@ class Mantenimiento extends PrivateController
             'repuestos_utilizados' => $this->nullIfEmpty(strval($this->item['repuestos_utilizados'])),
             'costo_mantenimiento' => strval($this->item['costo_mantenimiento']),
             'fecha_finalizacion' => $completar
-                ? $this->normalizeDateTime(strval($this->item['fecha_finalizacion']))
+                ? DateHelper::normalizeDateTime(strval($this->item['fecha_finalizacion']))
                 : null,
             'estado_mantenimiento' => $completar ? 'COMPLETADO' : 'EN_PROCESO',
             'id_usuario_registro' => $userId,
@@ -377,7 +374,6 @@ class Mantenimiento extends PrivateController
 
         Site::redirectTo('index.php?page=Inventario_Mantenimientos&msg=' . $msg);
     }
-
     private function handleCancelar(): void
     {
         if ($this->id <= 0) {
@@ -617,26 +613,6 @@ class Mantenimiento extends PrivateController
         ];
 
         return $classes[$estado] ?? 'badge--outline';
-    }
-
-    private function normalizeDateTime(string $value): ?string
-    {
-        $value = trim($value);
-        if ($value === '') {
-            return null;
-        }
-
-        $value = str_replace('T', ' ', $value);
-        if (preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/', $value)) {
-            $value .= ':00';
-        }
-
-        $date = \DateTime::createFromFormat('Y-m-d H:i:s', $value);
-        if ($date === false || $date->format('Y-m-d H:i:s') !== $value) {
-            return null;
-        }
-
-        return $value;
     }
 
     private function toInputDateTime(string $value): string

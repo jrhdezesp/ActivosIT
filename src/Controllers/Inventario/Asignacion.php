@@ -6,10 +6,10 @@ use Controllers\PrivateController;
 use Dao\Inventario\Asignaciones as DaoAsignaciones;
 use Utilities\Bitacora;
 use Utilities\CSRF;
+use Utilities\DateHelper;
 use Utilities\Security;
 use Utilities\Site;
 use Views\Renderer;
-
 class Asignacion extends PrivateController
 {
     private $mode = 'INS';
@@ -20,7 +20,6 @@ class Asignacion extends PrivateController
     private $errors = [];
     private $returnErrors = [];
     private $equipos = [];
-
     public function run(): void
     {
         try {
@@ -189,7 +188,6 @@ class Asignacion extends PrivateController
         return $this->mode === 'UPD'
             && strval($this->record['estado_asignacion'] ?? '') === 'ACTIVA';
     }
-
     private function validateData(): bool
     {
         $this->errors = [];
@@ -239,7 +237,7 @@ class Asignacion extends PrivateController
             $this->errors['departamento_destino'] = 'El departamento no puede superar los 150 caracteres.';
         }
 
-        $fechaAsignacion = $this->normalizeDateTime(strval($this->item['fecha_asignacion'] ?? ''));
+        $fechaAsignacion = DateHelper::normalizeDateTime(strval($this->item['fecha_asignacion'] ?? ''));
         if ($fechaAsignacion === null) {
             $this->errors['fecha_asignacion'] = 'Ingresa una fecha y hora válidas.';
         } elseif (strtotime($fechaAsignacion) > time()) {
@@ -271,7 +269,7 @@ class Asignacion extends PrivateController
     {
         $this->returnErrors = [];
 
-        $fechaDevolucion = $this->normalizeDateTime(
+        $fechaDevolucion = DateHelper::normalizeDateTime(
             strval($this->returnItem['fecha_devolucion'] ?? '')
         );
 
@@ -280,7 +278,7 @@ class Asignacion extends PrivateController
         } elseif (strtotime($fechaDevolucion) > time()) {
             $this->returnErrors['fecha_devolucion'] = 'La fecha de devolución no puede ser futura.';
         } else {
-            $fechaAsignacion = $this->normalizeDateTime(
+            $fechaAsignacion = DateHelper::normalizeDateTime(
                 strval($this->record['fecha_asignacion'] ?? '')
             );
             if (
@@ -299,11 +297,10 @@ class Asignacion extends PrivateController
 
         return count($this->returnErrors) === 0;
     }
-
     private function handleSave(): void
     {
         $userId = intval(Security::getUserId());
-        $fechaAsignacion = $this->normalizeDateTime(
+        $fechaAsignacion = DateHelper::normalizeDateTime(
             strval($this->item['fecha_asignacion'])
         );
 
@@ -390,14 +387,13 @@ class Asignacion extends PrivateController
         $msg = $this->mode === 'INS' ? 'created' : 'updated';
         Site::redirectTo('index.php?page=Inventario_Asignaciones&msg=' . $msg);
     }
-
     private function handleReturn(): void
     {
         if ($this->id <= 0) {
             throw new \InvalidArgumentException('La asignación solicitada no es válida.');
         }
 
-        $fechaDevolucion = $this->normalizeDateTime(
+        $fechaDevolucion = DateHelper::normalizeDateTime(
             strval($this->returnItem['fecha_devolucion'])
         );
 
@@ -618,26 +614,6 @@ class Asignacion extends PrivateController
         ];
 
         return $classes[$estado] ?? 'badge--outline';
-    }
-
-    private function normalizeDateTime(string $value): ?string
-    {
-        $value = trim($value);
-        if ($value === '') {
-            return null;
-        }
-
-        $value = str_replace('T', ' ', $value);
-        if (preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/', $value)) {
-            $value .= ':00';
-        }
-
-        $date = \DateTime::createFromFormat('Y-m-d H:i:s', $value);
-        if ($date === false || $date->format('Y-m-d H:i:s') !== $value) {
-            return null;
-        }
-
-        return $value;
     }
 
     private function toInputDateTime(string $value): string

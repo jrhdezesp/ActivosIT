@@ -6,10 +6,10 @@ use Controllers\PrivateController;
 use Dao\Inventario\Entradas as DaoEntradas;
 use Utilities\Bitacora;
 use Utilities\CSRF;
+use Utilities\DateHelper;
 use Utilities\Security;
 use Utilities\Site;
 use Views\Renderer;
-
 class Entrada extends PrivateController
 {
     private $mode = 'INS';
@@ -24,7 +24,6 @@ class Entrada extends PrivateController
     private $motivos = [];
     private $articulos = [];
     private $equipos = [];
-
     public function run(): void
     {
         try {
@@ -233,7 +232,6 @@ class Entrada extends PrivateController
         return $this->mode === 'INS'
             || strval($this->doc['estado_doc'] ?? '') === 'BORRADOR';
     }
-
     private function validateData(): bool
     {
         $this->errors = [];
@@ -254,7 +252,7 @@ class Entrada extends PrivateController
             $this->errors['id_tipo_doc'] = 'El tipo de documento seleccionado está inactivo.';
         }
 
-        $fecha = $this->normalizeDateTime(strval($this->item['fecha_movimiento'] ?? ''));
+        $fecha = DateHelper::normalizeDateTime(strval($this->item['fecha_movimiento'] ?? ''));
         if ($fecha === null) {
             $this->errors['fecha_movimiento'] = 'Ingresa una fecha y hora válidas.';
         }
@@ -386,12 +384,11 @@ class Entrada extends PrivateController
 
         return count($this->errors) === 0;
     }
-
     private function handleSave(): void
     {
         $confirm = strval($_POST['accion'] ?? '') === 'confirmar';
         $userId = intval(Security::getUserId());
-        $fecha = $this->normalizeDateTime(strval($this->item['fecha_movimiento'] ?? ''));
+        $fecha = DateHelper::normalizeDateTime(strval($this->item['fecha_movimiento'] ?? ''));
 
         if ($fecha === null) {
             throw new \RuntimeException('La fecha del movimiento no es válida.');
@@ -833,26 +830,6 @@ class Entrada extends PrivateController
         }
 
         return false;
-    }
-
-    private function normalizeDateTime(string $value): ?string
-    {
-        $value = trim($value);
-        if ($value === '') {
-            return null;
-        }
-
-        $value = str_replace('T', ' ', $value);
-        if (preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/', $value)) {
-            $value .= ':00';
-        }
-
-        $date = \DateTime::createFromFormat('Y-m-d H:i:s', $value);
-        if ($date === false || $date->format('Y-m-d H:i:s') !== $value) {
-            return null;
-        }
-
-        return $value;
     }
 
     private function toInputDateTime(string $value): string
