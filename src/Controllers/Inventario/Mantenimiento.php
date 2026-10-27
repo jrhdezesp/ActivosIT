@@ -6,7 +6,7 @@ use Controllers\PrivateController;
 use Dao\Mantenimientos\Mantenimientos as DaoMantenimientos;
 use Utilities\Bitacora;
 use Utilities\CSRF;
-use Utilities\DateHelper;
+use Utilities\Fechas;
 use Utilities\Security;
 use Utilities\Site;
 use Views\Renderer;
@@ -137,7 +137,7 @@ class Mantenimiento extends PrivateController
         return [
             'id_equipo' => strval(intval($row['id_equipo'] ?? 0)),
             'id_tipo_mantenimiento' => strval(intval($row['id_tipo_mantenimiento'] ?? 0)),
-            'fecha_recepcion' => $this->toInputDateTime(strval($row['fecha_recepcion'] ?? '')),
+            'fecha_recepcion' => Fechas::paraCampoFechaHora(strval($row['fecha_recepcion'] ?? '')),
             'tecnico_responsable' => strval($row['tecnico_responsable'] ?? ''),
             'diagnostico_inicial' => strval($row['diagnostico_inicial'] ?? ''),
             'trabajo_realizado' => strval($row['trabajo_realizado'] ?? ''),
@@ -241,7 +241,7 @@ class Mantenimiento extends PrivateController
             $this->errors['id_tipo_mantenimiento'] = 'El tipo de mantenimiento está inactivo.';
         }
 
-        $fechaRecepcion = DateHelper::normalizeDateTime(strval($this->item['fecha_recepcion'] ?? ''));
+        $fechaRecepcion = Fechas::normalizarFechaHora(strval($this->item['fecha_recepcion'] ?? ''));
         if ($fechaRecepcion === null) {
             $this->errors['fecha_recepcion'] = 'Ingresa una fecha y hora válidas.';
         } elseif (strtotime($fechaRecepcion) > time()) {
@@ -314,7 +314,7 @@ class Mantenimiento extends PrivateController
         $data = [
             'id_equipo' => intval($this->item['id_equipo']),
             'id_tipo_mantenimiento' => intval($this->item['id_tipo_mantenimiento']),
-            'fecha_recepcion' => DateHelper::normalizeDateTime(strval($this->item['fecha_recepcion'])),
+            'fecha_recepcion' => Fechas::normalizarFechaHora(strval($this->item['fecha_recepcion'])),
             'diagnostico_inicial' => $this->nullIfEmpty(strval($this->item['diagnostico_inicial'])),
             'trabajo_realizado' => $this->nullIfEmpty(strval($this->item['trabajo_realizado'])),
             'resultado_mantenimiento' => $this->nullIfEmpty(strval($this->item['resultado_mantenimiento'])),
@@ -323,7 +323,7 @@ class Mantenimiento extends PrivateController
             'repuestos_utilizados' => $this->nullIfEmpty(strval($this->item['repuestos_utilizados'])),
             'costo_mantenimiento' => strval($this->item['costo_mantenimiento']),
             'fecha_finalizacion' => $completar
-                ? DateHelper::normalizeDateTime(strval($this->item['fecha_finalizacion']))
+                ? Fechas::normalizarFechaHora(strval($this->item['fecha_finalizacion']))
                 : null,
             'estado_mantenimiento' => $completar ? 'COMPLETADO' : 'EN_PROCESO',
             'id_usuario_registro' => $userId,
@@ -481,14 +481,14 @@ class Mantenimiento extends PrivateController
         $formMeta = '';
         if ($this->mode !== 'INS') {
             $usuario = trim(strval($this->record['usuario_nombre'] ?? ''));
-            $creado = $this->formatDateTime(strval($this->record['fecha_recepcion'] ?? ''));
+            $creado = Fechas::paraMostrarFechaHora(strval($this->record['fecha_recepcion'] ?? ''));
             $formMeta = 'Registrado' . ($usuario !== '' ? ' por ' . $usuario : '')
                 . ($creado !== '' ? ' el ' . $creado : '');
         }
 
         $fechaFinalDisplay = 'Se registra al completar';
         if (strval($this->record['fecha_finalizacion'] ?? '') !== '') {
-            $fechaFinalDisplay = $this->formatDateTime(strval($this->record['fecha_finalizacion']));
+            $fechaFinalDisplay = Fechas::paraMostrarFechaHora(strval($this->record['fecha_finalizacion']));
         }
 
         $selectedEquipo = strval(intval($this->item['id_equipo'] ?? 0));
@@ -635,20 +635,6 @@ class Mantenimiento extends PrivateController
         ];
 
         return $classes[$estado] ?? 'badge--outline';
-    }
-
-    private function toInputDateTime(string $value): string
-    {
-        $timestamp = strtotime($value);
-
-        return $timestamp !== false ? date('Y-m-d\TH:i', $timestamp) : '';
-    }
-
-    private function formatDateTime(string $value): string
-    {
-        $timestamp = strtotime($value);
-
-        return $timestamp !== false ? date('d/m/Y H:i', $timestamp) : '';
     }
 
     private function nullIfEmpty(string $value): ?string

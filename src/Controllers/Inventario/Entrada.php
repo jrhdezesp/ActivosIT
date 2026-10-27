@@ -6,7 +6,8 @@ use Controllers\PrivateController;
 use Dao\Inventario\Entradas as DaoEntradas;
 use Utilities\Bitacora;
 use Utilities\CSRF;
-use Utilities\DateHelper;
+use Utilities\Fechas;
+use Utilities\DetallesInventario;
 use Utilities\Security;
 use Utilities\Site;
 use Views\Renderer;
@@ -126,7 +127,7 @@ class Entrada extends PrivateController
     {
         return [
             'id_tipo_doc' => strval($row['id_tipo_doc'] ?? '0'),
-            'fecha_movimiento' => $this->toInputDateTime(strval($row['fecha_movimiento'] ?? '')),
+            'fecha_movimiento' => Fechas::paraCampoFechaHora(strval($row['fecha_movimiento'] ?? '')),
             'id_motivo' => $row['id_motivo'] === null ? '0' : strval($row['id_motivo']),
             'proveedor_origen' => strval($row['proveedor_origen'] ?? ''),
             'observaciones' => strval($row['observaciones'] ?? ''),
@@ -267,7 +268,7 @@ class Entrada extends PrivateController
             $this->errors['id_tipo_doc'] = 'El tipo de documento seleccionado está inactivo.';
         }
 
-        $fecha = DateHelper::normalizeDateTime(strval($this->item['fecha_movimiento'] ?? ''));
+        $fecha = Fechas::normalizarFechaHora(strval($this->item['fecha_movimiento'] ?? ''));
         if ($fecha === null) {
             $this->errors['fecha_movimiento'] = 'Ingresa una fecha y hora válidas.';
         }
@@ -327,7 +328,7 @@ class Entrada extends PrivateController
                 $lineErrors['articulo'] = 'Selecciona un artículo válido.';
             } elseif (
                 intval($articulo['estado_registro'] ?? 0) !== 1
-                && !$this->isCurrentArticulo($articuloId)
+                && !DetallesInventario::contieneArticulo($this->originalDetalles, $articuloId)
             ) {
                 $lineErrors['articulo'] = 'El artículo seleccionado está inactivo.';
             } else {
@@ -407,7 +408,7 @@ class Entrada extends PrivateController
     {
         $confirm = strval($_POST['accion'] ?? '') === 'confirmar';
         $userId = intval(Security::getUserId());
-        $fecha = DateHelper::normalizeDateTime(strval($this->item['fecha_movimiento'] ?? ''));
+        $fecha = Fechas::normalizarFechaHora(strval($this->item['fecha_movimiento'] ?? ''));
 
         if ($fecha === null) {
             throw new \RuntimeException('La fecha del movimiento no es válida.');
@@ -640,7 +641,7 @@ class Entrada extends PrivateController
         $formMeta = '';
         if ($this->mode === 'UPD' || $isDelete) {
             $usuario = trim(strval($this->doc['usuario_nombre'] ?? ''));
-            $creado = $this->formatDateTime(strval($this->doc['fecha_creacion'] ?? ''));
+            $creado = Fechas::paraMostrarFechaHora(strval($this->doc['fecha_creacion'] ?? ''));
             $lineas = intval($this->doc['lineas'] ?? count($this->detalles));
             $formMeta = 'Registrada' . ($usuario !== '' ? ' por ' . $usuario : '')
                 . ($creado !== '' ? ' el ' . $creado : '')
@@ -838,31 +839,6 @@ class Entrada extends PrivateController
         $costoVacio = in_array(str_replace(',', '.', $costo), ['', '0', '0.0', '0.00'], true);
 
         return $cantidadVacia && $costoVacio;
-    }
-
-    private function isCurrentArticulo(int $articuloId): bool
-    {
-        foreach ($this->originalDetalles as $detalle) {
-            if (intval($detalle['id_articulo'] ?? 0) === $articuloId) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private function toInputDateTime(string $value): string
-    {
-        $timestamp = strtotime($value);
-
-        return $timestamp !== false ? date('Y-m-d\TH:i', $timestamp) : '';
-    }
-
-    private function formatDateTime(string $value): string
-    {
-        $timestamp = strtotime($value);
-
-        return $timestamp !== false ? date('d/m/Y H:i', $timestamp) : '';
     }
 
     private function formatMoney(float $value): string

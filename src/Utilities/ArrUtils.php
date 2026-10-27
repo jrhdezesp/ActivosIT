@@ -65,6 +65,17 @@
         return $tmpArray;
     }
 
+    // Marca la opcion cuyo valor coincide con la seleccion actual.
+    public static function marcarOpcionesSeleccionadas(array $opciones, string $seleccionado): array
+    {
+        foreach ($opciones as &$opcion) {
+            $opcion['selected'] = strval($opcion['value']) === $seleccionado ? 'selected' : '';
+        }
+        unset($opcion);
+
+        return $opciones;
+    }
+
     private function __construct()
     {
 

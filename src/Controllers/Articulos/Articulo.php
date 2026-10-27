@@ -4,6 +4,7 @@ namespace Controllers\Articulos;
 
 use Controllers\PrivateController;
 use Dao\Articulos\Articulos as DaoArticulos;
+use Utilities\ArrUtils;
 use Utilities\Bitacora;
 use Utilities\CSRF;
 use Utilities\Site;
@@ -456,14 +457,14 @@ class Articulo extends PrivateController
                 $this->unidades,
                 $selectedUnidad
             ),
-            'TipoControlOptions' => $this->decorateSimpleOptions(
+            'TipoControlOptions' => ArrUtils::marcarOpcionesSeleccionadas(
                 [
                     ['value' => 'CANTIDAD', 'label' => 'Por cantidad'],
                     ['value' => 'SERIE', 'label' => 'Por serie'],
                 ],
                 strval($this->item['tipo_control'] ?? '')
             ),
-            'EstadoOptions' => $this->decorateSimpleOptions(
+            'EstadoOptions' => ArrUtils::marcarOpcionesSeleccionadas(
                 [
                     ['value' => '1', 'label' => 'Activo'],
                     ['value' => '0', 'label' => 'Inactivo'],
@@ -515,16 +516,6 @@ class Articulo extends PrivateController
                 'selected' => $value === $selected ? 'selected' : '',
             ];
         }
-
-        return $options;
-    }
-
-    private function decorateSimpleOptions(array $options, string $selected): array
-    {
-        foreach ($options as &$option) {
-            $option['selected'] = strval($option['value']) === $selected ? 'selected' : '';
-        }
-        unset($option);
 
         return $options;
     }

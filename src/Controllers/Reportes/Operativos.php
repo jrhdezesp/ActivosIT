@@ -4,6 +4,7 @@ namespace Controllers\Reportes;
 
 use Controllers\PrivateController;
 use Dao\Reportes\Operativos as DaoOperativos;
+use Utilities\Fechas;
 use Utilities\Paging;
 use Utilities\ReportExport;
 use Views\Renderer;
@@ -97,8 +98,8 @@ class Operativos extends PrivateController
     {
         $this->type = trim(strval($_GET['tipo'] ?? 'inventario'));
         $this->search = trim(strval($_GET['q'] ?? ''));
-        $this->desde = $this->normalizeDate(strval($_GET['desde'] ?? ''));
-        $this->hasta = $this->normalizeDate(strval($_GET['hasta'] ?? ''));
+        $this->desde = Fechas::normalizarFecha(strval($_GET['desde'] ?? '')) ?? '';
+        $this->hasta = Fechas::normalizarFecha(strval($_GET['hasta'] ?? '')) ?? '';
         $this->departamento = trim(strval($_GET['departamento'] ?? ''));
         $this->estado = trim(strval($_GET['estado'] ?? ''));
         $this->pageNumber = max(1, intval($_GET['pageNum'] ?? 1));
@@ -230,21 +231,6 @@ class Operativos extends PrivateController
             || $this->hasta !== ''
             || $this->departamento !== ''
             || $this->estado !== '';
-    }
-
-    private function normalizeDate(string $value): string
-    {
-        $value = trim($value);
-        if ($value === '') {
-            return '';
-        }
-
-        $date = \DateTime::createFromFormat('Y-m-d', $value);
-        if (!$date || $date->format('Y-m-d') !== $value) {
-            return '';
-        }
-
-        return $value;
     }
 
     private function textLength(string $value): int

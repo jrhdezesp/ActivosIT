@@ -4,6 +4,7 @@ namespace Controllers\Reportes;
 
 use Controllers\PrivateController;
 use Dao\Reportes\Kardex as DaoKardex;
+use Utilities\Fechas;
 use Utilities\Paging;
 use Utilities\ReportCharts;
 use Utilities\ReportExport;
@@ -108,8 +109,8 @@ class Kardex extends PrivateController
 
         $this->articuloId = max(0, intval($_GET['articulo'] ?? 0));
 
-        $this->desde = $this->normalizeDate(strval($_GET['desde'] ?? ''));
-        $this->hasta = $this->normalizeDate(strval($_GET['hasta'] ?? ''));
+        $this->desde = Fechas::normalizarFecha(strval($_GET['desde'] ?? '')) ?? '';
+        $this->hasta = Fechas::normalizarFecha(strval($_GET['hasta'] ?? '')) ?? '';
 
         if ($this->desde !== '' && $this->hasta !== '' && $this->desde > $this->hasta) {
             $temporal = $this->desde;
@@ -433,21 +434,6 @@ class Kardex extends PrivateController
             || $this->articuloId > 0
             || $this->desde !== ''
             || $this->hasta !== '';
-    }
-
-    private function normalizeDate(string $value): string
-    {
-        $value = trim($value);
-        if ($value === '') {
-            return '';
-        }
-
-        $date = \DateTime::createFromFormat('Y-m-d', $value);
-        if (!$date || $date->format('Y-m-d') !== $value) {
-            return '';
-        }
-
-        return $value;
     }
 
     private function textLength(string $value): int

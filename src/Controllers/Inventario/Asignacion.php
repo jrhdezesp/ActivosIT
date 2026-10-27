@@ -6,7 +6,7 @@ use Controllers\PrivateController;
 use Dao\Inventario\Asignaciones as DaoAsignaciones;
 use Utilities\Bitacora;
 use Utilities\CSRF;
-use Utilities\DateHelper;
+use Utilities\Fechas;
 use Utilities\Security;
 use Utilities\Site;
 use Views\Renderer;
@@ -125,7 +125,7 @@ class Asignacion extends PrivateController
             'id_equipo' => strval(intval($row['id_equipo'] ?? 0)),
             'persona_responsable' => strval($row['persona_responsable'] ?? ''),
             'departamento_destino' => strval($row['departamento_destino'] ?? ''),
-            'fecha_asignacion' => $this->toInputDateTime(strval($row['fecha_asignacion'] ?? '')),
+            'fecha_asignacion' => Fechas::paraCampoFechaHora(strval($row['fecha_asignacion'] ?? '')),
             'condicion_entrega' => strval($row['condicion_entrega'] ?? ''),
             'accesorios_entregados' => strval($row['accesorios_entregados'] ?? ''),
             'observaciones' => strval($row['observaciones'] ?? ''),
@@ -138,7 +138,7 @@ class Asignacion extends PrivateController
 
         return [
             'fecha_devolucion' => $fecha !== ''
-                ? $this->toInputDateTime($fecha)
+                ? Fechas::paraCampoFechaHora($fecha)
                 : date('Y-m-d\TH:i'),
             'condicion_devolucion' => strval($row['condicion_devolucion'] ?? ''),
         ];
@@ -251,7 +251,7 @@ class Asignacion extends PrivateController
             $this->errors['departamento_destino'] = 'El departamento no puede superar los 150 caracteres.';
         }
 
-        $fechaAsignacion = DateHelper::normalizeDateTime(strval($this->item['fecha_asignacion'] ?? ''));
+        $fechaAsignacion = Fechas::normalizarFechaHora(strval($this->item['fecha_asignacion'] ?? ''));
         if ($fechaAsignacion === null) {
             $this->errors['fecha_asignacion'] = 'Ingresa una fecha y hora válidas.';
         } elseif (strtotime($fechaAsignacion) > time()) {
@@ -283,7 +283,7 @@ class Asignacion extends PrivateController
     {
         $this->returnErrors = [];
 
-        $fechaDevolucion = DateHelper::normalizeDateTime(
+        $fechaDevolucion = Fechas::normalizarFechaHora(
             strval($this->returnItem['fecha_devolucion'] ?? '')
         );
 
@@ -292,7 +292,7 @@ class Asignacion extends PrivateController
         } elseif (strtotime($fechaDevolucion) > time()) {
             $this->returnErrors['fecha_devolucion'] = 'La fecha de devolución no puede ser futura.';
         } else {
-            $fechaAsignacion = DateHelper::normalizeDateTime(
+            $fechaAsignacion = Fechas::normalizarFechaHora(
                 strval($this->record['fecha_asignacion'] ?? '')
             );
             if (
@@ -318,7 +318,7 @@ class Asignacion extends PrivateController
     private function handleSave(): void
     {
         $userId = intval(Security::getUserId());
-        $fechaAsignacion = DateHelper::normalizeDateTime(
+        $fechaAsignacion = Fechas::normalizarFechaHora(
             strval($this->item['fecha_asignacion'])
         );
 
@@ -415,7 +415,7 @@ class Asignacion extends PrivateController
             throw new \InvalidArgumentException('La asignación solicitada no es válida.');
         }
 
-        $fechaDevolucion = DateHelper::normalizeDateTime(
+        $fechaDevolucion = Fechas::normalizarFechaHora(
             strval($this->returnItem['fecha_devolucion'])
         );
 
@@ -506,7 +506,7 @@ class Asignacion extends PrivateController
         $formMeta = '';
         if ($this->mode !== 'INS') {
             $entrega = trim(strval($this->record['entrega_nombre'] ?? ''));
-            $fecha = $this->formatDateTime(strval($this->record['fecha_asignacion'] ?? ''));
+            $fecha = Fechas::paraMostrarFechaHora(strval($this->record['fecha_asignacion'] ?? ''));
             $formMeta = 'Registrada' . ($entrega !== '' ? ' por ' . $entrega : '')
                 . ($fecha !== '' ? ' el ' . $fecha : '');
         }
@@ -636,20 +636,6 @@ class Asignacion extends PrivateController
         ];
 
         return $classes[$estado] ?? 'badge--outline';
-    }
-
-    private function toInputDateTime(string $value): string
-    {
-        $timestamp = strtotime($value);
-
-        return $timestamp !== false ? date('Y-m-d\TH:i', $timestamp) : '';
-    }
-
-    private function formatDateTime(string $value): string
-    {
-        $timestamp = strtotime($value);
-
-        return $timestamp !== false ? date('d/m/Y H:i', $timestamp) : '';
     }
 
     private function nullIfEmpty(string $value): ?string

@@ -4,8 +4,11 @@ namespace Controllers\Equipos;
 
 use Controllers\PrivateController;
 use Dao\Equipos\Equipos as DaoEquipos;
+use Dao\Inventario\Asignaciones as DaoAsignaciones;
+use Utilities\ArrUtils;
 use Utilities\Bitacora;
 use Utilities\CSRF;
+use Utilities\Fechas;
 use Utilities\Site;
 use Views\Renderer;
 
@@ -189,7 +192,7 @@ class Equipo extends PrivateController
             $newArticuloId = intval($this->item['id_articulo']);
             $originalArticuloId = intval($this->originalItem['id_articulo'] ?? 0);
             if ($newArticuloId !== $originalArticuloId) {
-                if (\Dao\Equipos\Equipos::tieneHistorialOperativo($this->id)) {
+                if (DaoEquipos::tieneHistorialOperativo($this->id)) {
                     $this->errors['id_articulo'] = 'No se puede cambiar el artículo de un equipo con historial de asignaciones o mantenimientos.';
                 }
             }
@@ -200,7 +203,7 @@ class Equipo extends PrivateController
             $this->errors['id_articulo'] = 'El artículo debe estar controlado por número de serie.';
         } elseif (
             intval($articulo['estado_registro'] ?? 0) !== 1
-            && !$this->isCurrentArticulo($articuloId)
+            && !$this->esArticuloActual($articuloId)
         ) {
             $this->errors['id_articulo'] = 'El artículo seleccionado está inactivo.';
         }
@@ -262,8 +265,8 @@ class Equipo extends PrivateController
             $this->errors['estado_operativo'] = 'Un equipo nuevo solo puede registrarse como Disponible.';
         } elseif ($this->mode === 'UPD') {
             // Validar coherencia con asignaciones y mantenimientos activos
-            $tieneAsignacion = \Dao\Inventario\Asignaciones::tieneAsignacionActiva($this->id);
-            $tieneMantenimiento = \Dao\Inventario\Asignaciones::tieneMantenimientoActivo($this->id);
+            $tieneAsignacion = DaoAsignaciones::tieneAsignacionActiva($this->id);
+            $tieneMantenimiento = DaoAsignaciones::tieneMantenimientoActivo($this->id);
 
             if ($tieneAsignacion && $operativo !== 'ASIGNADO') {
                 $this->errors['estado_operativo'] = 'El equipo tiene una asignación activa; su estado debe ser Asignado.';
@@ -275,18 +278,18 @@ class Equipo extends PrivateController
             }
         }
 
-        $adquisicion = $this->normalizeDate(
-            strval($this->item['fecha_adquisicion'] ?? ''),
-            'fecha_adquisicion',
-            'La fecha de adquisición no es válida.'
-        );
+        $fechaAdquisicionEntrada = trim(strval($this->item['fecha_adquisicion'] ?? ''));
+        $adquisicion = Fechas::normalizarFecha($fechaAdquisicionEntrada);
+        if ($fechaAdquisicionEntrada !== '' && $adquisicion === null) {
+            $this->errors['fecha_adquisicion'] = 'La fecha de adquisición no es válida.';
+        }
         $this->item['fecha_adquisicion'] = $adquisicion ?? '';
 
-        $garantia = $this->normalizeDate(
-            strval($this->item['garantia_vencimiento_equipo'] ?? ''),
-            'garantia_vencimiento_equipo',
-            'La fecha de vencimiento de la garantía no es válida.'
-        );
+        $fechaGarantiaEntrada = trim(strval($this->item['garantia_vencimiento_equipo'] ?? ''));
+        $garantia = Fechas::normalizarFecha($fechaGarantiaEntrada);
+        if ($fechaGarantiaEntrada !== '' && $garantia === null) {
+            $this->errors['garantia_vencimiento_equipo'] = 'La fecha de vencimiento de la garantía no es válida.';
+        }
         $this->item['garantia_vencimiento_equipo'] = $garantia ?? '';
 
         if ($adquisicion !== null && $garantia !== null && $garantia < $adquisicion) {
@@ -400,12 +403,12 @@ class Equipo extends PrivateController
         }
 
         // No se puede desactivar un equipo con asignación o mantenimiento activo
-        if (\Dao\Inventario\Asignaciones::tieneAsignacionActiva($this->id)) {
+        if (DaoAsignaciones::tieneAsignacionActiva($this->id)) {
             throw new \RuntimeException(
                 'No se puede desactivar el equipo porque tiene una asignación activa.'
             );
         }
-        if (\Dao\Inventario\Asignaciones::tieneMantenimientoActivo($this->id)) {
+        if (DaoAsignaciones::tieneMantenimientoActivo($this->id)) {
             throw new \RuntimeException(
                 'No se puede desactivar el equipo porque tiene un mantenimiento en proceso.'
             );
@@ -518,11 +521,11 @@ class Equipo extends PrivateController
             'ArticulosForm' => $this->decorateArticuloOptions($this->articulos, $selectedArticulo),
             'UbicacionesForm' => $this->decorateUbicacionOptions($this->ubicaciones, $selectedUbicacion),
             'MotivosForm' => $this->decorateMotivoOptions($this->motivos, $selectedMotivo),
-            'EstadoOperativoOptions' => $this->decorateSimpleOptions(
+            'EstadoOperativoOptions' => ArrUtils::marcarOpcionesSeleccionadas(
                 $this->buildEstadoOperativoOptions(),
                 strval($this->item['estado_operativo'] ?? 'DISPONIBLE')
             ),
-            'EstadoOptions' => $this->decorateSimpleOptions(
+            'EstadoOptions' => ArrUtils::marcarOpcionesSeleccionadas(
                 [
                     ['value' => '1', 'label' => 'Activo'],
                     ['value' => '0', 'label' => 'Inactivo'],
@@ -613,17 +616,7 @@ class Equipo extends PrivateController
         return $options;
     }
 
-    private function decorateSimpleOptions(array $options, string $selected): array
-    {
-        foreach ($options as &$option) {
-            $option['selected'] = strval($option['value']) === $selected ? 'selected' : '';
-        }
-        unset($option);
-
-        return $options;
-    }
-
-    private function isCurrentArticulo(int $id): bool
+    private function esArticuloActual(int $id): bool
     {
         return $this->mode === 'UPD'
             && intval($this->originalItem['id_articulo'] ?? 0) === $id;
@@ -663,22 +656,6 @@ class Equipo extends PrivateController
         }
 
         return implode(' · ', $parts);
-    }
-
-    private function normalizeDate(string $value, string $field, string $message): ?string
-    {
-        $value = trim($value);
-        if ($value === '') {
-            return null;
-        }
-
-        $date = \DateTime::createFromFormat('Y-m-d', $value);
-        if (!$date || $date->format('Y-m-d') !== $value) {
-            $this->errors[$field] = $message;
-            return null;
-        }
-
-        return $value;
     }
 
     private function nullIfEmpty(string $value): ?string

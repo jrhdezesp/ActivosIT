@@ -4,6 +4,7 @@ namespace Controllers\Auditoria;
 
 use Controllers\PrivateController;
 use Dao\Auditoria\Bitacora as DaoBitacora;
+use Utilities\Fechas;
 use Utilities\Paging;
 use Utilities\ReportExport;
 use Utilities\Site;
@@ -119,8 +120,8 @@ class Auditoria extends PrivateController
             ? $resultado
             : '';
 
-        $this->desde = $this->normalizeDate(strval($_GET['desde'] ?? ''));
-        $this->hasta = $this->normalizeDate(strval($_GET['hasta'] ?? ''));
+        $this->desde = Fechas::normalizarFecha(strval($_GET['desde'] ?? '')) ?? '';
+        $this->hasta = Fechas::normalizarFecha(strval($_GET['hasta'] ?? '')) ?? '';
 
         if ($this->desde !== '' && $this->hasta !== '' && $this->desde > $this->hasta) {
             $temporal = $this->desde;
@@ -496,21 +497,6 @@ class Auditoria extends PrivateController
             || $this->resultado !== ''
             || $this->desde !== ''
             || $this->hasta !== '';
-    }
-
-    private function normalizeDate(string $value): string
-    {
-        $value = trim($value);
-        if ($value === '') {
-            return '';
-        }
-
-        $date = \DateTime::createFromFormat('Y-m-d', $value);
-        if (!$date || $date->format('Y-m-d') !== $value) {
-            return '';
-        }
-
-        return $value;
     }
 
     private function isCsvExport(): bool
