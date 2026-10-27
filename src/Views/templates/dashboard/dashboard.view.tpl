@@ -26,32 +26,32 @@
     <span class="stat-card__icon"><i class="fa-solid fa-users" aria-hidden="true"></i></span>
     <div>
       <span class="stat-card__label">Usuarios</span>
-      <strong>{{DashboardUsuarios}}</strong>
-      <small>Usuarios activos</small>
+      <strong>—</strong>
+      <small>Datos pendientes</small>
     </div>
   </article>
   <article class="stat-card">
     <span class="stat-card__icon"><i class="fa-solid fa-laptop" aria-hidden="true"></i></span>
     <div>
       <span class="stat-card__label">Equipos</span>
-      <strong>{{DashboardEquipos}}</strong>
-      <small>Equipos activos</small>
+      <strong>—</strong>
+      <small>Datos pendientes</small>
     </div>
   </article>
   <article class="stat-card">
     <span class="stat-card__icon"><i class="fa-solid fa-right-left" aria-hidden="true"></i></span>
     <div>
       <span class="stat-card__label">Movimientos</span>
-      <strong>{{DashboardMovimientos}}</strong>
-      <small>Movimientos registrados</small>
+      <strong>—</strong>
+      <small>Datos pendientes</small>
     </div>
   </article>
   <article class="stat-card">
     <span class="stat-card__icon"><i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i></span>
     <div>
       <span class="stat-card__label">Mantenimientos</span>
-      <strong>{{DashboardMantenimientos}}</strong>
-      <small>Mantenimientos registrados</small>
+      <strong>—</strong>
+      <small>Datos pendientes</small>
     </div>
   </article>
 </section>
