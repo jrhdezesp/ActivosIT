@@ -6,14 +6,16 @@ use Controllers\PrivateController;
 use Dao\Inventario\Salidas as DaoSalidas;
 use Utilities\Bitacora;
 use Utilities\CSRF;
-use Utilities\DateHelper;
 use Utilities\Security;
 use Utilities\Site;
 use Views\Renderer;
 
+<<<<<<< HEAD
 /**
  * Atiende el formulario para registrar o corregir una salida de inventario.
  */
+=======
+>>>>>>> parent of 086d426 (Centralizar normalizacion de fechas)
 class Salida extends PrivateController
 {
     private $mode = 'INS';
@@ -32,9 +34,12 @@ class Salida extends PrivateController
     private $articulos = [];
     private $equipos = [];
 
+<<<<<<< HEAD
     /**
      * Carga el documento, procesa el formulario y muestra su estado actual.
      */
+=======
+>>>>>>> parent of 086d426 (Centralizar normalizacion de fechas)
     public function run(): void
     {
         try {
@@ -250,9 +255,12 @@ class Salida extends PrivateController
             || strval($this->doc['estado_doc'] ?? '') === 'BORRADOR';
     }
 
+<<<<<<< HEAD
     /**
      * Revisa los datos y las lineas antes de registrar la salida.
      */
+=======
+>>>>>>> parent of 086d426 (Centralizar normalizacion de fechas)
     private function validateData(): bool
     {
         $this->errors = [];
@@ -273,7 +281,7 @@ class Salida extends PrivateController
             $this->errors['id_tipo_doc'] = 'El tipo de documento seleccionado está inactivo.';
         }
 
-        $fecha = DateHelper::normalizeDateTime(strval($this->item['fecha_movimiento'] ?? ''));
+        $fecha = $this->normalizeDateTime(strval($this->item['fecha_movimiento'] ?? ''));
         if ($fecha === null) {
             $this->errors['fecha_movimiento'] = 'Ingresa una fecha y hora válidas.';
         }
@@ -405,14 +413,17 @@ class Salida extends PrivateController
         return count($this->errors) === 0;
     }
 
+<<<<<<< HEAD
     /**
      * Guarda la salida y actualiza el detalle de articulos o equipos.
      */
+=======
+>>>>>>> parent of 086d426 (Centralizar normalizacion de fechas)
     private function handleSave(): void
     {
         $confirm = strval($_POST['accion'] ?? '') === 'confirmar';
         $userId = intval(Security::getUserId());
-        $fecha = DateHelper::normalizeDateTime(strval($this->item['fecha_movimiento'] ?? ''));
+        $fecha = $this->normalizeDateTime(strval($this->item['fecha_movimiento'] ?? ''));
 
         if ($fecha === null) {
             throw new \RuntimeException('La fecha del movimiento no es válida.');
@@ -526,9 +537,12 @@ class Salida extends PrivateController
         Site::redirectTo('index.php?page=Inventario_Salidas&msg=' . $msg);
     }
 
+<<<<<<< HEAD
     /**
      * Anula una salida existente cuando el proceso lo permite.
      */
+=======
+>>>>>>> parent of 086d426 (Centralizar normalizacion de fechas)
     private function handleAnular(): void
     {
         if ($this->id <= 0) {
@@ -877,6 +891,26 @@ class Salida extends PrivateController
         }
 
         return false;
+    }
+
+    private function normalizeDateTime(string $value): ?string
+    {
+        $value = trim($value);
+        if ($value === '') {
+            return null;
+        }
+
+        $value = str_replace('T', ' ', $value);
+        if (preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/', $value)) {
+            $value .= ':00';
+        }
+
+        $date = \DateTime::createFromFormat('Y-m-d H:i:s', $value);
+        if ($date === false || $date->format('Y-m-d H:i:s') !== $value) {
+            return null;
+        }
+
+        return $value;
     }
 
     private function toInputDateTime(string $value): string

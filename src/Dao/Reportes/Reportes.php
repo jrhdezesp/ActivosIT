@@ -12,6 +12,11 @@ class Reportes extends Table
      */
     public static function getResumenGeneral(): array
     {
+        $usuarios = self::obtenerUnRegistro(
+            "SELECT COUNT(*) AS total FROM usuarios WHERE estado_usuario = 1",
+            []
+        );
+
         $articulos = self::obtenerUnRegistro(
             "SELECT COUNT(*) AS total,"
             . " COALESCE(SUM(tipo_control = 'CANTIDAD'"
@@ -57,6 +62,7 @@ class Reportes extends Table
         );
 
         return [
+            'usuarios' => intval($usuarios['total'] ?? 0),
             'articulos' => intval($articulos['total'] ?? 0),
             'stock_bajo' => intval($articulos['stock_bajo'] ?? 0),
             'existencias' => intval($articulos['existencias'] ?? 0),

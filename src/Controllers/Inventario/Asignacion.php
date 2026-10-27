@@ -6,14 +6,16 @@ use Controllers\PrivateController;
 use Dao\Inventario\Asignaciones as DaoAsignaciones;
 use Utilities\Bitacora;
 use Utilities\CSRF;
-use Utilities\DateHelper;
 use Utilities\Security;
 use Utilities\Site;
 use Views\Renderer;
 
+<<<<<<< HEAD
 /**
  * Atiende la entrega y devolucion de equipos asignados a personas o areas.
  */
+=======
+>>>>>>> parent of 086d426 (Centralizar normalizacion de fechas)
 class Asignacion extends PrivateController
 {
     private $mode = 'INS';
@@ -27,9 +29,12 @@ class Asignacion extends PrivateController
     private $returnErrors = [];
     private $equipos = [];
 
+<<<<<<< HEAD
     /**
      * Carga la asignacion, procesa una entrega o devolucion y muestra el formulario.
      */
+=======
+>>>>>>> parent of 086d426 (Centralizar normalizacion de fechas)
     public function run(): void
     {
         try {
@@ -199,9 +204,12 @@ class Asignacion extends PrivateController
             && strval($this->record['estado_asignacion'] ?? '') === 'ACTIVA';
     }
 
+<<<<<<< HEAD
     /**
      * Revisa que la asignacion tenga los datos necesarios para guardarse.
      */
+=======
+>>>>>>> parent of 086d426 (Centralizar normalizacion de fechas)
     private function validateData(): bool
     {
         $this->errors = [];
@@ -251,7 +259,7 @@ class Asignacion extends PrivateController
             $this->errors['departamento_destino'] = 'El departamento no puede superar los 150 caracteres.';
         }
 
-        $fechaAsignacion = DateHelper::normalizeDateTime(strval($this->item['fecha_asignacion'] ?? ''));
+        $fechaAsignacion = $this->normalizeDateTime(strval($this->item['fecha_asignacion'] ?? ''));
         if ($fechaAsignacion === null) {
             $this->errors['fecha_asignacion'] = 'Ingresa una fecha y hora válidas.';
         } elseif (strtotime($fechaAsignacion) > time()) {
@@ -283,7 +291,7 @@ class Asignacion extends PrivateController
     {
         $this->returnErrors = [];
 
-        $fechaDevolucion = DateHelper::normalizeDateTime(
+        $fechaDevolucion = $this->normalizeDateTime(
             strval($this->returnItem['fecha_devolucion'] ?? '')
         );
 
@@ -292,7 +300,7 @@ class Asignacion extends PrivateController
         } elseif (strtotime($fechaDevolucion) > time()) {
             $this->returnErrors['fecha_devolucion'] = 'La fecha de devolución no puede ser futura.';
         } else {
-            $fechaAsignacion = DateHelper::normalizeDateTime(
+            $fechaAsignacion = $this->normalizeDateTime(
                 strval($this->record['fecha_asignacion'] ?? '')
             );
             if (
@@ -312,13 +320,16 @@ class Asignacion extends PrivateController
         return count($this->returnErrors) === 0;
     }
 
+<<<<<<< HEAD
     /**
      * Registra una nueva asignacion del equipo seleccionado.
      */
+=======
+>>>>>>> parent of 086d426 (Centralizar normalizacion de fechas)
     private function handleSave(): void
     {
         $userId = intval(Security::getUserId());
-        $fechaAsignacion = DateHelper::normalizeDateTime(
+        $fechaAsignacion = $this->normalizeDateTime(
             strval($this->item['fecha_asignacion'])
         );
 
@@ -406,16 +417,19 @@ class Asignacion extends PrivateController
         Site::redirectTo('index.php?page=Inventario_Asignaciones&msg=' . $msg);
     }
 
+<<<<<<< HEAD
     /**
      * Registra la devolucion del equipo y su condicion de retorno.
      */
+=======
+>>>>>>> parent of 086d426 (Centralizar normalizacion de fechas)
     private function handleReturn(): void
     {
         if ($this->id <= 0) {
             throw new \InvalidArgumentException('La asignación solicitada no es válida.');
         }
 
-        $fechaDevolucion = DateHelper::normalizeDateTime(
+        $fechaDevolucion = $this->normalizeDateTime(
             strval($this->returnItem['fecha_devolucion'])
         );
 
@@ -636,6 +650,26 @@ class Asignacion extends PrivateController
         ];
 
         return $classes[$estado] ?? 'badge--outline';
+    }
+
+    private function normalizeDateTime(string $value): ?string
+    {
+        $value = trim($value);
+        if ($value === '') {
+            return null;
+        }
+
+        $value = str_replace('T', ' ', $value);
+        if (preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/', $value)) {
+            $value .= ':00';
+        }
+
+        $date = \DateTime::createFromFormat('Y-m-d H:i:s', $value);
+        if ($date === false || $date->format('Y-m-d H:i:s') !== $value) {
+            return null;
+        }
+
+        return $value;
     }
 
     private function toInputDateTime(string $value): string
