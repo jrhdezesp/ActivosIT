@@ -1,3 +1,4 @@
+<!-- Formulario de registro de cuenta. -->
 <section class="fullCenter auth-shell">
   <div class="container-fluid p-0">
     <div class="row justify-content-center">

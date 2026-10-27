@@ -1,3 +1,4 @@
+<!-- Formulario para crear o modificar un rol y sus permisos. -->
 <div class="form-layout">
 <section class="form-card">
   <div class="form-card__header">

@@ -1,3 +1,4 @@
+<!-- Formulario para registrar o modificar un documento de entrada. -->
 <div class="form-layout catalog-form entry-form">
   <section class="form-card">
     <div class="form-card__header catalog-form__header">

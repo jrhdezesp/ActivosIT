@@ -1,3 +1,4 @@
+<!-- Listado de documentos de salida y sus acciones disponibles. -->
 <section class="data-panel article-panel">
   <div class="data-panel__header">
     <div class="data-panel__heading">

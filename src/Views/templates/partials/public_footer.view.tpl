@@ -1,3 +1,4 @@
+<!-- Pie de pagina usado por las pantallas publicas. -->
 <footer class="site-footer site-footer--public">
   <div class="site-footer__inner">
     <div class="footer-brand">

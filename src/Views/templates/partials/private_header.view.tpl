@@ -1,3 +1,4 @@
+<!-- Encabezado y controles superiores de las pantallas privadas. -->
 <header class="site-header site-header--private">
   <div class="site-header__bar">
     <div class="site-header__inner">

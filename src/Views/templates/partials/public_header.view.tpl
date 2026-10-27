@@ -1,3 +1,4 @@
+<!-- Encabezado de las pantallas publicas. -->
 <header class="site-header">
   <div class="site-header__bar">
     <div class="site-header__inner">

@@ -1,3 +1,4 @@
+<!-- Mensaje mostrado cuando ocurre un error de pagina. -->
 <section class="empty-state" aria-labelledby="error-title">
   <span class="empty-state__icon" aria-hidden="true">
     <i class="fa-solid {{CLIENT_ERROR_ICON}}"></i>

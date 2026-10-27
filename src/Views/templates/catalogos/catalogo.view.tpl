@@ -1,3 +1,4 @@
+<!-- Formulario para crear o modificar un elemento de catalogo. -->
 <div class="form-layout catalog-form">
   <section class="form-card">
     <div class="form-card__header catalog-form__header">

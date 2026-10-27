@@ -1,3 +1,4 @@
+<!-- Listado de cuentas de usuario y opciones de administracion. -->
 <section class="data-panel">
   <div class="data-panel__header">
     <div class="data-panel__heading">

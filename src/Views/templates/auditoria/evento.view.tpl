@@ -1,3 +1,4 @@
+<!-- Detalle de un evento seleccionado de la bitacora. -->
 <section class="data-panel article-panel audit-panel audit-detail">
   <div class="data-panel__header">
     <div class="data-panel__heading">

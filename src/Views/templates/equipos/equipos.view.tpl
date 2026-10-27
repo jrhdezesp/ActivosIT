@@ -1,3 +1,4 @@
+<!-- Listado de equipos con filtros, acciones y resumen. -->
 <section class="data-panel article-panel">
   <div class="data-panel__header">
     <div class="data-panel__heading">

@@ -1,3 +1,4 @@
+<!-- Listado de funciones y permisos disponibles para los roles. -->
 <section class="data-panel">
   <div class="data-panel__header">
     <div class="data-panel__heading">

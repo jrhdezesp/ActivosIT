@@ -1,3 +1,4 @@
+<!-- Historial de movimientos de inventario y sus filtros. -->
 <section class="data-panel article-panel report-panel">
   <div class="data-panel__header">
     <div class="data-panel__heading">

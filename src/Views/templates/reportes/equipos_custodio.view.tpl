@@ -1,3 +1,4 @@
+<!-- Reporte de equipos asignados a custodios y departamentos. -->
 <section class="data-panel article-panel report-panel">
   <div class="data-panel__header">
     <div class="data-panel__heading">

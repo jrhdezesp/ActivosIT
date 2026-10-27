@@ -1,3 +1,4 @@
+<!-- Panel principal con indicadores y accesos del sistema. -->
 <section class="dashboard-hero">
   <div class="dashboard-hero__copy">
     <span class="eyebrow">Panel principal</span>

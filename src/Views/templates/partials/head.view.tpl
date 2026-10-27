@@ -1,3 +1,4 @@
+<!-- Metadatos, estilos y recursos comunes de las paginas. -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#1F3B73">

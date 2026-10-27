@@ -1,3 +1,4 @@
+<!-- Listado de roles registrados y opciones de administracion. -->
 <section class="data-panel">
   <div class="data-panel__header">
     <div class="data-panel__heading">

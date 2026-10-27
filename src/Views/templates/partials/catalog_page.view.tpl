@@ -1,3 +1,4 @@
+<!-- Estructura compartida por los listados de catalogos. -->
 <section class="catalog-hero">
   <div class="catalog-hero__copy">
     <span class="eyebrow">{{!CatalogEyebrow}}</span>

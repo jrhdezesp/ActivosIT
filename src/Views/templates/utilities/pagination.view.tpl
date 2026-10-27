@@ -1,3 +1,4 @@
+<!-- Controles para elegir el tamano de pagina y cambiar de pagina. -->
 <section class="pagination" aria-label="Paginación">
   <form action="{{url}}" method="get" id="pagination" class="pagination__size">
     <input type="hidden" name="page" value="{{page}}" />

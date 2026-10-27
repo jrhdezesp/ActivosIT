@@ -1,3 +1,4 @@
+<!-- Editor visual de opciones de navegacion del sistema. -->
 <section class="editor-hero">
   <div>
     <span class="eyebrow">Configuración</span>

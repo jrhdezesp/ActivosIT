@@ -1,3 +1,4 @@
+<!-- Formulario para asignar un equipo o registrar su devolucion. -->
 <div class="form-layout catalog-form entry-form">
   <section class="form-card">
     <div class="form-card__header catalog-form__header">

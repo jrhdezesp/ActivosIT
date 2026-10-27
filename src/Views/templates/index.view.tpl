@@ -1,3 +1,4 @@
+<!-- Pagina de bienvenida para visitantes. -->
 <section class="home-hero">
   <div class="home-hero__content">
     <h1>Gestión de activos de TI con una visión clara.</h1>

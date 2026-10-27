@@ -1,3 +1,4 @@
+<!-- Centro de reportes con indicadores y accesos a descargas. -->
 <section class="data-panel article-panel report-panel">
   <div class="data-panel__header">
     <div class="data-panel__heading">

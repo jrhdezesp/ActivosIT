@@ -1,3 +1,4 @@
+<!-- Menu lateral de navegacion para cuentas con sesion. -->
 <aside class="private-sidebar" id="privateSidebar" aria-label="Navegación privada">
   <div class="private-sidebar__inner">
     <p class="private-sidebar__eyebrow">Navegación</p>

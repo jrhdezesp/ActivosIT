@@ -2,9 +2,11 @@
 
 namespace Views;
 
+// Combina las plantillas con los datos preparados por el sistema.
 class Renderer
 {
 
+    // Carga una vista, integra su plantilla y procesa el resultado.
     public static function render(
         $vista,
         $datos,
@@ -67,6 +69,7 @@ class Renderer
         }
     }
 
+    // Recorre las instrucciones de la plantilla y genera el contenido final.
     private static function _renderTemplate(
         $template_block,
         $context,
@@ -313,6 +316,7 @@ class Renderer
         return $renderedHTML;
     }
 
+    // Protege los valores antes de incluirlos como texto HTML.
     private static function _escape($value): string
     {
         if (is_array($value) || is_object($value)) {
@@ -322,6 +326,7 @@ class Renderer
         return htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     }
 
+    // Separa el contenido estatico de las instrucciones de plantilla.
     private static function _parseTemplate($htmlTemplate)
     {
         $regexp_array = array(
@@ -347,6 +352,7 @@ class Renderer
         return $template_code;
     }
 
+    // Inserta las plantillas parciales solicitadas por una vista.
     private static function loadPartials($htmlTemplate)
     {
         $regexp_array = array(
@@ -381,6 +387,7 @@ class Renderer
         return $htmlBuffer;
     }
 
+    // Ajusta las rutas de recursos cuando el sistema usa URL reescritas.
     public static function rewriteUrl($htmlTemplate)
     {
         $regexp_array = array(

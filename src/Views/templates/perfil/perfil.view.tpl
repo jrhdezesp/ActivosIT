@@ -1,3 +1,4 @@
+<!-- Vista de datos y opciones del perfil de la cuenta actual. -->
 {{with PerfilUsuario}}
 <section class="profile-hero">
   <div class="profile-hero__main">

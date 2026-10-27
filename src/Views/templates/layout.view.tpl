@@ -1,3 +1,4 @@
+<!-- Estructura general para paginas publicas. -->
 <!DOCTYPE html>
 <html lang="es">
 <head>

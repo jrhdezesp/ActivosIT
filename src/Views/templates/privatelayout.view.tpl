@@ -1,3 +1,4 @@
+<!-- Estructura general para paginas privadas con sesion. -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
