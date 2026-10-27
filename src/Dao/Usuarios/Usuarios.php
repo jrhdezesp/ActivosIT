@@ -41,6 +41,7 @@ class Usuarios extends Table
         FROM usuarios u";
 
         $sqlstrCount = 'SELECT COUNT(*) AS count FROM usuarios u';
+        // Filtros de la lista y valores asociados a cada condicion.
         $conditions = [];
         $params = [];
 
@@ -66,6 +67,7 @@ class Usuarios extends Table
             $sqlstrCount .= $whereClause;
         }
 
+        // Relacion entre las opciones de orden recibidas y sus campos.
         $orderMap = [
             'usercod' => 'u.id_usuario',
             'username' => 'u.nombre_usuario',

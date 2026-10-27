@@ -6,6 +6,7 @@ use Dao\Table;
 
 class Catalogos extends Table
 {
+    // Definiciones de catalogos que se reutilizan durante la solicitud.
     private static $definitions = null;
 
     public static function getDefinitions(): array
@@ -327,11 +328,13 @@ class Catalogos extends Table
             throw new \InvalidArgumentException('El estado solicitado no es válido.');
         }
 
+        // Filtros aplicados a los registros del catalogo.
         $conditions = [];
         $params = [];
 
         $search = trim($search);
         if ($search !== '') {
+            // Campos del catalogo incluidos en la busqueda por texto.
             $searchParts = [];
             foreach ($definition['searchFields'] as $index => $field) {
                 $key = 'search' . $index;
@@ -389,6 +392,7 @@ class Catalogos extends Table
     public static function insertItem(string $type, array $data): bool
     {
         $definition = self::getDefinition($type);
+        // Columnas, valores y marcadores que forman el nuevo registro.
         $columns = [];
         $placeholders = [];
         $params = [];
@@ -413,6 +417,7 @@ class Catalogos extends Table
             throw new \InvalidArgumentException('El registro solicitado no es válido.');
         }
 
+        // Campos que se actualizaran y valores correspondientes.
         $assignments = [];
         $params = ['id' => $id];
 

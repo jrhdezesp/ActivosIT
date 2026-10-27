@@ -12,11 +12,6 @@ class Reportes extends Table
      */
     public static function getResumenGeneral(): array
     {
-        $usuarios = self::obtenerUnRegistro(
-            "SELECT COUNT(*) AS total FROM usuarios WHERE estado_usuario = 1",
-            []
-        );
-
         $articulos = self::obtenerUnRegistro(
             "SELECT COUNT(*) AS total,"
             . " COALESCE(SUM(tipo_control = 'CANTIDAD'"
@@ -62,7 +57,6 @@ class Reportes extends Table
         );
 
         return [
-            'usuarios' => intval($usuarios['total'] ?? 0),
             'articulos' => intval($articulos['total'] ?? 0),
             'stock_bajo' => intval($articulos['stock_bajo'] ?? 0),
             'existencias' => intval($articulos['existencias'] ?? 0),
@@ -161,6 +155,7 @@ class Reportes extends Table
             ['desde' => $desde . ' 00:00:00']
         );
 
+        // Resultados consultados, organizados por periodo para completar la serie.
         $porPeriodo = [];
         foreach ($rows as $row) {
             $porPeriodo[strval($row['periodo'])] = $row;
@@ -171,6 +166,7 @@ class Reportes extends Table
             7 => 'Jul', 8 => 'Ago', 9 => 'Sep', 10 => 'Oct', 11 => 'Nov', 12 => 'Dic',
         ];
 
+        // Valores de cada serie que se entrega al grafico.
         $labels = [];
         $entradas = [];
         $salidas = [];
@@ -212,6 +208,7 @@ class Reportes extends Table
             []
         );
 
+        // Cantidad obtenida para cada tipo de movimiento.
         $conteo = [];
         foreach ($rows as $row) {
             $conteo[strval($row['tipo_movimiento'] ?? '')] = intval($row['movimientos'] ?? 0);

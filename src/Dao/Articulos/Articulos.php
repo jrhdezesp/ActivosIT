@@ -6,6 +6,7 @@ use Dao\Table;
 
 class Articulos extends Table
 {
+    // Columnas permitidas para ordenar los articulos.
     private const ORDER_FIELDS = [
         'codigo_interno_articulo',
         'nombre_articulo',
@@ -32,6 +33,7 @@ class Articulos extends Table
             $orderBy = 'nombre_articulo';
         }
 
+        // Condiciones de busqueda y valores que se envian a la consulta.
         $conditions = [];
         $params = [];
         $search = trim($search);
@@ -149,6 +151,7 @@ class Articulos extends Table
     {
         $sql = 'SELECT id_clasificacion AS value, nombre_clasificacion AS label,'
             . ' estado_clasif AS status FROM clasificaciones';
+        // Filtros del selector y sus valores asociados.
         $conditions = [];
         $params = [];
 
@@ -174,6 +177,7 @@ class Articulos extends Table
     {
         $sql = 'SELECT id_unidad_medida AS value, nombre_unidad AS label,'
             . ' simbolo_medida AS symbol, estado_medida AS status FROM unidades_medida';
+        // Filtros del selector y sus valores asociados.
         $conditions = [];
         $params = [];
 

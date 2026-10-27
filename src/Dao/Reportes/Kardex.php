@@ -6,8 +6,10 @@ use Dao\Table;
 
 class Kardex extends Table
 {
+    // Tipos de movimiento que pueden registrarse en el historial.
     public const TIPOS = ['ENTRADA', 'SALIDA', 'AJUSTE_POSITIVO', 'AJUSTE_NEGATIVO'];
 
+    // Campos permitidos para ordenar los movimientos.
     private const ORDER_FIELDS = [
         'fecha_movimiento' => 'm.fecha_movimiento',
         'tipo_movimiento' => 'm.tipo_movimiento',
@@ -17,6 +19,7 @@ class Kardex extends Table
         'id_movimiento' => 'm.id_movimiento',
     ];
 
+    // Datos del movimiento y referencias que se presentan en el historial.
     private const SELECT_FIELDS = 'SELECT m.id_movimiento, m.id_articulo,'
         . ' m.tipo_movimiento, m.cantidad, m.existencia_anterior,'
         . ' m.existencia_nueva, m.fecha_movimiento, m.observacion,'
@@ -26,6 +29,7 @@ class Kardex extends Table
         . ' mo.nombre_motivo,'
         . ' COALESCE(de.correlativo, ds.correlativo) AS documento_correlativo';
 
+    // Tablas relacionadas que permiten mostrar el origen de cada movimiento.
     private const FROM_JOINS = ' FROM movimientos_inventario m'
         . ' JOIN articulos a ON a.id_articulo = m.id_articulo'
         . ' JOIN usuarios u ON u.id_usuario = m.id_usuario'
@@ -199,6 +203,7 @@ class Kardex extends Table
         string $desde,
         string $hasta
     ): array {
+        // Filtros de busqueda y valores enviados a las consultas del historial.
         $conditions = [];
         $params = [];
         $search = trim($search);
@@ -326,6 +331,7 @@ class Kardex extends Table
             7 => 'Jul', 8 => 'Ago', 9 => 'Sep', 10 => 'Oct', 11 => 'Nov', 12 => 'Dic',
         ];
 
+        // Valores de cada serie que se entrega al grafico.
         $labels = [];
         $entradas = [];
         $salidas = [];

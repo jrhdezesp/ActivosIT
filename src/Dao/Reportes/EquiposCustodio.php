@@ -85,6 +85,7 @@ class EquiposCustodio extends Table
             return [];
         }
 
+        // Pares de persona y departamento usados para buscar sus equipos.
         $conditions = [];
         $params = [];
         $index = 0;
@@ -224,6 +225,7 @@ class EquiposCustodio extends Table
 
     private static function buildFilters(string $search, string $departamento): array
     {
+        // Filtros comunes para los resumenes de equipos por responsable.
         $conditions = ["a.estado_asignacion = 'ACTIVA'"];
         $params = [];
         $search = trim($search);

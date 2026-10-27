@@ -6,8 +6,10 @@ use Dao\Table;
 
 class Bitacora extends Table
 {
+    // Resultados que puede tener una accion registrada.
     public const RESULTADOS = ['EXITO', 'DENEGADO', 'ERROR'];
 
+    // Campos permitidos para ordenar los eventos de la bitacora.
     private const ORDER_FIELDS = [
         'fecha_hora' => 'b.fecha_hora',
         'tipo_operacion' => 'b.tipo_operacion',
@@ -16,6 +18,7 @@ class Bitacora extends Table
         'id_bitacora' => 'b.id_bitacora',
     ];
 
+    // Datos del evento y nombres relacionados que se muestran en la bitacora.
     private const SELECT_FIELDS = 'SELECT b.id_bitacora, b.id_usuario,'
         . ' b.fecha_hora, b.tipo_operacion, b.modulo_afectado,'
         . ' b.registro_relacionado_id, b.direccion_ip,'
@@ -23,6 +26,7 @@ class Bitacora extends Table
         . ' u.nombre_usuario AS usuario_nombre,'
         . ' u.user_usuario AS usuario_cuenta';
 
+    // Tabla de eventos y datos de la cuenta que realizo cada accion.
     private const FROM_JOINS = ' FROM bitacora b'
         . ' LEFT JOIN usuarios u ON u.id_usuario = b.id_usuario';
 
@@ -258,6 +262,7 @@ class Bitacora extends Table
         string $desde,
         string $hasta
     ): array {
+        // Filtros del historial y valores asociados a cada condicion.
         $conditions = [];
         $params = [];
         $search = trim($search);

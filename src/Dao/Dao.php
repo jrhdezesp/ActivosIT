@@ -2,6 +2,7 @@
 namespace Dao;
 
 class Dao {
+    // Conexion compartida con la base de datos.
     private static $_conn = null;
 
     private function __construct()

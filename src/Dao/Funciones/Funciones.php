@@ -34,6 +34,7 @@ class Funciones extends Table
         FROM permisos p";
 
         $sqlstrCount = 'SELECT COUNT(*) AS count FROM permisos p';
+        // Filtros de la lista y valores asociados a cada condicion.
         $conditions = [];
         $params = [];
 
@@ -59,6 +60,7 @@ class Funciones extends Table
             $sqlstrCount .= $whereClause;
         }
 
+        // Relacion entre las opciones de orden recibidas y sus campos.
         $orderMap = [
             'fncod' => 'p.nombre_permiso',
             'fndsc' => 'p.descripcion_permiso',

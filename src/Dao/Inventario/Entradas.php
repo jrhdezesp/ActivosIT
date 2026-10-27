@@ -6,8 +6,10 @@ use Dao\Table;
 
 class Entradas extends Table
 {
+    // Estados posibles de un documento de entrada.
     public const ESTADOS = ['BORRADOR', 'CONFIRMADO', 'ANULADO'];
 
+    // Columnas permitidas para ordenar las entradas.
     private const ORDER_FIELDS = [
         'fecha_movimiento' => 'e.fecha_movimiento',
         'correlativo' => 'e.correlativo',
@@ -16,11 +18,13 @@ class Entradas extends Table
         'id_doc_entrada' => 'e.id_doc_entrada',
     ];
 
+    // Datos del encabezado y nombres relacionados que usa el listado.
     private const SELECT_FIELDS = 'SELECT e.*,'
         . ' td.nombre_tipo, td.naturaleza_doc,'
         . ' m.nombre_motivo, m.motivo_aplica_a,'
         . ' u.nombre_usuario AS usuario_nombre, u.user_usuario,';
 
+    // Datos de cada linea y referencias asociadas al documento.
     private const SELECT_DETAILS = 'SELECT d.*,'
         . ' a.nombre_articulo, a.codigo_interno_articulo, a.tipo_control,'
         . ' um.nombre_unidad, um.simbolo_medida,'
@@ -47,6 +51,7 @@ class Entradas extends Table
             $orderBy = 'fecha_movimiento';
         }
 
+        // Condiciones del listado y valores que se envian a la consulta.
         $conditions = [];
         $params = [];
         $search = trim($search);
@@ -235,6 +240,7 @@ class Entradas extends Table
         });
 
         if (count($includeIds) > 0) {
+            // Valores de cada linea que se agregan en una sola operacion.
             $placeholders = [];
             foreach ($includeIds as $index => $id) {
                 $key = 'include' . $index;
@@ -631,6 +637,7 @@ class Entradas extends Table
 
     private static function totalesPorArticulo(array $detalles): array
     {
+        // Cantidad acumulada por articulo para aplicar el movimiento al saldo.
         $totales = [];
 
         foreach ($detalles as $detalle) {

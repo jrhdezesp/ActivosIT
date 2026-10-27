@@ -4,6 +4,7 @@ namespace Dao;
 
 abstract class Table
 {
+    // Conexion reutilizada por las operaciones comunes del DAO.
     private static $_conn = null;
     protected static function getConn()
     {
@@ -12,6 +13,7 @@ abstract class Table
         }
         return self::$_conn;
     }
+    // Relacion entre el tipo recibido y el tipo usado al enlazar parametros.
     private static $_bindMapping = array(
         "boolean" => \PDO::PARAM_BOOL,
         "integer" => \PDO::PARAM_INT,

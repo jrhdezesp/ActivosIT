@@ -6,8 +6,10 @@ use Dao\Table;
 
 class Mantenimientos extends Table
 {
+    // Estados posibles de un registro de mantenimiento.
     public const ESTADOS = ['EN_PROCESO', 'COMPLETADO', 'CANCELADO'];
 
+    // Columnas permitidas para ordenar los mantenimientos.
     private const ORDER_FIELDS = [
         'fecha_recepcion' => 'm.fecha_recepcion',
         'fecha_finalizacion' => 'm.fecha_finalizacion',
@@ -17,6 +19,7 @@ class Mantenimientos extends Table
         'id_mantenimiento' => 'm.id_mantenimiento',
     ];
 
+    // Datos del mantenimiento y nombres relacionados que usa el listado.
     private const SELECT_FIELDS = 'SELECT m.*,'
         . ' eq.numero_serie_equipo, eq.codigo_patrimonial_equipo,'
         . ' eq.estado_operativo, eq.estado_registro AS equipo_estado,'
@@ -25,6 +28,7 @@ class Mantenimientos extends Table
         . ' t.nombre_tipo, t.descripcion_mant, t.estado_mant,'
         . ' u.nombre_usuario AS usuario_nombre, u.user_usuario';
 
+    // Tablas relacionadas que completan los datos del mantenimiento.
     private const FROM_JOINS = ' FROM mantenimientos m'
         . ' LEFT JOIN equipos_individuales eq ON eq.id_equipo = m.id_equipo'
         . ' LEFT JOIN articulos a ON a.id_articulo = eq.id_articulo'
@@ -48,6 +52,7 @@ class Mantenimientos extends Table
             $orderBy = 'fecha_recepcion';
         }
 
+        // Condiciones del listado y valores que se envian a la consulta.
         $conditions = [];
         $params = [];
         $search = trim($search);

@@ -6,8 +6,10 @@ use Dao\Table;
 
 class Asignaciones extends Table
 {
+    // Estados que indican si una asignacion sigue activa o fue devuelta.
     public const ESTADOS = ['ACTIVA', 'DEVUELTO'];
 
+    // Columnas permitidas para ordenar las asignaciones.
     private const ORDER_FIELDS = [
         'fecha_asignacion' => 'a.fecha_asignacion',
         'fecha_devolucion' => 'a.fecha_devolucion',
@@ -17,6 +19,7 @@ class Asignaciones extends Table
         'id_asignacion' => 'a.id_asignacion',
     ];
 
+    // Datos de la asignacion y nombres relacionados que usa el listado.
     private const SELECT_FIELDS = 'SELECT a.*,'
         . ' eq.numero_serie_equipo, eq.codigo_patrimonial_equipo,'
         . ' eq.estado_operativo, eq.estado_registro AS equipo_estado,'
@@ -24,6 +27,7 @@ class Asignaciones extends Table
         . ' ue.nombre_usuario AS entrega_nombre, ue.user_usuario AS entrega_usuario,'
         . ' ur.nombre_usuario AS recibe_nombre, ur.user_usuario AS recibe_usuario';
 
+    // Tablas relacionadas que completan los datos de cada asignacion.
     private const FROM_JOINS = ' FROM asignaciones_devoluciones a'
         . ' LEFT JOIN equipos_individuales eq ON eq.id_equipo = a.id_equipo'
         . ' LEFT JOIN articulos ar ON ar.id_articulo = eq.id_articulo'
@@ -47,6 +51,7 @@ class Asignaciones extends Table
             $orderBy = 'fecha_asignacion';
         }
 
+        // Condiciones del listado y valores que se envian a la consulta.
         $conditions = [];
         $params = [];
         $search = trim($search);

@@ -6,6 +6,7 @@ use Dao\Table;
 
 class Operativos extends Table
 {
+    // Definicion de cada informe: campos, origen, filtros y formato visible.
     private const REPORTS = [
         'inventario' => [
             'title' => 'Inventario general de artículos',
@@ -176,6 +177,7 @@ class Operativos extends Table
 
     public static function getReportTypes(): array
     {
+        // Tipos de informe listos para mostrarse en el selector.
         $types = [];
         foreach (self::REPORTS as $key => $report) {
             $types[] = [
@@ -205,6 +207,7 @@ class Operativos extends Table
                 ['ds.correlativo', 'ds.estado_doc', 'us.nombre_usuario', 'ds.fecha_movimiento'],
                 $where
             );
+            // Parametros separados para la consulta de la segunda parte del informe.
             $unionParams = [];
             foreach ($params as $name => $value) {
                 $unionName = 'union_' . $name;
@@ -248,6 +251,7 @@ class Operativos extends Table
 
     private static function buildFilters(array $report, array $filters): array
     {
+        // Filtros del informe y valores que se envian a la consulta.
         $conditions = [$report['where']];
         $params = [];
         $search = trim(strval($filters['q'] ?? ''));

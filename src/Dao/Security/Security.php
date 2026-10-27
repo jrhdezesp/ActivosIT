@@ -10,8 +10,12 @@ if (version_compare(phpversion(), '7.4.0', '<')) {
 
 use Exception;
 
+/**
+ * Reune operaciones de acceso, cuentas y permisos usados por la aplicacion.
+ */
 class Security extends \Dao\Table
 {
+    /** Registra una cuenta inicial con acceso publico. */
     public static function newUsuario($email, $password, $nombre = null, $rolNombre = 'Público')
     {
         if (!\Utilities\Validators::IsValidEmail($email)) {
@@ -62,6 +66,7 @@ class Security extends \Dao\Table
         }
     }
 
+    /** Busca una cuenta mediante su correo. */
     public static function getUsuarioByEmail($email)
     {
         $sqlstr = "SELECT
@@ -83,6 +88,7 @@ class Security extends \Dao\Table
         return self::obtenerUnRegistro($sqlstr, ["useremail" => $email]);
     }
 
+    /** Busca una cuenta mediante su identificador. */
     public static function getUsuarioById($userId)
     {
         $sqlstr = "SELECT
@@ -104,12 +110,14 @@ class Security extends \Dao\Table
         return self::obtenerUnRegistro($sqlstr, ["userId" => intval($userId)]);
     }
 
+    /** Guarda la fecha del acceso mas reciente de una cuenta. */
     public static function updateUltimoAcceso($userId): int
     {
         $sqlstr = "UPDATE `usuarios` SET `ultimo_acceso_usuario` = NOW() WHERE `id_usuario` = :userId;";
         return self::executeNonQuery($sqlstr, ["userId" => intval($userId)]);
     }
 
+    /** Cambia la contrasena de una cuenta. */
     public static function updatePassword($userId, $password): int
     {
         $hashedPassword = self::_hashPassword($password);
@@ -134,6 +142,7 @@ class Security extends \Dao\Table
         return password_hash(self::_saltPassword($password), PASSWORD_ALGORITHM);
     }
 
+    /** Comprueba si la contrasena ingresada corresponde a la cuenta. */
     public static function verifyPassword($raw_password, $hash_password): bool
     {
         if (empty($raw_password) || empty($hash_password)) {
@@ -153,6 +162,7 @@ class Security extends \Dao\Table
         return false;
     }
 
+    /** Indica si una funcion esta registrada en el sistema. */
     public static function getFeature($fncod): bool
     {
         $sqlstr = "SELECT id_permiso FROM `permisos` WHERE `nombre_permiso` = :fncod AND `estado_permiso` = 1 LIMIT 1;";
@@ -160,6 +170,7 @@ class Security extends \Dao\Table
         return count($featuresList) > 0;
     }
 
+    /** Registra o actualiza una funcion disponible para asignar. */
     public static function addNewFeature($fncod, $fndsc, $fnest = 'ACT', $fntyp = 'FNC')
     {
         $tipo = in_array($fntyp, ["CTR", "MNU", "MNT", "RPT"], true) ? $fntyp : "CTR";
@@ -181,6 +192,7 @@ class Security extends \Dao\Table
         ]);
     }
 
+    /** Indica si la cuenta puede utilizar una funcion del sistema. */
     public static function getFeatureByUsuario($userCod, $fncod, $fntyp = null): bool
     {
         // 1. Administrador (id_rol = 1 o nombre_rol = 'Administrador') posee acceso global
@@ -215,6 +227,7 @@ class Security extends \Dao\Table
         return count($resultados) > 0;
     }
 
+    /** Indica si el rol esta registrado en el sistema. */
     public static function getRol($rolescod): bool
     {
         $sqlstr = "SELECT id_rol FROM `roles` WHERE `nombre_rol` = :rolescod OR `id_rol` = :rolescodInt LIMIT 1;";
@@ -225,6 +238,7 @@ class Security extends \Dao\Table
         return count($featuresList) > 0;
     }
 
+    /** Registra un rol inicial cuando aun no existe. */
     public static function addNewRol($rolescod, $rolesdsc, $rolesest = 'ACT')
     {
         $estado = ($rolesest === 'INA' || $rolesest === '0' || $rolesest === 0) ? 0 : 1;
@@ -239,6 +253,7 @@ class Security extends \Dao\Table
         ]);
     }
 
+    /** Indica si una cuenta pertenece al rol indicado. */
     public static function isUsuarioInRol($userCod, $rolescod): bool
     {
         $sqlstr = "SELECT 1
@@ -257,6 +272,7 @@ class Security extends \Dao\Table
         return count($resultados) > 0;
     }
 
+    /** Devuelve los roles relacionados con una cuenta. */
     public static function getRolesByUsuario($userCod): array
     {
         $sqlstr = "SELECT
@@ -275,6 +291,7 @@ class Security extends \Dao\Table
         return self::obtenerRegistros($sqlstr, ["id_usuario" => intval($userCod)]);
     }
 
+    /** Quita de una cuenta la relacion con el rol indicado. */
     public static function removeRolFromUser($userCod, $rolescod)
     {
         $sqlstr = "DELETE ur FROM `usuarios_roles` ur
@@ -289,6 +306,7 @@ class Security extends \Dao\Table
         ]);
     }
 
+    /** Quita del rol el acceso a la funcion indicada. */
     public static function removeFeatureFromRol($fncod, $rolescod)
     {
         $sqlstr = "DELETE rp FROM `roles_permisos` rp
@@ -304,6 +322,7 @@ class Security extends \Dao\Table
         ]);
     }
 
+    /** Devuelve las funciones que aun no se han agregado al rol. */
     public static function getUnAssignedFeatures($rolescod): array
     {
         $sqlstr = "SELECT
@@ -330,6 +349,7 @@ class Security extends \Dao\Table
         ]);
     }
 
+    /** Devuelve los roles que aun no se han agregado a la cuenta. */
     public static function getUnAssignedRoles($userCod): array
     {
         $sqlstr = "SELECT

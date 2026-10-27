@@ -26,6 +26,7 @@ class Roles extends Table
         FROM roles r";
 
         $sqlstrCount = 'SELECT COUNT(*) AS count FROM roles r';
+        // Filtros de la lista y valores asociados a cada condicion.
         $conditions = [];
         $params = [];
 
@@ -51,6 +52,7 @@ class Roles extends Table
             $sqlstrCount .= $whereClause;
         }
 
+        // Relacion entre las opciones de orden recibidas y sus campos.
         $orderMap = [
             'rolescod' => 'r.nombre_rol',
             'rolesdsc' => 'r.descripcion_rol',

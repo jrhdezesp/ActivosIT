@@ -6,6 +6,7 @@ use Dao\Table;
 
 class Equipos extends Table
 {
+    // Estados que describen la situacion operativa de un equipo.
     public const ESTADOS_OPERATIVOS = [
         'DISPONIBLE',
         'ASIGNADO',
@@ -14,6 +15,7 @@ class Equipos extends Table
         'DE_BAJA',
     ];
 
+    // Columnas permitidas para ordenar los equipos.
     private const ORDER_FIELDS = [
         'numero_serie_equipo' => 'e.numero_serie_equipo',
         'codigo_patrimonial_equipo' => 'e.codigo_patrimonial_equipo',
@@ -24,12 +26,14 @@ class Equipos extends Table
         'id_equipo' => 'e.id_equipo',
     ];
 
+    // Campos que identifican y describen cada equipo en los listados.
     private const SELECT_FIELDS = 'SELECT e.*,'
         . ' a.nombre_articulo, a.codigo_interno_articulo, a.tipo_control,'
         . ' a.estado_registro AS articulo_estado,'
         . ' u.nombre_ubicacion, u.estado_ubi,'
         . ' m.nombre_motivo, m.motivo_aplica_a, m.estado_motivo';
 
+    // Tablas relacionadas que completan los datos de cada equipo.
     private const FROM_JOINS = ' FROM equipos_individuales e'
         . ' LEFT JOIN articulos a ON a.id_articulo = e.id_articulo'
         . ' LEFT JOIN ubicaciones u ON u.id_ubicacion = e.id_ubicacion'
@@ -57,6 +61,7 @@ class Equipos extends Table
             $orderBy = 'numero_serie_equipo';
         }
 
+        // Condiciones de busqueda y valores que se envian a la consulta.
         $conditions = [];
         $params = [];
         $search = trim($search);

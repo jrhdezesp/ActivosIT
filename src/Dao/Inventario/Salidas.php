@@ -6,8 +6,10 @@ use Dao\Table;
 
 class Salidas extends Table
 {
+    // Estados posibles de un documento de salida.
     public const ESTADOS = ['BORRADOR', 'CONFIRMADO', 'ANULADO'];
 
+    // Columnas permitidas para ordenar las salidas.
     private const ORDER_FIELDS = [
         'fecha_movimiento' => 's.fecha_movimiento',
         'correlativo' => 's.correlativo',
@@ -16,11 +18,13 @@ class Salidas extends Table
         'id_doc_salida' => 's.id_doc_salida',
     ];
 
+    // Datos del encabezado y nombres relacionados que usa el listado.
     private const SELECT_FIELDS = 'SELECT s.*,'
         . ' td.nombre_tipo, td.naturaleza_doc,'
         . ' m.nombre_motivo, m.motivo_aplica_a,'
         . ' u.nombre_usuario AS usuario_nombre, u.user_usuario,';
 
+    // Datos de cada linea y referencias asociadas al documento.
     private const SELECT_DETAILS = 'SELECT d.*,'
         . ' a.nombre_articulo, a.codigo_interno_articulo, a.tipo_control,'
         . ' a.existencia_actual,'
@@ -49,6 +53,7 @@ class Salidas extends Table
             $orderBy = 'fecha_movimiento';
         }
 
+        // Condiciones del listado y valores que se envian a la consulta.
         $conditions = [];
         $params = [];
         $search = trim($search);
@@ -240,6 +245,7 @@ class Salidas extends Table
         });
 
         if (count($includeIds) > 0) {
+            // Valores de cada linea que se agregan en una sola operacion.
             $placeholders = [];
             foreach ($includeIds as $index => $id) {
                 $key = 'include' . $index;
@@ -492,6 +498,7 @@ class Salidas extends Table
         }
 
         $totales = self::totalesPorArticulo($detalles);
+        // Registros que no pueden procesarse por estado o existencia insuficiente.
         $articulosBloqueados = [];
         $equiposBloqueados = [];
 
@@ -739,6 +746,7 @@ class Salidas extends Table
 
     private static function totalesPorArticulo(array $detalles): array
     {
+        // Cantidad acumulada por articulo para aplicar el movimiento al saldo.
         $totales = [];
 
         foreach ($detalles as $detalle) {
