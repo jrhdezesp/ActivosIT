@@ -2,70 +2,20 @@
 
 namespace Dao\Security;
 
+use Dao\Table;
+use Utilities\Context;
+
 if (version_compare(phpversion(), '7.4.0', '<')) {
     define('PASSWORD_ALGORITHM', 1);
 } else {
     define('PASSWORD_ALGORITHM', '2y');
 }
 
-use Exception;
-
 /**
  * Reune operaciones de acceso, cuentas y permisos usados por la aplicacion.
  */
-class Security extends \Dao\Table
+class Security extends Table
 {
-    /** Registra una cuenta inicial con acceso publico. */
-    public static function newUsuario($email, $password, $nombre = null, $rolNombre = 'Público')
-    {
-        if (!\Utilities\Validators::IsValidEmail($email)) {
-            throw new Exception("Correo no es válido");
-        }
-        if (!\Utilities\Validators::IsValidPassword($password)) {
-            throw new Exception("Contraseña debe tener al menos 8 caracteres, 1 número, 1 mayúscula y 1 símbolo especial");
-        }
-        if (self::getUsuarioByEmail($email)) {
-            throw new Exception("El correo ya está registrado");
-        }
-
-        $hashedPassword = self::_hashPassword($password);
-        if ($nombre === null || trim($nombre) === '') {
-            $nombre = explode("@", $email)[0];
-        }
-
-        $conn = self::getConn();
-        $conn->beginTransaction();
-        try {
-            $sqlIns = "INSERT INTO `usuarios` (`user_usuario`, `clave_usuario`, `nombre_usuario`, `tipo_usuario`, `estado_usuario`, `ultimo_acceso_usuario`)
-                VALUES (:user_usuario, :clave_usuario, :nombre_usuario, 'PBL', 1, NOW());";
-
-            self::executeNonQuery($sqlIns, [
-                "user_usuario" => $email,
-                "clave_usuario" => $hashedPassword,
-                "nombre_usuario" => $nombre,
-            ], $conn);
-
-            // Toda cuenta nueva recibe un rol para que el RBAC tenga sentido:
-            // sin rol el usuario queda autenticado pero sin acceso a nada.
-            self::executeNonQuery(
-                "INSERT INTO `usuarios_roles` (`id_usuario`, `id_rol`)
-                 SELECT u.id_usuario, r.id_rol
-                 FROM `usuarios` u
-                 INNER JOIN `roles` r ON r.nombre_rol = :rolNombre AND r.estado_rol = 1
-                 WHERE u.user_usuario = :user_usuario
-                 LIMIT 1;",
-                ["rolNombre" => $rolNombre, "user_usuario" => $email],
-                $conn
-            );
-
-            $conn->commit();
-            return true;
-        } catch (\Throwable $ex) {
-            $conn->rollBack();
-            throw $ex;
-        }
-    }
-
     /** Busca una cuenta mediante su correo. */
     public static function getUsuarioByEmail($email)
     {
@@ -133,7 +83,7 @@ class Security extends \Dao\Table
         return hash_hmac(
             "sha256",
             $password,
-            \Utilities\Context::getContextByKey("PWD_HASH")
+            Context::getContextByKey("PWD_HASH")
         );
     }
 

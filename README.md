@@ -117,10 +117,10 @@ crear el esquema, genere las cuentas administrativas con contraseñas únicas y
 privadas mediante el procedimiento de bootstrap definido por el responsable
 de despliegue. No documente contraseñas operativas en el repositorio.
 
-Las cuentas creadas por auto-registro reciben el rol **Público**, que solo
-permite acceder a *Mi perfil*. Las cuentas privilegiadas deben crearse o
-habilitarse únicamente durante el despliegue y sus contraseñas deben rotarse
-si ya fueron expuestas.
+No hay registro publico de cuentas. Las cuentas nuevas se crean desde el CRUD
+de usuarios por una cuenta con permisos administrativos. Asigne un rol de
+acuerdo con las responsabilidades de cada persona y no comparta credenciales
+operativas.
 
 ### 7. Verificación rápida
 ```bash
