@@ -2,13 +2,17 @@
 
 namespace Utilities;
 
+// Comparte valores de configuracion y solicitud entre componentes.
 class Context
 {
     static $_context = array();
+
+    // Devuelve todos los valores guardados durante la solicitud.
     public static function getContext()
     {
         return self::$_context;
     }
+    // Guarda un valor en memoria y, si se indica, tambien en la sesion.
     public static function setContext($key, $value, $saveToSession = false)
     {
         self::$_context[$key] = $value;
@@ -16,6 +20,7 @@ class Context
             $_SESSION[$key] = $value;
         }
     }
+    // Busca primero el valor de la solicitud y luego el de la sesion.
     public static function getContextByKey($key)
     {
         $value = "";
@@ -28,6 +33,7 @@ class Context
         }
         return $value;
     }
+    // Guarda varios valores usando las mismas reglas de almacenamiento.
     public static function setArrayToContext(array $contextValues, $saveToSession = false)
     {
         foreach ($contextValues as $name => $value) {
@@ -37,6 +43,7 @@ class Context
             }
         }
     }
+    // Elimina un valor tanto de la solicitud como de la sesion.
     public static function removeContextByKey($key)
     {
         if (isset(self::$_context[$key])) {

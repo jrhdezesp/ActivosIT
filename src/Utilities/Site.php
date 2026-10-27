@@ -2,8 +2,10 @@
 
 namespace Utilities;
 
+// Coordina la configuracion general y el flujo de cada solicitud.
 class Site
 {
+    // Carga la configuracion y prepara valores generales del sistema.
     public static function configure()
     {
         $donenv = new \Utilities\DotEnv(__DIR__ . "/../../parameters.env");
@@ -38,6 +40,7 @@ class Site
         date_default_timezone_set(\Utilities\Context::getContextByKey("TIMEZONE"));
         \Utilities\Context::setContext('CURRENT_YEAR', date("Y"));
     }
+    // Determina que controlador atendera la solicitud actual.
     public static function getPageRequest()
     {
         $hasExplicitPage = isset($_GET["page"]);
@@ -96,6 +99,7 @@ class Site
 
         return $pageRequest;
     }
+    // Redirige a una ruta local y finaliza la solicitud.
     public static function redirectTo($url)
     {
         if (!self::isLocalUrl($url)) {
@@ -109,6 +113,7 @@ class Site
 
         die();
     }
+    // Muestra un mensaje y luego redirige a una ruta local.
     public static function redirectToWithMsg($url, $msg)
     {
         if (!self::isLocalUrl($url)) {
@@ -157,6 +162,7 @@ class Site
 
         return true;
     }
+    // Agrega una hoja de estilo para que la plantilla la incluya.
     public static function addLink($href)
     {
         $tmpLinks = \Utilities\Context::getContextByKey("SiteLinks");
@@ -167,6 +173,7 @@ class Site
         }
         \Utilities\Context::setContext("SiteLinks", $tmpLinks);
     }
+    // Agrega un script para cargar al inicio de la pagina.
     public static function addBeginScript($src)
     {
         $tmpSrcs = \Utilities\Context::getContextByKey("BeginScripts");
@@ -177,6 +184,7 @@ class Site
         }
         \Utilities\Context::setContext("BeginScripts", $tmpSrcs);
     }
+    // Agrega un script para cargar al final de la pagina.
     public static function addEndScript($src)
     {
         $tmpSrcs = \Utilities\Context::getContextByKey("EndScripts");
@@ -187,6 +195,7 @@ class Site
         }
         \Utilities\Context::setContext("EndScripts", $tmpSrcs);
     }
+    // Guarda el codigo de error y registra el detalle en el log del servidor.
     public static function logError($ex, $errorCode)
     {
         error_log($ex);

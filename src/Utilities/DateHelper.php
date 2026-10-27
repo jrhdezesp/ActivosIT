@@ -2,8 +2,10 @@
 
 namespace Utilities;
 
+// Normaliza fechas y horas recibidas desde formularios.
 class DateHelper
 {
+    // Devuelve una fecha valida en formato completo o null si no es valida.
     public static function normalizeDateTime(string $value): ?string
     {
         $value = trim($value);

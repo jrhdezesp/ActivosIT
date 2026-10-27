@@ -1,6 +1,8 @@
 <?php
 
 namespace Utilities;
+
+// Carga variables del archivo de configuracion al entorno de PHP.
 class DotEnv
 {
 
@@ -14,6 +16,7 @@ class DotEnv
         $this->path = $path;
     }
 
+    // Lee las variables sin reemplazar valores ya definidos en el entorno.
     public function load() :array
     {
         $returnEnv = array();

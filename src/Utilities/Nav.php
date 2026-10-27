@@ -2,8 +2,10 @@
 
 namespace Utilities;
 
+// Obtiene, filtra y prepara las opciones de navegacion del sistema.
 class Nav
 {
+    // Prepara las opciones visibles para las paginas publicas.
     public static function setPublicNavContext()
     {
         $navigationData = self::getNavFromJson()["public"] ?? [];
@@ -12,6 +14,7 @@ class Nav
         // menu desaparecia en la segunda peticion.
         Context::setContext("PUBLIC_NAVIGATION", $navigationData);
     }
+    // Filtra las opciones privadas segun los permisos de la cuenta.
     public static function setNavContext()
     {
         $isDevelopment = Context::getContextByKey("DEVELOPMENT") === "1";
@@ -45,6 +48,7 @@ class Nav
         Context::setContext("NAVIGATION", NavRenderer::forSidebar($visibleNavigation));
     }
 
+    // Devuelve las opciones privadas definidas para el sistema.
     public static function getPrivateNavigation(): array
     {
         $navigationData = self::getNavFromJson();
@@ -53,6 +57,7 @@ class Nav
             : [];
     }
 
+    // Limpia los datos de navegacion guardados para la solicitud y la sesion.
     public static function invalidateNavData()
     {
         Context::removeContextByKey("NAVIGATION_DATA");

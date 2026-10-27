@@ -2,6 +2,7 @@
 
 namespace Utilities;
 
+// Adapta las opciones de navegacion al formato que usan distintas vistas.
 class NavRenderer
 {
     private const CATALOG_PAGE_BY_TYPE = [
@@ -21,16 +22,19 @@ class NavRenderer
         "Inventario_Asignacion" => "Inventario_Asignaciones",
     ];
 
+    // Prepara elementos con formato para el menu lateral.
     public static function forSidebar(array $entries): array
     {
         return self::decorate($entries, [self::class, "sidebarItem"]);
     }
 
+    // Prepara elementos con formato para los accesos del dashboard.
     public static function forDashboard(array $entries): array
     {
         return self::decorate($entries, [self::class, "dashboardItem"]);
     }
 
+    // Prepara elementos para la pantalla de edicion y su vista previa.
     public static function forEditor(array $entries): array
     {
         return self::decorate(

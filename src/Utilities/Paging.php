@@ -4,8 +4,10 @@ namespace Utilities;
 
 use \Views\Renderer;
 
+// Prepara y muestra los controles de navegacion entre paginas.
 class Paging
 {
+  // Genera los numeros de pagina y los enlaces cercanos a la pagina actual.
   private static function getPages(int $totalElements, int $itemsPerPage, int $currentPage, string $url)
   {
     $pages = [];
@@ -74,6 +76,7 @@ class Paging
     }
     return $pages;
   }
+  // Prepara los datos de paginacion y los envia a su plantilla.
   public static function getPagination(
     int $totalElements,
     int $itemsPerPage,

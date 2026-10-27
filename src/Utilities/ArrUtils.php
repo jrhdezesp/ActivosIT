@@ -1,9 +1,11 @@
 <?php
   namespace Utilities;
 
+  // Prepara arreglos de datos y opciones para las vistas.
   class ArrUtils
   {
 
+    // Copia valores solo en las claves que ya existen en el destino.
     public static function mergeArrayTo(&$origin, &$destiny)
     {
         if (is_array($origin) && is_array($destiny)) {
@@ -15,6 +17,7 @@
         }
     }
 
+    // Copia todos los valores del origen al arreglo de destino.
     public static function mergeFullArrayTo(&$origin, &$destiny)
     {
         if (is_array($origin) && is_array($destiny)) {
@@ -24,6 +27,7 @@
         }
     }
 
+    // Convierte pares de valores en opciones y marca la opcion seleccionada.
     public static function toOptionsArray($baseArray, $codeName, $textName, $selectedName, $selectedValue)
     {
         $tmpArray = array();
@@ -37,6 +41,7 @@
         return $tmpArray;
     }
 
+    // Adapta una lista de registros al formato de opciones de una vista.
     public static function objectArrToOptionsArray(
         $baseArray,
         $codeName,
