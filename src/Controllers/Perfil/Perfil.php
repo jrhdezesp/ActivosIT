@@ -33,7 +33,7 @@ class Perfil extends PrivateController
         12 => 'dic',
     ];
 
-    // Mensajes del formulario de cambio de contrasena.
+    // Mensajes del formulario de cambio de clave.
     private $passwordErrors = [];
     private $passwordSuccess = '';
 
@@ -94,7 +94,7 @@ class Perfil extends PrivateController
     }
 
     /**
-     * Procesa el cambio de contrasena del usuario autenticado.
+     * Procesa el cambio de clave del usuario autenticado.
      *
      * @param array $usuario Cuenta actual.
      * @return void
@@ -118,23 +118,23 @@ class Perfil extends PrivateController
         $confirmacion = strval($_POST['confirm_password'] ?? '');
 
         if (Validators::IsEmpty($actual)) {
-            $this->passwordErrors['current_password'] = 'Ingresa tu contrasena actual.';
+            $this->passwordErrors['current_password'] = 'Ingresa tu clave actual.';
         } elseif (!SecurityDao::verifyPassword($actual, strval($usuario['clave_usuario'] ?? ''))) {
-            $this->passwordErrors['current_password'] = 'La contrasena actual no es correcta.';
+            $this->passwordErrors['current_password'] = 'La clave actual no es correcta.';
         }
 
         if (Validators::IsEmpty($nueva)) {
-            $this->passwordErrors['new_password'] = 'Ingresa una nueva contrasena.';
+            $this->passwordErrors['new_password'] = 'Ingresa una nueva clave.';
         } elseif (!Validators::IsValidPassword($nueva)) {
-            $this->passwordErrors['new_password'] = 'La nueva contrasena debe tener entre 8 y 32 caracteres, una mayuscula, una minuscula, un numero y un simbolo.';
+            $this->passwordErrors['new_password'] = 'La nueva clave debe tener entre 8 y 32 caracteres, una mayuscula, una minuscula, un numero y un simbolo.';
         } elseif ($nueva === $actual) {
-            $this->passwordErrors['new_password'] = 'La nueva contrasena debe ser diferente a la actual.';
+            $this->passwordErrors['new_password'] = 'La nueva clave debe ser diferente a la actual.';
         }
 
         if ($confirmacion === '') {
-            $this->passwordErrors['confirm_password'] = 'Confirma la nueva contrasena.';
+            $this->passwordErrors['confirm_password'] = 'Confirma la nueva clave.';
         } elseif ($nueva !== $confirmacion) {
-            $this->passwordErrors['confirm_password'] = 'La confirmacion no coincide con la nueva contrasena.';
+            $this->passwordErrors['confirm_password'] = 'La confirmacion no coincide con la nueva clave.';
         }
 
         if (count($this->passwordErrors) > 0) {
@@ -155,7 +155,7 @@ class Perfil extends PrivateController
         );
 
         if ($updated <= 0) {
-            $this->passwordErrors['general'] = 'No se pudo actualizar la contrasena. Intenta de nuevo.';
+            $this->passwordErrors['general'] = 'No se pudo actualizar la clave. Intenta de nuevo.';
             return;
         }
 
@@ -168,7 +168,7 @@ class Perfil extends PrivateController
             ['motivo' => 'Cambio desde el perfil']
         );
 
-        $this->passwordSuccess = 'Contrasena actualizada correctamente.';
+        $this->passwordSuccess = 'Clave actualizada correctamente.';
     }
 
     private function buildUserData(array $usuario, string $primaryRole): array
@@ -205,7 +205,7 @@ class Perfil extends PrivateController
             return [
                 'passwordStatus' => 'Activa',
                 'passwordBadge' => 'badge--success',
-                'passwordNotice' => 'Contraseña protegida mediante algoritmo seguro.',
+                'passwordNotice' => 'Clave protegida mediante algoritmo seguro.',
                 'passwordExpired' => false,
             ];
         }
@@ -215,7 +215,7 @@ class Perfil extends PrivateController
             return [
                 'passwordStatus' => 'Vencida',
                 'passwordBadge' => 'badge--danger',
-                'passwordNotice' => 'La contraseña venció hace ' . $this->daysLabel(abs($days)) . '.',
+                'passwordNotice' => 'La clave venció hace ' . $this->daysLabel(abs($days)) . '.',
                 'passwordExpired' => true,
             ];
         }
@@ -224,7 +224,7 @@ class Perfil extends PrivateController
             return [
                 'passwordStatus' => 'Por vencer',
                 'passwordBadge' => 'badge--warning',
-                'passwordNotice' => 'La contraseña vence en ' . $this->daysLabel($days) . '.',
+                'passwordNotice' => 'La clave vence en ' . $this->daysLabel($days) . '.',
                 'passwordExpired' => false,
             ];
         }
@@ -232,7 +232,7 @@ class Perfil extends PrivateController
         return [
             'passwordStatus' => 'Vigente',
             'passwordBadge' => 'badge--success',
-            'passwordNotice' => 'La contraseña vence en ' . $this->daysLabel($days) . '.',
+            'passwordNotice' => 'La clave vence en ' . $this->daysLabel($days) . '.',
             'passwordExpired' => false,
         ];
     }

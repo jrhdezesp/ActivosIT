@@ -38,6 +38,10 @@ class Auditoria extends PrivateController
             'label' => 'Sesión reemplazada',
             'icon' => 'fa-arrows-rotate',
         ],
+        'CAMBIAR_CONTRASENA' => [
+            'label' => 'Cambio de clave',
+            'icon' => 'fa-key',
+        ],
         'REGISTRO' => [
             'label' => 'Registro de cuenta',
             'icon' => 'fa-user-plus',

@@ -73,7 +73,7 @@
     <div class="data-panel__header">
       <div class="data-panel__heading">
         <h2 class="data-panel__title">Seguridad</h2>
-        <p class="data-panel__description">Estado de la contraseña y vigencia de la cuenta.</p>
+        <p class="data-panel__description">Estado de la clave y vigencia de la cuenta.</p>
       </div>
     </div>
     <div class="profile-security">
@@ -101,7 +101,7 @@
 
     <div class="profile-security profile-password">
       <div class="profile-password__heading">
-        <h3>Cambiar contrasena</h3>
+        <h3>Cambiar clave</h3>
         <p>Actualiza la clave de acceso de tu cuenta.</p>
       </div>
 
@@ -123,17 +123,17 @@
         <input type="hidden" name="token" value="{{!PasswordFormToken}}" />
         <div class="form-grid form-grid--2">
           <div class="form-field form-field--full {{if PasswordErrorCurrent}}has-error{{endif PasswordErrorCurrent}}">
-            <label for="perfilCurrentPassword">Contrasena actual</label>
+            <label for="perfilCurrentPassword">Clave actual</label>
             <input type="password" id="perfilCurrentPassword" name="current_password" autocomplete="current-password" required />
             {{if PasswordErrorCurrent}}<p class="form-error">{{!PasswordErrorCurrent}}</p>{{endif PasswordErrorCurrent}}
           </div>
           <div class="form-field {{if PasswordErrorNew}}has-error{{endif PasswordErrorNew}}">
-            <label for="perfilNewPassword">Nueva contrasena</label>
+            <label for="perfilNewPassword">Nueva clave</label>
             <input type="password" id="perfilNewPassword" name="new_password" autocomplete="new-password" minlength="8" maxlength="32" required />
             {{if PasswordErrorNew}}<p class="form-error">{{!PasswordErrorNew}}</p>{{endif PasswordErrorNew}}
           </div>
           <div class="form-field {{if PasswordErrorConfirm}}has-error{{endif PasswordErrorConfirm}}">
-            <label for="perfilConfirmPassword">Confirmar contrasena</label>
+            <label for="perfilConfirmPassword">Confirmar clave</label>
             <input type="password" id="perfilConfirmPassword" name="confirm_password" autocomplete="new-password" minlength="8" maxlength="32" required />
             {{if PasswordErrorConfirm}}<p class="form-error">{{!PasswordErrorConfirm}}</p>{{endif PasswordErrorConfirm}}
           </div>
@@ -142,7 +142,7 @@
         <div class="form-actions">
           <button class="button button--primary" type="submit">
             <i class="fa-solid fa-key" aria-hidden="true"></i>
-            Actualizar contrasena
+            Actualizar clave
           </button>
         </div>
       </form>
