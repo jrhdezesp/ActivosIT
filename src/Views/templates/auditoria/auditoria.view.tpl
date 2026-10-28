@@ -15,6 +15,14 @@
         <i class="fa-solid fa-file-csv" aria-hidden="true"></i>
         Descargar CSV
       </a>
+      <a class="button button--ghost" href="{{!ExportXlsxUrl}}">
+        <i class="fa-solid fa-file-excel" aria-hidden="true"></i>
+        Descargar Excel
+      </a>
+      <a class="button button--ghost" href="{{!ExportPdfUrl}}">
+        <i class="fa-solid fa-file-pdf" aria-hidden="true"></i>
+        Descargar PDF
+      </a>
     </div>
   </div>
 

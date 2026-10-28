@@ -97,9 +97,10 @@ class Auditoria extends PrivateController
     {
         $this->getParams();
 
-        if ($this->isCsvExport()) {
+        $exportFormat = ReportExport::getRequestedFormat();
+        if ($exportFormat !== '') {
             $this->requireAction('Acciones.Auditoria.Exportar');
-            $this->exportCsv();
+            $this->export($exportFormat);
             return;
         }
 
@@ -247,6 +248,8 @@ class Auditoria extends PrivateController
             'SummaryDenegadosLabel' => intval($summary['denegados']) === 1 ? 'Denegado' : 'Denegados',
             'SummaryErroresLabel' => intval($summary['errores']) === 1 ? 'Error' : 'Errores',
             'ExportUrl' => $this->buildExportUrl(),
+            'ExportXlsxUrl' => $this->buildExportUrl('xlsx'),
+            'ExportPdfUrl' => $this->buildExportUrl('pdf'),
             'SortFechaUrl' => $fechaSort['url'],
             'SortFechaActive' => $fechaSort['active'],
             'SortFechaIcon' => $fechaSort['icon'],
@@ -520,17 +523,12 @@ class Auditoria extends PrivateController
             || $this->hasta !== '';
     }
 
-    private function isCsvExport(): bool
-    {
-        return strtolower(trim(strval($_GET['export'] ?? ''))) === 'csv';
-    }
-
-    private function buildExportUrl(): string
+    private function buildExportUrl(string $format = 'csv'): string
     {
         $params = $this->filterParams();
         $params['orderBy'] = $this->orderBy;
         $params['orderDescending'] = $this->orderDescending ? 1 : 0;
-        $params['export'] = 'csv';
+        $params['export'] = $format;
 
         return 'index.php?' . http_build_query($params);
     }
@@ -539,7 +537,7 @@ class Auditoria extends PrivateController
      * Exporta todos los eventos que coinciden con los filtros actuales,
      * sin limitarse a la pagina visible.
      */
-    private function exportCsv(): void
+    private function export(string $format): void
     {
         $rows = DaoBitacora::getEventosForExport(
             $this->search,
@@ -571,7 +569,7 @@ class Auditoria extends PrivateController
             ];
         }
 
-        ReportExport::stream('bitacora_' . date('Ymd_His') . '.csv', [
+        $headers = [
             'ID',
             'Fecha',
             'Hora',
@@ -584,7 +582,68 @@ class Auditoria extends PrivateController
             'Registro relacionado',
             'Datos anteriores',
             'Datos nuevos',
-        ], $data);
+        ];
+
+        $title = 'Bitácora de auditoría';
+        $baseName = 'bitacora_' . date('Ymd_His');
+        $meta = [
+            'title' => $title,
+            'creator' => 'ActivosIT',
+            $this->buildFilterSummary(),
+            'Generado el ' . date('d/m/Y H:i'),
+        ];
+
+        if ($format === 'xlsx') {
+            ReportExport::streamXlsx($baseName . '.xlsx', $headers, $data, $meta);
+            return;
+        }
+
+        if ($format === 'pdf') {
+            ReportExport::streamPdf($baseName . '.pdf', $title, $headers, $data, $meta);
+            return;
+        }
+
+        ReportExport::stream($baseName . '.csv', $headers, $data);
+    }
+
+    private function buildFilterSummary(): string
+    {
+        $parts = [];
+
+        if ($this->search !== '') {
+            $parts[] = 'Búsqueda: ' . $this->search;
+        }
+        if ($this->modulo !== '') {
+            $parts[] = 'Módulo: ' . $this->modulo;
+        }
+        if ($this->tipo !== '') {
+            $parts[] = 'Operación: '
+                . (self::OPERACIONES[$this->tipo]['label'] ?? $this->humanize($this->tipo));
+        }
+        if ($this->resultado !== '') {
+            $parts[] = 'Resultado: '
+                . (self::RESULTADOS[$this->resultado]['label'] ?? $this->resultado);
+        }
+        if ($this->desde !== '' || $this->hasta !== '') {
+            $parts[] = 'Desde: ' . ($this->desde !== '' ? $this->formatDate($this->desde) : 'sin límite');
+            $parts[] = 'Hasta: ' . ($this->hasta !== '' ? $this->formatDate($this->hasta) : 'sin límite');
+        }
+
+        if (count($parts) === 0) {
+            return 'Sin filtros aplicados';
+        }
+
+        return 'Filtros aplicados: ' . implode(' · ', $parts);
+    }
+
+    private function formatDate(string $value): string
+    {
+        $date = \DateTime::createFromFormat('Y-m-d', $value);
+        if (!$date || $date->format('Y-m-d') !== $value) {
+            return $value;
+        }
+
+        return $date->format('d/m/Y');
     }
 
     private function decodeJson($value): array
