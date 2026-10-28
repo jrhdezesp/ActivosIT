@@ -75,6 +75,43 @@
       <label for="operativoSearch">Buscar</label>
       <input type="search" id="operativoSearch" name="q" value="{{!Search}}" placeholder="Artículo, documento, usuario o responsable" autocomplete="off" />
     </div>
+
+    <div class="form-field">
+      <label for="operativoArticulo">Articulo</label>
+      <select id="operativoArticulo" name="articulo">
+        <option value="0">Todos</option>
+        {{foreach ArticulosFilter}}
+        <option value="{{!value}}" {{selected}}>{{!label}}</option>
+        {{endfor ArticulosFilter}}
+      </select>
+    </div>
+    <div class="form-field">
+      <label for="operativoUsuario">Usuario</label>
+      <select id="operativoUsuario" name="usuario">
+        <option value="0">Todos</option>
+        {{foreach UsuariosFilter}}
+        <option value="{{!value}}" {{selected}}>{{!label}}</option>
+        {{endfor UsuariosFilter}}
+      </select>
+    </div>
+    <div class="form-field">
+      <label for="operativoCategoria">Categoria</label>
+      <select id="operativoCategoria" name="categoria">
+        <option value="0">Todas</option>
+        {{foreach CategoriasFilter}}
+        <option value="{{!value}}" {{selected}}>{{!label}}</option>
+        {{endfor CategoriasFilter}}
+      </select>
+    </div>
+    <div class="form-field">
+      <label for="operativoUbicacion">Ubicacion</label>
+      <select id="operativoUbicacion" name="ubicacion">
+        <option value="0">Todas</option>
+        {{foreach UbicacionesFilter}}
+        <option value="{{!value}}" {{selected}}>{{!label}}</option>
+        {{endfor UbicacionesFilter}}
+      </select>
+    </div>
     <div class="form-field">
       <label for="operativoDesde">Desde</label>
       <input type="date" id="operativoDesde" name="desde" value="{{!Desde}}" />

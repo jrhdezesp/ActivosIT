@@ -10,14 +10,14 @@ use Dao\Table;
  * Variables:
  * - $type: clave del informe dentro de REPORTS.
  * - $filters: filtros comunes; q, desde, hasta, articulo, usuario,
- *   departamento, estado, page, itemsPerPage y paginate.
+ *   categoria, ubicacion, departamento, estado, page, itemsPerPage y paginate.
  * - $report: definicion del informe seleccionado.
  * - $where: condiciones SQL construidas con filtros.
  * - $params: valores asociados a las condiciones.
  *
  * Claves de una definicion de REPORTS:
  * - title, description, columns, select, from, where, search,
- *   group, union, date, article, user, department y status.
+ *   group, union, date, article, user, category, location, department y status.
  */
 class Operativos extends Table
 {
@@ -32,6 +32,7 @@ class Operativos extends Table
             'where' => 'a.estado_registro = 1',
             'search' => ['a.codigo_interno_articulo', 'a.nombre_articulo', 'c.nombre_clasificacion'],
             'article' => 'a.id_articulo',
+            'category' => 'a.id_clasificacion',
         ],
         'existencias' => [
             'title' => 'Existencias por artículo y clasificación',
@@ -42,6 +43,7 @@ class Operativos extends Table
             'where' => 'a.estado_registro = 1',
             'search' => ['a.codigo_interno_articulo', 'a.nombre_articulo', 'c.nombre_clasificacion'],
             'article' => 'a.id_articulo',
+            'category' => 'a.id_clasificacion',
         ],
         'stock_bajo' => [
             'title' => 'Artículos bajo el mínimo',
@@ -52,6 +54,7 @@ class Operativos extends Table
             'where' => "a.estado_registro = 1 AND a.tipo_control = 'CANTIDAD' AND a.existencia_actual <= COALESCE(a.existencia_minima, 0)",
             'search' => ['a.codigo_interno_articulo', 'a.nombre_articulo', 'c.nombre_clasificacion'],
             'article' => 'a.id_articulo',
+            'category' => 'a.id_clasificacion',
         ],
         'entradas' => [
             'title' => 'Entradas de inventario por período',
@@ -76,6 +79,7 @@ class Operativos extends Table
             'group' => 'ds.id_doc_salida, ds.correlativo, ds.fecha_movimiento, td.nombre_tipo, ds.destino_salida, ds.estado_doc, us.nombre_usuario',
             'search' => ['ds.correlativo', 'ds.destino_salida', 'ds.autorizacion', 'td.nombre_tipo', 'us.nombre_usuario'],
             'date' => 'ds.fecha_movimiento',
+            'user' => 'us.id_usuario',
             'status' => 'ds.estado_doc',
         ],
         'movimientos_articulo' => [
@@ -88,6 +92,7 @@ class Operativos extends Table
             'search' => ['a.codigo_interno_articulo', 'a.nombre_articulo', 'm.observacion', 'us.nombre_usuario'],
             'date' => 'm.fecha_movimiento',
             'article' => 'm.id_articulo',
+            'category' => 'a.id_clasificacion',
             'user' => 'm.id_usuario',
         ],
         'equipos_asignados' => [
@@ -99,6 +104,8 @@ class Operativos extends Table
             'where' => "ad.estado_asignacion = 'ACTIVA'",
             'search' => ['eq.numero_serie_equipo', 'eq.codigo_patrimonial_equipo', 'ar.nombre_articulo', 'ad.persona_responsable', 'ad.departamento_destino'],
             'article' => 'eq.id_articulo',
+            'category' => 'ar.id_clasificacion',
+            'location' => 'eq.id_ubicacion',
             'department' => 'ad.departamento_destino',
             'status' => 'eq.estado_operativo',
         ],
@@ -111,6 +118,8 @@ class Operativos extends Table
             'where' => 'eq.estado_registro = 1',
             'search' => ['eq.numero_serie_equipo', 'eq.codigo_patrimonial_equipo', 'ar.nombre_articulo', 'ub.nombre_ubicacion'],
             'article' => 'eq.id_articulo',
+            'category' => 'ar.id_clasificacion',
+            'location' => 'eq.id_ubicacion',
             'status' => 'eq.estado_operativo',
         ],
         'asignaciones' => [
@@ -123,6 +132,8 @@ class Operativos extends Table
             'search' => ['eq.numero_serie_equipo', 'ar.nombre_articulo', 'ad.persona_responsable', 'ad.departamento_destino'],
             'date' => 'ad.fecha_asignacion',
             'article' => 'eq.id_articulo',
+            'category' => 'ar.id_clasificacion',
+            'location' => 'eq.id_ubicacion',
             'department' => 'ad.departamento_destino',
             'status' => 'ad.estado_asignacion',
         ],
@@ -136,6 +147,8 @@ class Operativos extends Table
             'search' => ['eq.numero_serie_equipo', 'ar.nombre_articulo', 'ma.tecnico_responsable', 'ma.diagnostico_inicial', 'ma.resultado_mantenimiento'],
             'date' => 'ma.fecha_recepcion',
             'article' => 'eq.id_articulo',
+            'category' => 'ar.id_clasificacion',
+            'location' => 'eq.id_ubicacion',
             'status' => 'ma.estado_mantenimiento',
         ],
         'articulos_responsable' => [
@@ -148,6 +161,8 @@ class Operativos extends Table
             'search' => ['ar.codigo_interno_articulo', 'ar.nombre_articulo', 'ad.persona_responsable', 'ad.departamento_destino'],
             'date' => 'ad.fecha_asignacion',
             'article' => 'eq.id_articulo',
+            'category' => 'ar.id_clasificacion',
+            'location' => 'eq.id_ubicacion',
             'department' => 'ad.departamento_destino',
             'status' => 'ad.estado_asignacion',
         ],
@@ -161,6 +176,7 @@ class Operativos extends Table
             'search' => ['a.codigo_interno_articulo', 'a.nombre_articulo', 'mo.nombre_motivo', 'us.nombre_usuario', 'm.observacion'],
             'date' => 'm.fecha_movimiento',
             'article' => 'm.id_articulo',
+            'category' => 'a.id_clasificacion',
             'user' => 'm.id_usuario',
         ],
         'movimientos_usuario' => [
@@ -173,6 +189,7 @@ class Operativos extends Table
             'search' => ['us.nombre_usuario', 'us.user_usuario', 'a.nombre_articulo', 'm.observacion'],
             'date' => 'm.fecha_movimiento',
             'article' => 'm.id_articulo',
+            'category' => 'a.id_clasificacion',
             'user' => 'm.id_usuario',
         ],
         'documentos' => [
@@ -185,7 +202,7 @@ class Operativos extends Table
             'union' => "SELECT 'SALIDA' AS tipo_documento, ds.correlativo, ds.fecha_movimiento, ds.estado_doc, us.nombre_usuario, ds.destino_salida, ds.observaciones FROM documentos_salida ds JOIN usuarios us ON us.id_usuario = ds.id_usuario",
             'search' => ['correlativo', 'estado_doc', 'nombre_usuario'],
             'date' => 'fecha_movimiento',
-            'user' => 'id_usuario',
+            'user' => 'de.id_usuario',
             'status' => 'estado_doc',
         ],
     ];
@@ -203,6 +220,68 @@ class Operativos extends Table
         }
 
         return $types;
+    }
+
+    /**
+     * Opciones de articulos activos para los filtros del reporte.
+     *
+     * @return array
+     */
+    public static function getArticulosOptions(): array
+    {
+        return self::obtenerRegistros(
+            'SELECT id_articulo AS value,'
+            . " CONCAT(codigo_interno_articulo, ' - ', nombre_articulo) AS label"
+            . ' FROM articulos WHERE estado_registro = 1'
+            . ' ORDER BY nombre_articulo ASC',
+            []
+        );
+    }
+
+    /**
+     * Opciones de usuarios activos para los filtros del reporte.
+     *
+     * @return array
+     */
+    public static function getUsuariosOptions(): array
+    {
+        return self::obtenerRegistros(
+            'SELECT id_usuario AS value,'
+            . " CONCAT(nombre_usuario, ' (', user_usuario, ')') AS label"
+            . ' FROM usuarios WHERE estado_usuario = 1'
+            . ' ORDER BY nombre_usuario ASC',
+            []
+        );
+    }
+
+    /**
+     * Opciones de clasificaciones activas.
+     *
+     * @return array
+     */
+    public static function getCategoriasOptions(): array
+    {
+        return self::obtenerRegistros(
+            'SELECT id_clasificacion AS value, nombre_clasificacion AS label'
+            . ' FROM clasificaciones WHERE estado_clasif = 1'
+            . ' ORDER BY nombre_clasificacion ASC',
+            []
+        );
+    }
+
+    /**
+     * Opciones de ubicaciones activas.
+     *
+     * @return array
+     */
+    public static function getUbicacionesOptions(): array
+    {
+        return self::obtenerRegistros(
+            'SELECT id_ubicacion AS value, nombre_ubicacion AS label'
+            . ' FROM ubicaciones WHERE estado_ubi = 1'
+            . ' ORDER BY nombre_ubicacion ASC',
+            []
+        );
     }
 
     /**
@@ -225,8 +304,8 @@ class Operativos extends Table
         }
         if (isset($report['union'])) {
             $unionWhere = str_replace(
-                ['correlativo', 'estado_doc', 'nombre_usuario', 'fecha_movimiento'],
-                ['ds.correlativo', 'ds.estado_doc', 'us.nombre_usuario', 'ds.fecha_movimiento'],
+                ['correlativo', 'estado_doc', 'nombre_usuario', 'fecha_movimiento', 'de.id_usuario'],
+                ['ds.correlativo', 'ds.estado_doc', 'us.nombre_usuario', 'ds.fecha_movimiento', 'ds.id_usuario'],
                 $where
             );
             // Parametros separados para la consulta de la segunda parte del informe.
@@ -295,8 +374,8 @@ class Operativos extends Table
             $conditions[] = $report['date'] . ' <= :hasta';
             $params['hasta'] = strval($filters['hasta']) . ' 23:59:59';
         }
-        foreach (['article' => 'articulo', 'user' => 'usuario', 'department' => 'departamento', 'status' => 'estado'] as $key => $filter) {
-            if (isset($report[$key]) && strval($filters[$filter] ?? '') !== '' && intval($filters[$filter]) > 0 && in_array($key, ['article', 'user'], true)) {
+        foreach (['article' => 'articulo', 'user' => 'usuario', 'category' => 'categoria', 'location' => 'ubicacion', 'department' => 'departamento', 'status' => 'estado'] as $key => $filter) {
+            if (isset($report[$key]) && strval($filters[$filter] ?? '') !== '' && intval($filters[$filter]) > 0 && in_array($key, ['article', 'user', 'category', 'location'], true)) {
                 $conditions[] = $report[$key] . ' = :' . $filter;
                 $params[$filter] = intval($filters[$filter]);
             } elseif ($key === 'department' && isset($report[$key]) && strval($filters[$filter] ?? '') !== '') {

@@ -20,8 +20,16 @@ class Operativos extends PrivateController
     private string $hasta = '';
     private string $departamento = '';
     private string $estado = '';
+    private int $articuloId = 0;
+    private int $usuarioId = 0;
+    private int $categoriaId = 0;
+    private int $ubicacionId = 0;
     private int $pageNumber = 1;
     private int $itemsPerPage = 10;
+    private array $articulosFilter = [];
+    private array $usuariosFilter = [];
+    private array $categoriasFilter = [];
+    private array $ubicacionesFilter = [];
     private const ITEMS_PER_PAGE_OPTIONS = [5, 10, 20, 50, 100];
 
     /**
@@ -30,12 +38,17 @@ class Operativos extends PrivateController
     public function run(): void
     {
         $this->readParams();
+        $this->loadFilterOptions();
         $filters = [
             'q' => $this->search,
             'desde' => $this->desde,
             'hasta' => $this->hasta,
             'departamento' => $this->departamento,
             'estado' => $this->estado,
+            'articulo' => $this->articuloId,
+            'usuario' => $this->usuarioId,
+            'categoria' => $this->categoriaId,
+            'ubicacion' => $this->ubicacionId,
             'page' => $this->pageNumber,
             'itemsPerPage' => $this->itemsPerPage,
             'paginate' => false,
@@ -85,6 +98,14 @@ class Operativos extends PrivateController
             'Hasta' => $this->hasta,
             'Departamento' => $this->departamento,
             'Estado' => $this->estado,
+            'ArticuloId' => $this->articuloId,
+            'UsuarioId' => $this->usuarioId,
+            'CategoriaId' => $this->categoriaId,
+            'UbicacionId' => $this->ubicacionId,
+            'ArticulosFilter' => $this->articulosFilter,
+            'UsuariosFilter' => $this->usuariosFilter,
+            'CategoriasFilter' => $this->categoriasFilter,
+            'UbicacionesFilter' => $this->ubicacionesFilter,
             'ListRoute' => 'Reportes_Operativos',
             'SearchAction' => 'index.php',
             'ReportDate' => date('d/m/Y H:i'),
@@ -105,6 +126,10 @@ class Operativos extends PrivateController
         $this->hasta = Fechas::normalizarFecha(strval($_GET['hasta'] ?? '')) ?? '';
         $this->departamento = trim(strval($_GET['departamento'] ?? ''));
         $this->estado = trim(strval($_GET['estado'] ?? ''));
+        $this->articuloId = max(0, intval($_GET['articulo'] ?? 0));
+        $this->usuarioId = max(0, intval($_GET['usuario'] ?? 0));
+        $this->categoriaId = max(0, intval($_GET['categoria'] ?? 0));
+        $this->ubicacionId = max(0, intval($_GET['ubicacion'] ?? 0));
         $this->pageNumber = max(1, intval($_GET['pageNum'] ?? 1));
         $itemsPerPage = intval($_GET['itemsPerPage'] ?? 10);
         $this->itemsPerPage = in_array($itemsPerPage, self::ITEMS_PER_PAGE_OPTIONS, true)
@@ -135,6 +160,10 @@ class Operativos extends PrivateController
             'hasta' => $this->hasta,
             'departamento' => $this->departamento,
             'estado' => $this->estado,
+            'articulo' => $this->articuloId,
+            'usuario' => $this->usuarioId,
+            'categoria' => $this->categoriaId,
+            'ubicacion' => $this->ubicacionId,
             'itemsPerPage' => $this->itemsPerPage,
         ];
         if ($format !== '') {
@@ -154,6 +183,10 @@ class Operativos extends PrivateController
             'hasta' => $this->hasta,
             'departamento' => $this->departamento,
             'estado' => $this->estado,
+            'articulo' => $this->articuloId,
+            'usuario' => $this->usuarioId,
+            'categoria' => $this->categoriaId,
+            'ubicacion' => $this->ubicacionId,
             'itemsPerPage' => $this->itemsPerPage,
         ];
         $baseUrl = 'index.php?' . http_build_query($params);
@@ -218,6 +251,10 @@ class Operativos extends PrivateController
             'Hasta' => $this->hasta,
             'Departamento' => $this->departamento,
             'Estado' => $this->estado,
+            'Articulo' => $this->articuloId > 0 ? $this->optionLabel($this->articulosFilter, $this->articuloId) : '',
+            'Usuario' => $this->usuarioId > 0 ? $this->optionLabel($this->usuariosFilter, $this->usuarioId) : '',
+            'Categoria' => $this->categoriaId > 0 ? $this->optionLabel($this->categoriasFilter, $this->categoriaId) : '',
+            'Ubicacion' => $this->ubicacionId > 0 ? $this->optionLabel($this->ubicacionesFilter, $this->ubicacionId) : '',
         ] as $label => $value) {
             if ($value !== '') {
                 $filters[] = $label . ': ' . $value;
@@ -233,7 +270,52 @@ class Operativos extends PrivateController
             || $this->desde !== ''
             || $this->hasta !== ''
             || $this->departamento !== ''
-            || $this->estado !== '';
+            || $this->estado !== ''
+            || $this->articuloId > 0
+            || $this->usuarioId > 0
+            || $this->categoriaId > 0
+            || $this->ubicacionId > 0;
+    }
+
+    private function loadFilterOptions(): void
+    {
+        $this->articulosFilter = $this->markSelected(
+            DaoOperativos::getArticulosOptions(),
+            $this->articuloId
+        );
+        $this->usuariosFilter = $this->markSelected(
+            DaoOperativos::getUsuariosOptions(),
+            $this->usuarioId
+        );
+        $this->categoriasFilter = $this->markSelected(
+            DaoOperativos::getCategoriasOptions(),
+            $this->categoriaId
+        );
+        $this->ubicacionesFilter = $this->markSelected(
+            DaoOperativos::getUbicacionesOptions(),
+            $this->ubicacionId
+        );
+    }
+
+    private function markSelected(array $options, int $selectedId): array
+    {
+        foreach ($options as &$option) {
+            $option['selected'] = intval($option['value']) === $selectedId ? 'selected' : '';
+        }
+        unset($option);
+
+        return $options;
+    }
+
+    private function optionLabel(array $options, int $id): string
+    {
+        foreach ($options as $option) {
+            if (intval($option['value']) === $id) {
+                return strval($option['label']);
+            }
+        }
+
+        return strval($id);
     }
 
     private function textLength(string $value): int
