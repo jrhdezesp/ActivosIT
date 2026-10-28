@@ -159,5 +159,84 @@
         </div>
       </div>
     </form>
+
+    {{if EsCreacion}}
+    <div class="image-panel image-panel--hint">
+      <div class="image-panel__header">
+        <div>
+          <h2 class="image-panel__title">Fotos del estado</h2>
+          <p class="image-panel__description">Guarda el equipo y vuelve a editarlo para adjuntar fotos de su estado.</p>
+        </div>
+      </div>
+    </div>
+    {{endif EsCreacion}}
+
+    {{if CanManageImages}}
+    <section class="image-panel" aria-labelledby="equipment-images-title">
+      <div class="image-panel__header">
+        <div>
+          <h2 class="image-panel__title" id="equipment-images-title">Fotos del estado</h2>
+          <p class="image-panel__description">Adjunta fotos del equipo al recibirlo, revisarlo o cambiar su condición. Quedan asociadas a este equipo y a la fecha de carga.</p>
+        </div>
+        <span class="badge badge--outline">{{!ImageCountLabel}}</span>
+      </div>
+
+      {{if ImageMessage}}
+      <div class="alert alert--success alert--compact" role="status">{{!ImageMessage}}</div>
+      {{endif ImageMessage}}
+      {{if ImageError}}
+      <div class="form-error-summary" role="alert">{{!ImageError}}</div>
+      {{endif ImageError}}
+
+      {{if HasImagenes}}
+      <div class="image-gallery">
+        {{foreach Imagenes}}
+        <figure class="image-card">
+          <a class="image-card__link" href="{{!url}}" target="_blank" rel="noopener">
+            <img class="image-card__thumb" src="{{!url}}" alt="{{!alt}}" loading="lazy" decoding="async" />
+          </a>
+          <figcaption class="image-card__body">
+            <span class="image-card__meta">{{!fecha}} · {{!usuario}}</span>
+            {{if descripcion}}<span class="image-card__description">{{!descripcion}}</span>{{endif descripcion}}
+            <span class="badge badge--outline image-card__context">{{!contextoLabel}}</span>
+          </figcaption>
+          {{if puedeEliminar}}
+          <form class="image-card__delete" action="{{!~FormAction}}" method="POST">
+            <input type="hidden" name="token" value="{{!~ImageToken}}" />
+            <input type="hidden" name="accion" value="eliminar_imagen" />
+            <input type="hidden" name="id_imagen" value="{{!id}}" />
+            <button class="button button--ghost button--sm" type="submit">
+              <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+              Eliminar
+            </button>
+          </form>
+          {{endif puedeEliminar}}
+        </figure>
+        {{endfor Imagenes}}
+      </div>
+      {{endif HasImagenes}}
+      {{ifnot HasImagenes}}
+      <p class="image-empty">Aún no hay fotos registradas para este equipo.</p>
+      {{endifnot HasImagenes}}
+
+      <form class="image-upload" action="{{!FormAction}}" method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="token" value="{{!ImageToken}}" />
+        <input type="hidden" name="accion" value="subir_imagen" />
+        <div class="form-field">
+          <label for="imagenes" class="form-label">Agregar fotos</label>
+          <input type="file" id="imagenes" name="imagenes[]" accept="image/jpeg,image/png,image/webp" multiple required />
+          <p class="form-help">JPG, PNG o WebP. Hasta 8 fotos por carga, máximo 5 MB cada una.</p>
+        </div>
+        <div class="form-field">
+          <label for="descripcion_imagen" class="form-label">Descripción (opcional)</label>
+          <input type="text" id="descripcion_imagen" name="descripcion" maxlength="255" placeholder="Ej. Estado al recibir el equipo" />
+        </div>
+        <button class="button button--primary" type="submit">
+          <i class="fa-solid fa-upload" aria-hidden="true"></i>
+          Subir fotos
+        </button>
+      </form>
+    </section>
+    {{endif CanManageImages}}
   </section>
 </div>

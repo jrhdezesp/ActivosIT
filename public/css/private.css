@@ -3975,3 +3975,191 @@
   font-size: 0.78rem;
 }
 
+
+/* -----------------------------------------------------------------------------
+   Imagenes de articulos y equipos
+   ----------------------------------------------------------------------------- */
+
+.image-panel {
+  padding: 1.25rem 1.2rem 1.4rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.image-panel--hint {
+  color: var(--text-muted);
+}
+
+.image-panel__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.9rem;
+}
+
+.image-panel__title {
+  margin: 0;
+  color: var(--text-strong);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: var(--weight-extrabold);
+}
+
+.image-panel__description {
+  max-width: 62ch;
+  margin: 0.3rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.image-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.75rem;
+  margin: 0.9rem 0;
+}
+
+.image-card {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  background: var(--surface-card);
+}
+
+.image-card__link {
+  display: block;
+  aspect-ratio: 4 / 3;
+  background: var(--surface-muted);
+}
+
+.image-card__thumb {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-card__body {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.55rem 0.65rem;
+}
+
+.image-card__meta {
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  line-height: 1.35;
+}
+
+.image-card__description {
+  color: var(--text-strong);
+  font-size: 0.76rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.image-card__context {
+  align-self: flex-start;
+  margin-top: 0.2rem;
+  font-size: 0.62rem;
+}
+
+.image-card__delete {
+  margin-top: auto;
+  padding: 0 0.65rem 0.6rem;
+}
+
+.image-card__delete .button {
+  width: 100%;
+  justify-content: center;
+}
+
+.image-upload {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px dashed var(--border-subtle);
+}
+
+.image-upload .form-field {
+  flex: 1 1 220px;
+  margin: 0;
+}
+
+.image-upload .button {
+  flex: 0 0 auto;
+}
+
+.image-empty {
+  margin: 0.75rem 0;
+  padding: 1rem;
+  border: 1px dashed var(--border-subtle);
+  border-radius: 12px;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.image-preview {
+  max-width: 240px;
+  margin: 0.35rem 0 0.6rem;
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  background: var(--surface-muted);
+}
+
+.image-preview img {
+  display: block;
+  width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+}
+
+.article-cell {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.article-cell__thumb {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  background: var(--surface-muted);
+  object-fit: cover;
+}
+
+@media (max-width: 640px) {
+  .image-gallery {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  }
+
+  .image-upload {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .image-upload .button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+.article-cell .data-table__stack {
+  flex: 1 1 auto;
+}

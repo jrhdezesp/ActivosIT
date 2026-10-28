@@ -25,7 +25,7 @@ use Dao\Table;
  * Claves de $data para insertar o actualizar:
  * - codigo_interno_articulo, nombre_articulo, descripcion_articulo,
  *   marca_articulo, modelo_articulo, observaciones_articulo,
- *   id_clasificacion, id_unidad_medida, tipo_control,
+ *   imagen_referencia, id_clasificacion, id_unidad_medida, tipo_control,
  *   existencia_minima, existencia_actual, estado_registro.
  */
 class Articulos extends Table
@@ -282,10 +282,10 @@ class Articulos extends Table
             'INSERT INTO articulos ('
             . 'codigo_interno_articulo, nombre_articulo, descripcion_articulo,'
             . ' marca_articulo, modelo_articulo, observaciones_articulo,'
-            . ' id_clasificacion, id_unidad_medida, tipo_control,'
+            . ' imagen_referencia, id_clasificacion, id_unidad_medida, tipo_control,'
             . ' existencia_minima, existencia_actual, estado_registro, fecha_creacion'
             . ') VALUES ('
-            . ':codigo, :nombre, :descripcion, :marca, :modelo, :observaciones, :clasificacion, :unidad, :control,'
+            . ':codigo, :nombre, :descripcion, :marca, :modelo, :observaciones, :imagen, :clasificacion, :unidad, :control,'
             . ' :existenciaMinima, :existenciaActual, :estado, NOW()'
             . ')',
             [
@@ -295,6 +295,7 @@ class Articulos extends Table
                 'marca' => $data['marca_articulo'],
                 'modelo' => $data['modelo_articulo'],
                 'observaciones' => $data['observaciones_articulo'],
+                'imagen' => $data['imagen_referencia'] ?? null,
                 'clasificacion' => intval($data['id_clasificacion']),
                 'unidad' => intval($data['id_unidad_medida']),
                 'control' => $data['tipo_control'],
@@ -320,6 +321,7 @@ class Articulos extends Table
             . ' descripcion_articulo = :descripcion, id_clasificacion = :clasificacion,'
             . ' marca_articulo = :marca, modelo_articulo = :modelo,'
             . ' observaciones_articulo = :observaciones,'
+            . ' imagen_referencia = :imagen,'
             . ' id_unidad_medida = :unidad, tipo_control = :control,'
             . ' existencia_minima = :existenciaMinima,'
             . ' estado_registro = :estado, fecha_modificacion = NOW()'
@@ -331,6 +333,7 @@ class Articulos extends Table
                 'marca' => $data['marca_articulo'],
                 'modelo' => $data['modelo_articulo'],
                 'observaciones' => $data['observaciones_articulo'],
+                'imagen' => $data['imagen_referencia'] ?? null,
                 'clasificacion' => intval($data['id_clasificacion']),
                 'unidad' => intval($data['id_unidad_medida']),
                 'control' => $data['tipo_control'],

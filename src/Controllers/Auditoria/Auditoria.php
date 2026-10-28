@@ -54,6 +54,22 @@ class Auditoria extends PrivateController
             'label' => 'Catálogo desactivado',
             'icon' => 'fa-toggle-off',
         ],
+        'SUBIR_IMAGEN_EQUIPO' => [
+            'label' => 'Fotos de equipo agregadas',
+            'icon' => 'fa-images',
+        ],
+        'ELIMINAR_IMAGEN_EQUIPO' => [
+            'label' => 'Foto de equipo eliminada',
+            'icon' => 'fa-trash-can',
+        ],
+        'SUBIR_EVIDENCIA_MANTENIMIENTO' => [
+            'label' => 'Evidencias de mantenimiento',
+            'icon' => 'fa-camera',
+        ],
+        'ELIMINAR_EVIDENCIA_MANTENIMIENTO' => [
+            'label' => 'Evidencia de mantenimiento eliminada',
+            'icon' => 'fa-trash-can',
+        ],
         'REGISTRO' => [
             'label' => 'Registro de cuenta',
             'icon' => 'fa-user-plus',

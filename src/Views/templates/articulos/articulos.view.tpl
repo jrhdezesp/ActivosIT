@@ -132,11 +132,16 @@
         <tr>
           <td><span class="data-table__code" title="{{!code}}">{{!code}}</span></td>
           <td>
-            <div class="data-table__stack">
-              {{if ~CanManage}}<a class="data-table__link data-table__truncate" href="{{!editUrl}}" title="Editar {{!name}}">{{!name}}</a>{{endif ~CanManage}}
-              {{ifnot ~CanManage}}<span class="data-table__truncate">{{!name}}</span>{{endifnot ~CanManage}}
-              <span class="data-table__subtext" title="{{!description}}">{{!description}}</span>
-              <span class="data-table__subtext">{{!classification}} · {{!unit}}</span>
+            <div class="article-cell">
+              {{if imagenUrl}}
+              <img class="article-cell__thumb" src="{{!imagenUrl}}" alt="" loading="lazy" decoding="async" />
+              {{endif imagenUrl}}
+              <div class="data-table__stack">
+                {{if ~CanManage}}<a class="data-table__link data-table__truncate" href="{{!editUrl}}" title="Editar {{!name}}">{{!name}}</a>{{endif ~CanManage}}
+                {{ifnot ~CanManage}}<span class="data-table__truncate">{{!name}}</span>{{endifnot ~CanManage}}
+                <span class="data-table__subtext" title="{{!description}}">{{!description}}</span>
+                <span class="data-table__subtext">{{!classification}} · {{!unit}}</span>
+              </div>
             </div>
           </td>
           <td><span class="badge {{controlClass}}">{{!controlLabel}}</span></td>

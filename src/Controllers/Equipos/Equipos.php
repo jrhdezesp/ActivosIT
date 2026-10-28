@@ -5,6 +5,8 @@ namespace Controllers\Equipos;
 use Controllers\PrivateController;
 use Dao\Catalogos\Catalogos as DaoCatalogos;
 use Dao\Equipos\Equipos as DaoEquipos;
+use Dao\Equipos\Imagenes as DaoImagenes;
+use Utilities\ImageStorage;
 use Utilities\Paging;
 use Views\Renderer;
 
@@ -81,6 +83,11 @@ class Equipos extends PrivateController
      */
     public function run(): void
     {
+        if (strtolower(trim(strval($_GET['accion'] ?? ''))) === 'imagen') {
+            $this->streamImagen(intval($_GET['id'] ?? 0));
+            return;
+        }
+
         $this->getParams();
         $this->loadEstadoFisicoLabels();
 
@@ -100,6 +107,21 @@ class Equipos extends PrivateController
         $this->itemsPerPage = intval($result['itemsPerPage']);
 
         Renderer::render('equipos/equipos', $this->buildViewData($result));
+    }
+
+    /** Sirve una foto del equipo. */
+    private function streamImagen(int $id): void
+    {
+        $image = DaoImagenes::getById($id);
+        if (!$image) {
+            http_response_code(404);
+            exit;
+        }
+
+        ImageStorage::stream(
+            strval($image['ruta_imagen'] ?? ''),
+            strval($image['tipo_mime'] ?? '')
+        );
     }
 
     private function getParams(): void

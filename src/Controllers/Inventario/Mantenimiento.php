@@ -3,10 +3,12 @@
 namespace Controllers\Inventario;
 
 use Controllers\PrivateController;
+use Dao\Equipos\Imagenes as DaoImagenes;
 use Dao\Mantenimientos\Mantenimientos as DaoMantenimientos;
 use Utilities\Bitacora;
 use Utilities\CSRF;
 use Utilities\Fechas;
+use Utilities\ImageStorage;
 use Utilities\Security;
 use Utilities\Site;
 use Views\Renderer;
@@ -25,6 +27,7 @@ class Mantenimiento extends PrivateController
     private $errors = [];
     private $tipos = [];
     private $equipos = [];
+    private $imageError = '';
 
     /**
      * Carga el mantenimiento, procesa sus cambios y presenta el formulario.
@@ -41,6 +44,19 @@ class Mantenimiento extends PrivateController
                 $this->requireAction('Acciones.Inventario.Mantenimientos.Crear');
             }
             $this->loadOptions();
+
+            $accion = strtoupper(trim(strval($_POST['accion'] ?? 'guardar')));
+            if (
+                $this->isPostBack()
+                && in_array($accion, ['SUBIR_IMAGEN', 'ELIMINAR_IMAGEN'], true)
+            ) {
+                CSRF::requireValid('mantenimiento', $_POST['token'] ?? '');
+                $this->handleImageAction($accion);
+                if ($this->imageError !== '') {
+                    $this->renderForm();
+                }
+                return;
+            }
 
             if ($this->isPostBack()) {
                 CSRF::requireValid('mantenimiento', $_POST['token'] ?? '');
@@ -446,6 +462,112 @@ class Mantenimiento extends PrivateController
         Site::redirectTo('index.php?page=Inventario_Mantenimientos&msg=cancelled');
     }
 
+    /** Agrega o elimina evidencias fotograficas del mantenimiento. */
+    private function handleImageAction(string $accion): void
+    {
+        if ($this->mode !== 'UPD' || $this->id <= 0 || !$this->canEdit()) {
+            throw new \RuntimeException('No se pueden modificar las evidencias de este mantenimiento.');
+        }
+
+        $idEquipo = intval($this->record['id_equipo'] ?? 0);
+        if ($idEquipo <= 0) {
+            throw new \RuntimeException('El mantenimiento no tiene un equipo asociado.');
+        }
+
+        if ($accion === 'ELIMINAR_IMAGEN') {
+            $imageId = intval($_POST['id_imagen'] ?? 0);
+            $image = DaoImagenes::getById($imageId);
+            if (
+                !$image
+                || intval($image['id_mantenimiento'] ?? 0) !== $this->id
+            ) {
+                throw new \RuntimeException('La evidencia seleccionada no pertenece a este mantenimiento.');
+            }
+
+            if (!DaoImagenes::deleteById($imageId)) {
+                throw new \RuntimeException('No se pudo eliminar la evidencia.');
+            }
+            ImageStorage::delete(strval($image['ruta_imagen'] ?? ''));
+
+            Bitacora::registrar(
+                'ELIMINAR_EVIDENCIA_MANTENIMIENTO',
+                'Mantenimientos',
+                Bitacora::RESULTADO_EXITO,
+                $this->id,
+                [
+                    'id_imagen' => $imageId,
+                    'ruta' => strval($image['ruta_imagen'] ?? ''),
+                ],
+                null
+            );
+
+            Site::redirectTo(
+                'index.php?page=Inventario_Mantenimiento&mode=UPD&id='
+                . $this->id . '&msg=image_deleted'
+            );
+            return;
+        }
+
+        $description = trim(strval($_POST['descripcion'] ?? ''));
+        if (\Utilities\Text::length($description) > 255) {
+            $description = $this->substring($description, 0, 255);
+        }
+
+        try {
+            $files = ImageStorage::saveMany(
+                $_FILES['imagenes'] ?? null,
+                'equipos/' . $idEquipo
+            );
+        } catch (\RuntimeException $ex) {
+            $this->imageError = $ex->getMessage();
+            return;
+        }
+
+        $userId = intval(Security::getUserId());
+        $rows = [];
+        foreach ($files as $file) {
+            $rows[] = [
+                'id_equipo' => $idEquipo,
+                'ruta_imagen' => $file['ruta'],
+                'nombre_original' => $file['nombre_original'],
+                'tipo_mime' => $file['tipo_mime'],
+                'tamano_bytes' => $file['tamano'],
+                'descripcion' => $description === '' ? null : $description,
+                'contexto' => 'MANTENIMIENTO',
+                'id_mantenimiento' => $this->id,
+                'id_usuario_registro' => $userId,
+            ];
+        }
+
+        try {
+            DaoImagenes::insertMany($rows);
+        } catch (\Throwable $ex) {
+            foreach ($files as $file) {
+                ImageStorage::delete($file['ruta']);
+            }
+            throw $ex;
+        }
+
+        Bitacora::registrar(
+            'SUBIR_EVIDENCIA_MANTENIMIENTO',
+            'Mantenimientos',
+            Bitacora::RESULTADO_EXITO,
+            $this->id,
+            null,
+            [
+                'cantidad' => count($files),
+                'archivos' => array_map(function (array $file): string {
+                    return $file['ruta'];
+                }, $files),
+            ]
+        );
+
+        Site::redirectTo(
+            'index.php?page=Inventario_Mantenimiento&mode=UPD&id='
+            . $this->id . '&msg=image_uploaded'
+        );
+    }
+
     private function renderForm(): void
     {
         $isDelete = $this->mode === 'DEL';
@@ -501,6 +623,32 @@ class Mantenimiento extends PrivateController
         $selectedEquipo = strval(intval($this->item['id_equipo'] ?? 0));
         $selectedTipo = strval(intval($this->item['id_tipo_mantenimiento'] ?? 0));
 
+        $imagenes = [];
+        if ($this->id > 0) {
+            foreach (DaoImagenes::getByMantenimiento($this->id) as $row) {
+                $imagenes[] = [
+                    'id' => intval($row['id_imagen'] ?? 0),
+                    'url' => 'index.php?page=Inventario_Mantenimientos&accion=imagen&id='
+                        . intval($row['id_imagen'] ?? 0),
+                    'descripcion' => trim(strval($row['descripcion'] ?? '')),
+                    'fecha' => $this->formatDate(strval($row['fecha_registro'] ?? '')),
+                    'usuario' => trim(strval($row['usuario_nombre'] ?? '')) !== ''
+                        ? trim(strval($row['usuario_nombre']))
+                        : 'Sistema',
+                    'alt' => 'Evidencia del mantenimiento #' . $this->id,
+                ];
+            }
+        }
+
+        $canManageImages = $canEdit && $this->mode === 'UPD';
+        $imageMessage = '';
+        $message = strtolower(trim(strval($_GET['msg'] ?? '')));
+        if ($message === 'image_uploaded') {
+            $imageMessage = 'Las evidencias se agregaron correctamente.';
+        } elseif ($message === 'image_deleted') {
+            $imageMessage = 'La evidencia se eliminó correctamente.';
+        }
+
         Renderer::render('mantenimientos/mantenimiento', [
             'FormEyebrow' => 'Inventario / Mantenimientos',
             'FormTitle' => $formTitle,
@@ -520,6 +668,16 @@ class Mantenimiento extends PrivateController
             'FormMode' => $this->mode,
             'FormId' => $this->id,
             'CanEdit' => $canEdit,
+            'ShowImagesPanel' => count($imagenes) > 0 || $canManageImages,
+            'HasImagenes' => count($imagenes) > 0,
+            'ImageCountLabel' => count($imagenes) === 1
+                ? '1 evidencia'
+                : strval(count($imagenes)) . ' evidencias',
+            'Imagenes' => $imagenes,
+            'ImageToken' => CSRF::token('mantenimiento'),
+            'CanManageImages' => $canManageImages,
+            'ImageError' => $this->imageError,
+            'ImageMessage' => $imageMessage,
             'ShowCancel' => !$isDelete && $this->id > 0 && $estado === 'EN_PROCESO',
             'CancelUrl' => 'index.php?page=Inventario_Mantenimiento&mode=DEL&id=' . $this->id,
             'FormEstadoLabel' => $this->mode === 'INS' ? '' : $this->estadoLabel($estado),
@@ -654,6 +812,26 @@ class Mantenimiento extends PrivateController
     private function escape(string $value): string
     {
         return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    }
+
+    private function substring(string $value, int $start, int $length): string
+    {
+        if (function_exists('mb_substr')) {
+            return mb_substr($value, $start, $length, 'UTF-8');
+        }
+
+        return substr($value, $start, $length);
+    }
+
+    private function formatDate(string $value): string
+    {
+        if ($value === '') {
+            return '';
+        }
+
+        $timestamp = strtotime($value);
+
+        return $timestamp !== false ? date('d/m/Y H:i', $timestamp) : $value;
     }
 
 }

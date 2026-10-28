@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS `articulos` (
   `marca_articulo` VARCHAR(100) NULL,
   `modelo_articulo` VARCHAR(150) NULL,
   `observaciones_articulo` TEXT NULL,
+  `imagen_referencia` VARCHAR(255) NULL,
   `id_clasificacion` INT NOT NULL,
   `id_unidad_medida` INT NOT NULL,
   `tipo_control` ENUM('CANTIDAD', 'SERIE') NOT NULL DEFAULT 'CANTIDAD',

@@ -4,6 +4,7 @@ namespace Controllers\Articulos;
 
 use Controllers\PrivateController;
 use Dao\Articulos\Articulos as DaoArticulos;
+use Utilities\ImageStorage;
 use Utilities\Paging;
 use Views\Renderer;
 
@@ -37,6 +38,11 @@ class Articulos extends PrivateController
      */
     public function run(): void
     {
+        if (strtolower(trim(strval($_GET['accion'] ?? ''))) === 'imagen') {
+            $this->streamImagen(intval($_GET['id'] ?? 0));
+            return;
+        }
+
         $this->getParams();
 
         $result = DaoArticulos::getArticulos(
@@ -178,6 +184,24 @@ class Articulos extends PrivateController
         ];
     }
 
+    /** Sirve la imagen de referencia del articulo. */
+    private function streamImagen(int $id): void
+    {
+        $row = DaoArticulos::getArticuloById($id);
+        if (!$row) {
+            http_response_code(404);
+            exit;
+        }
+
+        $path = trim(strval($row['imagen_referencia'] ?? ''));
+        if ($path === '') {
+            http_response_code(404);
+            exit;
+        }
+
+        ImageStorage::stream($path);
+    }
+
     private function mapArticle(array $row): array
     {
         $id = intval($row['id_articulo'] ?? 0);
@@ -224,6 +248,9 @@ class Articulos extends PrivateController
             'stockClass' => $isLowStock ? 'article-stock--low' : '',
             'statusLabel' => $isActive ? 'Activo' : 'Inactivo',
             'statusClass' => $isActive ? 'badge--success' : 'badge--danger',
+            'imagenUrl' => trim(strval($row['imagen_referencia'] ?? '')) !== ''
+                ? 'index.php?page=Articulos_Articulos&accion=imagen&id=' . $id
+                : '',
             'editUrl' => 'index.php?page=Articulos_Articulo&mode=UPD&id=' . $id,
             'deactivateUrl' => 'index.php?page=Articulos_Articulo&mode=DEL&id=' . $id,
         ];

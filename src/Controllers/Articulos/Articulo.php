@@ -7,6 +7,7 @@ use Dao\Articulos\Articulos as DaoArticulos;
 use Utilities\ArrUtils;
 use Utilities\Bitacora;
 use Utilities\CSRF;
+use Utilities\ImageStorage;
 use Utilities\Site;
 use Views\Renderer;
 
@@ -129,6 +130,7 @@ class Articulo extends PrivateController
             'marca_articulo' => '',
             'modelo_articulo' => '',
             'observaciones_articulo' => '',
+            'imagen_referencia' => '',
             'id_clasificacion' => '0',
             'id_unidad_medida' => '0',
             'tipo_control' => 'CANTIDAD',
@@ -147,6 +149,7 @@ class Articulo extends PrivateController
             'marca_articulo' => strval($row['marca_articulo'] ?? ''),
             'modelo_articulo' => strval($row['modelo_articulo'] ?? ''),
             'observaciones_articulo' => strval($row['observaciones_articulo'] ?? ''),
+            'imagen_referencia' => strval($row['imagen_referencia'] ?? ''),
             'id_clasificacion' => strval($row['id_clasificacion'] ?? '0'),
             'id_unidad_medida' => strval($row['id_unidad_medida'] ?? '0'),
             'tipo_control' => strval($row['tipo_control'] ?? ''),
@@ -279,6 +282,28 @@ class Articulo extends PrivateController
     private function handleSave(): void
     {
         $description = trim(strval($this->item['descripcion_articulo'] ?? ''));
+
+        $currentImage = $this->mode === 'UPD'
+            ? trim(strval($this->record['imagen_referencia'] ?? ''))
+            : '';
+        $removeImage = isset($_POST['eliminar_imagen'])
+            && strval($_POST['eliminar_imagen']) === '1';
+        $newImage = null;
+
+        try {
+            $newImage = $this->storeImage();
+        } catch (\RuntimeException $ex) {
+            $this->errors['imagen_referencia'] = $ex->getMessage();
+            return;
+        }
+
+        $imagePath = $currentImage;
+        if ($newImage !== null) {
+            $imagePath = $newImage['ruta'];
+        } elseif ($removeImage) {
+            $imagePath = '';
+        }
+
         $data = [
             'codigo_interno_articulo' => strval($this->item['codigo_interno_articulo']),
             'nombre_articulo' => strval($this->item['nombre_articulo']),
@@ -286,6 +311,7 @@ class Articulo extends PrivateController
             'marca_articulo' => $this->nullIfEmpty(strval($this->item['marca_articulo'])),
             'modelo_articulo' => $this->nullIfEmpty(strval($this->item['modelo_articulo'])),
             'observaciones_articulo' => $this->nullIfEmpty(strval($this->item['observaciones_articulo'])),
+            'imagen_referencia' => $imagePath === '' ? null : $imagePath,
             'id_clasificacion' => intval($this->item['id_clasificacion']),
             'id_unidad_medida' => intval($this->item['id_unidad_medida']),
             'tipo_control' => strval($this->item['tipo_control']),
@@ -299,6 +325,7 @@ class Articulo extends PrivateController
                 if (!DaoArticulos::insertArticulo($data)) {
                     throw new \RuntimeException('No se pudo crear el artículo.');
                 }
+                $this->deleteReplacedImage($currentImage, $imagePath);
                 Bitacora::registrar(
                     'CREAR_ARTICULO',
                     'Artículos',
@@ -314,6 +341,7 @@ class Articulo extends PrivateController
                 if (!DaoArticulos::updateArticulo($this->id, $data)) {
                     throw new \RuntimeException('No se pudo actualizar el artículo.');
                 }
+                $this->deleteReplacedImage($currentImage, $imagePath);
                 Bitacora::registrar(
                     'ACTUALIZAR_ARTICULO',
                     'Artículos',
@@ -325,11 +353,41 @@ class Articulo extends PrivateController
                 Site::redirectTo('index.php?page=Articulos_Articulos&msg=updated');
             }
         } catch (\PDOException $ex) {
+            if ($newImage !== null) {
+                ImageStorage::delete($newImage['ruta']);
+            }
             if ($ex->getCode() === '23000') {
                 $this->errors['codigo_interno_articulo'] = 'Ya existe un artículo con ese código.';
                 return;
             }
             throw $ex;
+        } catch (\Throwable $ex) {
+            if ($newImage !== null) {
+                ImageStorage::delete($newImage['ruta']);
+            }
+            throw $ex;
+        }
+    }
+
+    /** Guarda la imagen de referencia si el formulario incluye una nueva. */
+    private function storeImage(): ?array
+    {
+        $file = $_FILES['imagen_referencia'] ?? null;
+        if (
+            !is_array($file)
+            || intval($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE
+        ) {
+            return null;
+        }
+
+        return ImageStorage::save($file, 'articulos');
+    }
+
+    /** Elimina la imagen anterior cuando fue reemplazada o retirada. */
+    private function deleteReplacedImage(string $currentImage, string $imagePath): void
+    {
+        if ($currentImage !== '' && $currentImage !== $imagePath) {
+            ImageStorage::delete($currentImage);
         }
     }
 
@@ -410,6 +468,11 @@ class Articulo extends PrivateController
             . strval($this->item['nombre_articulo'] ?? '')
         );
 
+        $imageUrl = '';
+        if ($this->id > 0 && trim(strval($this->item['imagen_referencia'] ?? '')) !== '') {
+            $imageUrl = 'index.php?page=Articulos_Articulos&accion=imagen&id=' . $this->id;
+        }
+
         Renderer::render('articulos/articulo', [
             'FormEyebrow' => 'Activos / Catálogo de artículos',
             'FormTitle' => $formTitle,
@@ -445,6 +508,9 @@ class Articulo extends PrivateController
             'FormExistenciaActual' => strval($this->item['existencia_actual'] ?? '0'),
             'FormExistenciaActualReadonly' => 'readonly',
             'FormEstado' => strval($this->item['estado_registro'] ?? '1'),
+            'HasImagenReferencia' => $imageUrl !== '',
+            'ImagenReferenciaUrl' => $imageUrl,
+            'FormImagenReferenciaError' => strval($this->errors['imagen_referencia'] ?? ''),
             'FormCodeError' => strval($this->errors['codigo_interno_articulo'] ?? ''),
             'FormNameError' => strval($this->errors['nombre_articulo'] ?? ''),
             'FormDescriptionError' => strval($this->errors['descripcion_articulo'] ?? ''),

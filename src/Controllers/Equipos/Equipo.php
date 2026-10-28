@@ -5,11 +5,14 @@ namespace Controllers\Equipos;
 use Controllers\PrivateController;
 use Dao\Catalogos\Catalogos as DaoCatalogos;
 use Dao\Equipos\Equipos as DaoEquipos;
+use Dao\Equipos\Imagenes as DaoImagenes;
 use Dao\Inventario\Asignaciones as DaoAsignaciones;
 use Utilities\ArrUtils;
 use Utilities\Bitacora;
 use Utilities\CSRF;
 use Utilities\Fechas;
+use Utilities\ImageStorage;
+use Utilities\Security;
 use Utilities\Site;
 use Views\Renderer;
 
@@ -62,6 +65,7 @@ class Equipo extends PrivateController
     private $ubicaciones = [];
     private $motivos = [];
     private $estadosFisicos = [];
+    private $imageError = '';
 
     /**
      * Carga el equipo, procesa los cambios enviados y muestra el formulario.
@@ -78,6 +82,19 @@ class Equipo extends PrivateController
                 $this->requireAction('Acciones.Equipos.Crear');
             }
             $this->loadOptions();
+
+            $accion = strtoupper(trim(strval($_POST['accion'] ?? 'guardar')));
+            if (
+                $this->isPostBack()
+                && in_array($accion, ['SUBIR_IMAGEN', 'ELIMINAR_IMAGEN'], true)
+            ) {
+                CSRF::requireValid('equipo', $_POST['token'] ?? '');
+                $this->handleImageAction($accion);
+                if ($this->imageError !== '') {
+                    $this->renderForm();
+                }
+                return;
+            }
 
             if ($this->isPostBack()) {
                 CSRF::requireValid('equipo', $_POST['token'] ?? '');
@@ -483,6 +500,107 @@ class Equipo extends PrivateController
         Site::redirectTo('index.php?page=Equipos_Equipos&msg=deactivated');
     }
 
+    /** Agrega o elimina fotos del estado del equipo. */
+    private function handleImageAction(string $accion): void
+    {
+        if ($this->mode !== 'UPD' || $this->id <= 0) {
+            throw new \RuntimeException('Guarda el equipo antes de administrar sus fotos.');
+        }
+
+        if ($accion === 'ELIMINAR_IMAGEN') {
+            $imageId = intval($_POST['id_imagen'] ?? 0);
+            $image = DaoImagenes::getById($imageId);
+            if (!$image || intval($image['id_equipo'] ?? 0) !== $this->id) {
+                throw new \RuntimeException('La imagen seleccionada no pertenece a este equipo.');
+            }
+            if (strtoupper(strval($image['contexto'] ?? '')) === 'MANTENIMIENTO') {
+                throw new \RuntimeException(
+                    'Las evidencias de mantenimiento se administran desde su mantenimiento.'
+                );
+            }
+
+            if (!DaoImagenes::deleteById($imageId)) {
+                throw new \RuntimeException('No se pudo eliminar la imagen.');
+            }
+            ImageStorage::delete(strval($image['ruta_imagen'] ?? ''));
+
+            Bitacora::registrar(
+                'ELIMINAR_IMAGEN_EQUIPO',
+                'Equipos',
+                Bitacora::RESULTADO_EXITO,
+                $this->id,
+                [
+                    'id_imagen' => $imageId,
+                    'ruta' => strval($image['ruta_imagen'] ?? ''),
+                ],
+                null
+            );
+
+            Site::redirectTo(
+                'index.php?page=Equipos_Equipo&mode=UPD&id=' . $this->id . '&msg=image_deleted'
+            );
+            return;
+        }
+
+        $description = trim(strval($_POST['descripcion'] ?? ''));
+        if (\Utilities\Text::length($description) > 255) {
+            $description = $this->substring($description, 0, 255);
+        }
+
+        try {
+            $files = ImageStorage::saveMany(
+                $_FILES['imagenes'] ?? null,
+                'equipos/' . $this->id
+            );
+        } catch (\RuntimeException $ex) {
+            $this->imageError = $ex->getMessage();
+            return;
+        }
+
+        $userId = intval(Security::getUserId());
+        $rows = [];
+        foreach ($files as $file) {
+            $rows[] = [
+                'id_equipo' => $this->id,
+                'ruta_imagen' => $file['ruta'],
+                'nombre_original' => $file['nombre_original'],
+                'tipo_mime' => $file['tipo_mime'],
+                'tamano_bytes' => $file['tamano'],
+                'descripcion' => $description === '' ? null : $description,
+                'contexto' => 'ESTADO',
+                'id_mantenimiento' => null,
+                'id_usuario_registro' => $userId,
+            ];
+        }
+
+        try {
+            DaoImagenes::insertMany($rows);
+        } catch (\Throwable $ex) {
+            foreach ($files as $file) {
+                ImageStorage::delete($file['ruta']);
+            }
+            throw $ex;
+        }
+
+        Bitacora::registrar(
+            'SUBIR_IMAGEN_EQUIPO',
+            'Equipos',
+            Bitacora::RESULTADO_EXITO,
+            $this->id,
+            null,
+            [
+                'cantidad' => count($files),
+                'archivos' => array_map(function (array $file): string {
+                    return $file['ruta'];
+                }, $files),
+            ]
+        );
+
+        Site::redirectTo(
+            'index.php?page=Equipos_Equipo&mode=UPD&id=' . $this->id . '&msg=image_uploaded'
+        );
+    }
+
     private function renderForm(): void
     {
         $isDelete = $this->mode === 'DEL';
@@ -522,6 +640,42 @@ class Equipo extends PrivateController
         );
         if ($recordName === '·') {
             $recordName = 'Equipo #' . $this->id;
+        }
+
+        $imagenes = [];
+        if ($this->id > 0 && !$isDelete) {
+            $contextos = [
+                'REGISTRO' => 'Registro',
+                'ESTADO' => 'Estado',
+                'MANTENIMIENTO' => 'Mantenimiento',
+                'ASIGNACION' => 'Asignación',
+                'DEVOLUCION' => 'Devolución',
+                'BAJA' => 'Baja',
+            ];
+            foreach (DaoImagenes::getByEquipo($this->id) as $row) {
+                $contexto = strtoupper(strval($row['contexto'] ?? 'ESTADO'));
+                $imagenes[] = [
+                    'id' => intval($row['id_imagen'] ?? 0),
+                    'url' => 'index.php?page=Equipos_Equipos&accion=imagen&id='
+                        . intval($row['id_imagen'] ?? 0),
+                    'descripcion' => trim(strval($row['descripcion'] ?? '')),
+                    'contextoLabel' => $contextos[$contexto] ?? 'Estado',
+                    'puedeEliminar' => $contexto !== 'MANTENIMIENTO',
+                    'fecha' => $this->formatDate(strval($row['fecha_registro'] ?? '')),
+                    'usuario' => trim(strval($row['usuario_nombre'] ?? '')) !== ''
+                        ? trim(strval($row['usuario_nombre']))
+                        : 'Sistema',
+                    'alt' => 'Foto del equipo ' . $recordName,
+                ];
+            }
+        }
+
+        $imageMessage = '';
+        $message = strtolower(trim(strval($_GET['msg'] ?? '')));
+        if ($message === 'image_uploaded') {
+            $imageMessage = 'Las fotos se agregaron correctamente.';
+        } elseif ($message === 'image_deleted') {
+            $imageMessage = 'La foto se eliminó correctamente.';
         }
 
         Renderer::render('equipos/equipo', [
@@ -591,6 +745,17 @@ class Equipo extends PrivateController
                 ],
                 strval($this->item['estado_registro'] ?? '1')
             ),
+            'Imagenes' => $imagenes,
+            'HasImagenes' => count($imagenes) > 0,
+            'ImageCount' => count($imagenes),
+            'ImageCountLabel' => count($imagenes) === 1
+                ? '1 foto'
+                : strval(count($imagenes)) . ' fotos',
+            'ImageToken' => CSRF::token('equipo'),
+            'CanManageImages' => $this->mode === 'UPD' && !$isDelete,
+            'EsCreacion' => $this->mode === 'INS',
+            'ImageError' => $this->imageError,
+            'ImageMessage' => $imageMessage,
         ]);
     }
 
@@ -766,6 +931,15 @@ class Equipo extends PrivateController
         $timestamp = strtotime($value);
 
         return $timestamp !== false ? date('d/m/Y', $timestamp) : $value;
+    }
+
+    private function substring(string $value, int $start, int $length): string
+    {
+        if (function_exists('mb_substr')) {
+            return mb_substr($value, $start, $length, 'UTF-8');
+        }
+
+        return substr($value, $start, $length);
     }
 
 }

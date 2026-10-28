@@ -189,5 +189,75 @@
         </div>
       </div>
     </form>
+
+    {{if ShowImagesPanel}}
+    <section class="image-panel" aria-labelledby="maintenance-images-title">
+      <div class="image-panel__header">
+        <div>
+          <h2 class="image-panel__title" id="maintenance-images-title">Evidencias fotográficas</h2>
+          <p class="image-panel__description">Fotos del diagnóstico, del trabajo realizado o del estado final del equipo. También quedan visibles en la ficha del equipo.</p>
+        </div>
+        <span class="badge badge--outline">{{!ImageCountLabel}}</span>
+      </div>
+
+      {{if ImageMessage}}
+      <div class="alert alert--success alert--compact" role="status">{{!ImageMessage}}</div>
+      {{endif ImageMessage}}
+      {{if ImageError}}
+      <div class="form-error-summary" role="alert">{{!ImageError}}</div>
+      {{endif ImageError}}
+
+      {{if HasImagenes}}
+      <div class="image-gallery">
+        {{foreach Imagenes}}
+        <figure class="image-card">
+          <a class="image-card__link" href="{{!url}}" target="_blank" rel="noopener">
+            <img class="image-card__thumb" src="{{!url}}" alt="{{!alt}}" loading="lazy" decoding="async" />
+          </a>
+          <figcaption class="image-card__body">
+            <span class="image-card__meta">{{!fecha}} · {{!usuario}}</span>
+            {{if descripcion}}<span class="image-card__description">{{!descripcion}}</span>{{endif descripcion}}
+            <span class="badge badge--outline image-card__context">Mantenimiento</span>
+          </figcaption>
+          {{if ~CanManageImages}}
+          <form class="image-card__delete" action="{{!~FormAction}}" method="POST">
+            <input type="hidden" name="token" value="{{!~ImageToken}}" />
+            <input type="hidden" name="accion" value="eliminar_imagen" />
+            <input type="hidden" name="id_imagen" value="{{!id}}" />
+            <button class="button button--ghost button--sm" type="submit">
+              <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+              Eliminar
+            </button>
+          </form>
+          {{endif ~CanManageImages}}
+        </figure>
+        {{endfor Imagenes}}
+      </div>
+      {{endif HasImagenes}}
+      {{ifnot HasImagenes}}
+      <p class="image-empty">Aún no hay evidencias registradas para este mantenimiento.</p>
+      {{endifnot HasImagenes}}
+
+      {{if CanManageImages}}
+      <form class="image-upload" action="{{!FormAction}}" method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="token" value="{{!ImageToken}}" />
+        <input type="hidden" name="accion" value="subir_imagen" />
+        <div class="form-field">
+          <label for="evidencias" class="form-label">Agregar evidencias</label>
+          <input type="file" id="evidencias" name="imagenes[]" accept="image/jpeg,image/png,image/webp" multiple required />
+          <p class="form-help">JPG, PNG o WebP. Hasta 8 fotos por carga, máximo 5 MB cada una.</p>
+        </div>
+        <div class="form-field">
+          <label for="descripcion_evidencia" class="form-label">Descripción (opcional)</label>
+          <input type="text" id="descripcion_evidencia" name="descripcion" maxlength="255" placeholder="Ej. Estado después del mantenimiento" />
+        </div>
+        <button class="button button--primary" type="submit">
+          <i class="fa-solid fa-upload" aria-hidden="true"></i>
+          Subir evidencias
+        </button>
+      </form>
+      {{endif CanManageImages}}
+    </section>
+    {{endif ShowImagesPanel}}
   </section>
 </div>

@@ -16,7 +16,7 @@
       </a>
     </div>
 
-    <form action="{{!FormAction}}" method="POST">
+    <form action="{{!FormAction}}" method="POST" enctype="multipart/form-data">
       <div class="form-card__body">
         <input type="hidden" name="token" value="{{!FormToken}}" />
         <input type="hidden" name="mode" value="{{!FormMode}}" />
@@ -71,6 +71,24 @@
             <label for="observaciones_articulo" class="form-label">Observaciones del artículo</label>
             <textarea name="observaciones_articulo" id="observaciones_articulo" maxlength="65535" {{FormReadonly}} rows="3" placeholder="Notas generales del artículo.">{{!FormArticleObservations}}</textarea>
             {{if FormArticleObservationsError}}<p class="form-error">{{!FormArticleObservationsError}}</p>{{endif FormArticleObservationsError}}
+          </div>
+
+          <div class="form-field form-field--full {{if FormImagenReferenciaError}}has-error{{endif FormImagenReferenciaError}}">
+            <label for="imagen_referencia" class="form-label">Imagen de referencia</label>
+            {{if HasImagenReferencia}}
+            <figure class="image-preview">
+              <img src="{{!ImagenReferenciaUrl}}" alt="Imagen de referencia de {{!FormName}}" loading="lazy" decoding="async" />
+            </figure>
+            {{endif HasImagenReferencia}}
+            <input type="file" name="imagen_referencia" id="imagen_referencia" accept="image/jpeg,image/png,image/webp" {{FormDisabled}} />
+            <p class="form-help">JPG, PNG o WebP. Máximo 5 MB. Es una foto de referencia del artículo; el estado de cada equipo se registra en sus propias fotos.</p>
+            {{if HasImagenReferencia}}
+            <label class="form-check">
+              <input type="checkbox" name="eliminar_imagen" value="1" {{FormDisabled}} />
+              Quitar la imagen actual
+            </label>
+            {{endif HasImagenReferencia}}
+            {{if FormImagenReferenciaError}}<p class="form-error">{{!FormImagenReferenciaError}}</p>{{endif FormImagenReferenciaError}}
           </div>
 
           <div class="form-field {{if FormClasificacionError}}has-error{{endif FormClasificacionError}}">
