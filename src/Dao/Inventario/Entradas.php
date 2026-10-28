@@ -718,12 +718,12 @@ class Entradas extends Table
         self::executeNonQuery(
             'INSERT INTO movimientos_inventario ('
             . 'id_articulo, id_motivo, tipo_movimiento, cantidad,'
-            . ' existencia_anterior, existencia_nueva, id_doc_referencia,'
-            . ' origen_referencia, fecha_movimiento, id_usuario, observacion'
+            . ' existencia_anterior, existencia_nueva, id_doc_entrada,'
+            . ' fecha_movimiento, id_usuario, observacion'
             . ') VALUES ('
             . ':articulo, :motivo, :tipo, :cantidad,'
             . ' :anterior, :nueva, :documento,'
-            . ' :origen, :fecha, :usuario, :observacion'
+            . ' :fecha, :usuario, :observacion'
             . ')',
             [
                 'articulo' => $articuloId,
@@ -733,7 +733,6 @@ class Entradas extends Table
                 'anterior' => $anterior,
                 'nueva' => $nueva,
                 'documento' => $docId,
-                'origen' => 'documentos_entrada',
                 'fecha' => $fecha,
                 'usuario' => $userId,
                 'observacion' => $observacion,

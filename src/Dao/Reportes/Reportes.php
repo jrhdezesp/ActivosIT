@@ -144,17 +144,17 @@ class Reportes extends Table
         return self::obtenerRegistros(
             'SELECT m.id_movimiento, m.tipo_movimiento, m.cantidad,'
             . ' m.existencia_anterior, m.existencia_nueva, m.fecha_movimiento,'
-            . ' m.observacion, m.origen_referencia,'
+            . ' m.observacion,'
             . ' a.codigo_interno_articulo, a.nombre_articulo, a.tipo_control,'
             . ' u.nombre_usuario AS usuario_nombre,'
             . ' COALESCE(de.correlativo, ds.correlativo) AS documento_correlativo'
             . ' FROM movimientos_inventario m'
             . ' JOIN articulos a ON a.id_articulo = m.id_articulo'
             . ' JOIN usuarios u ON u.id_usuario = m.id_usuario'
-            . " LEFT JOIN documentos_entrada de ON m.origen_referencia = 'documentos_entrada'"
-            . ' AND de.id_doc_entrada = m.id_doc_referencia'
-            . " LEFT JOIN documentos_salida ds ON m.origen_referencia = 'documentos_salida'"
-            . ' AND ds.id_doc_salida = m.id_doc_referencia'
+            . " LEFT JOIN documentos_entrada de ON 1 = 1"
+            . ' AND de.id_doc_entrada = m.id_doc_entrada'
+            . " LEFT JOIN documentos_salida ds ON 1 = 1"
+            . ' AND ds.id_doc_salida = m.id_doc_salida'
             . ' ORDER BY m.fecha_movimiento DESC, m.id_movimiento DESC'
             . ' LIMIT ' . $limit,
             []

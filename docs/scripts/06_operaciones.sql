@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS `asignaciones_devoluciones` (
   `id_equipo` INT NOT NULL,
   `persona_responsable` VARCHAR(150) NOT NULL,
   `departamento_destino` VARCHAR(150) NOT NULL,
+  `id_departamento` INT NULL,
   `id_usuario_entrega` INT NOT NULL,
   `fecha_asignacion` DATETIME NOT NULL,
   `condicion_entrega` TEXT NULL,
@@ -28,10 +29,14 @@ CREATE TABLE IF NOT EXISTS `asignaciones_devoluciones` (
   `observaciones` TEXT NULL,
   PRIMARY KEY (`id_asignacion`),
   KEY `idx_asig_equipo` (`id_equipo`),
+  KEY `idx_asig_departamento` (`id_departamento`),
   KEY `idx_asig_usuario_entrega` (`id_usuario_entrega`),
   KEY `idx_asig_usuario_recibe` (`id_usuario_recibe`),
   CONSTRAINT `fk_asig_equipo`
     FOREIGN KEY (`id_equipo`) REFERENCES `equipos_individuales` (`id_equipo`)
+    ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_asig_departamento`
+    FOREIGN KEY (`id_departamento`) REFERENCES `departamentos` (`id_departamento`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_asig_usuario_entrega`
     FOREIGN KEY (`id_usuario_entrega`) REFERENCES `usuarios` (`id_usuario`)

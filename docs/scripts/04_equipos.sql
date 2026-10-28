@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS `equipos_individuales` (
   `proveedor_origen` VARCHAR(150) NULL,
   `estado_operativo` ENUM('DISPONIBLE', 'RESERVADO', 'ASIGNADO', 'EN_MANTENIMIENTO', 'EN_REVISION', 'DE_BAJA') NOT NULL DEFAULT 'DISPONIBLE',
   `estado_fisico` VARCHAR(100) NOT NULL DEFAULT 'BUENO',
+  `id_estado_fisico` INT NULL,
   `id_ubicacion` INT NOT NULL,
   `garantia_vencimiento_equipo` DATE NULL,
   `observaciones_equipo` TEXT NULL,
@@ -31,6 +32,7 @@ CREATE TABLE IF NOT EXISTS `equipos_individuales` (
   KEY `idx_equipos_articulo` (`id_articulo`),
   KEY `idx_equipos_ubicacion` (`id_ubicacion`),
   KEY `idx_equipos_motivo` (`id_motivo`),
+  KEY `idx_equipos_estado_fisico` (`id_estado_fisico`),
   CONSTRAINT `fk_equipos_articulo`
     FOREIGN KEY (`id_articulo`) REFERENCES `articulos` (`id_articulo`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
@@ -39,6 +41,9 @@ CREATE TABLE IF NOT EXISTS `equipos_individuales` (
     ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_equipos_motivo`
     FOREIGN KEY (`id_motivo`) REFERENCES `motivos_ajustes_anulaciones` (`id_motivo`)
+    ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_equipos_estado_fisico`
+    FOREIGN KEY (`id_estado_fisico`) REFERENCES `estados_fisicos` (`id_estado_fisico`)
     ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

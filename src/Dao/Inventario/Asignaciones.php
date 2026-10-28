@@ -332,11 +332,12 @@ class Asignaciones extends Table
     {
         self::executeNonQuery(
             'INSERT INTO asignaciones_devoluciones ('
-            . 'id_equipo, persona_responsable, departamento_destino,'
+            . 'id_equipo, persona_responsable, departamento_destino, id_departamento,'
             . ' id_usuario_entrega, fecha_asignacion, condicion_entrega, accesorios_entregados,'
             . ' estado_asignacion, observaciones'
             . ') VALUES ('
             . ':equipo, :persona, :departamento,'
+            . ' (SELECT id_departamento FROM departamentos WHERE LOWER(nombre_departamento) = LOWER(:departamentoCat) LIMIT 1),'
             . ' :usuarioEntrega, :fechaAsignacion, :condicionEntrega, :accesorios,'
             . " 'ACTIVA', :observaciones"
             . ')',
@@ -344,6 +345,7 @@ class Asignaciones extends Table
                 'equipo' => intval($data['id_equipo']),
                 'persona' => $data['persona_responsable'],
                 'departamento' => $data['departamento_destino'],
+                'departamentoCat' => $data['departamento_destino'],
                 'usuarioEntrega' => intval($data['id_usuario_entrega']),
                 'fechaAsignacion' => $data['fecha_asignacion'],
                 'condicionEntrega' => $data['condicion_entrega'],
@@ -376,6 +378,7 @@ class Asignaciones extends Table
             'UPDATE asignaciones_devoluciones SET'
             . ' id_equipo = :equipo, persona_responsable = :persona,'
             . ' departamento_destino = :departamento,'
+            . ' id_departamento = (SELECT id_departamento FROM departamentos WHERE LOWER(nombre_departamento) = LOWER(:departamentoCat) LIMIT 1),'
             . ' fecha_asignacion = :fechaAsignacion,'
             . ' condicion_entrega = :condicionEntrega,'
             . ' accesorios_entregados = :accesorios,'
@@ -385,6 +388,7 @@ class Asignaciones extends Table
                 'equipo' => intval($data['id_equipo']),
                 'persona' => $data['persona_responsable'],
                 'departamento' => $data['departamento_destino'],
+                'departamentoCat' => $data['departamento_destino'],
                 'fechaAsignacion' => $data['fecha_asignacion'],
                 'condicionEntrega' => $data['condicion_entrega'],
                 'accesorios' => $data['accesorios_entregados'],

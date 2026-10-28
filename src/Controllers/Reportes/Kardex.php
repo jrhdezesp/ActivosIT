@@ -297,13 +297,11 @@ class Kardex extends PrivateController
         $motivo = trim(strval($row['nombre_motivo'] ?? ''));
         $usuario = trim(strval($row['usuario_nombre'] ?? ''));
         $cuenta = trim(strval($row['usuario_cuenta'] ?? ''));
-        $origen = trim(strval($row['origen_referencia'] ?? ''));
+
 
         $documentoLabel = $documento !== '' ? $documento : 'Sin documento';
         if ($motivo !== '') {
             $documentoLabel .= ' · ' . $motivo;
-        } elseif ($documento === '' && $origen !== '') {
-            $documentoLabel = str_replace('documentos_', 'Documento de ', $origen);
         }
 
         return [
@@ -653,10 +651,7 @@ class Kardex extends PrivateController
             $tipoLabel = self::TIPOS[$tipo]['label'] ?? 'Movimiento';
             $fecha = strtotime(strval($row['fecha_movimiento'] ?? ''));
             $documento = trim(strval($row['documento_correlativo'] ?? ''));
-            $origen = trim(strval($row['origen_referencia'] ?? ''));
-            if ($documento === '' && $origen !== '') {
-                $documento = str_replace('documentos_', 'Documento de ', $origen);
-            }
+
 
             $data[] = [
                 intval($row['id_movimiento'] ?? 0),

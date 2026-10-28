@@ -130,8 +130,8 @@ CREATE TABLE IF NOT EXISTS `movimientos_inventario` (
   `cantidad` INT NOT NULL,
   `existencia_anterior` INT NOT NULL,
   `existencia_nueva` INT NOT NULL,
-  `id_doc_referencia` INT NULL,
-  `origen_referencia` VARCHAR(50) NULL,
+  `id_doc_entrada` INT NULL,
+  `id_doc_salida` INT NULL,
   `fecha_movimiento` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `id_usuario` INT NOT NULL,
   `observacion` VARCHAR(255) NULL,
@@ -139,6 +139,8 @@ CREATE TABLE IF NOT EXISTS `movimientos_inventario` (
   KEY `idx_mov_articulo` (`id_articulo`),
   KEY `idx_mov_usuario` (`id_usuario`),
   KEY `idx_mov_motivo` (`id_motivo`),
+  KEY `idx_mov_doc_entrada` (`id_doc_entrada`),
+  KEY `idx_mov_doc_salida` (`id_doc_salida`),
   CONSTRAINT `fk_mov_articulo`
     FOREIGN KEY (`id_articulo`) REFERENCES `articulos` (`id_articulo`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
@@ -147,6 +149,12 @@ CREATE TABLE IF NOT EXISTS `movimientos_inventario` (
     ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_mov_motivo`
     FOREIGN KEY (`id_motivo`) REFERENCES `motivos_ajustes_anulaciones` (`id_motivo`)
+    ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_mov_doc_entrada`
+    FOREIGN KEY (`id_doc_entrada`) REFERENCES `documentos_entrada` (`id_doc_entrada`)
+    ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_mov_doc_salida`
+    FOREIGN KEY (`id_doc_salida`) REFERENCES `documentos_salida` (`id_doc_salida`)
     ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

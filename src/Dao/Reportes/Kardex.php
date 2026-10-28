@@ -37,7 +37,7 @@ class Kardex extends Table
     private const SELECT_FIELDS = 'SELECT m.id_movimiento, m.id_articulo,'
         . ' m.tipo_movimiento, m.cantidad, m.existencia_anterior,'
         . ' m.existencia_nueva, m.fecha_movimiento, m.observacion,'
-        . ' m.origen_referencia, m.id_doc_referencia,'
+        . ' m.id_doc_entrada, m.id_doc_salida,'
         . ' a.codigo_interno_articulo, a.nombre_articulo, a.tipo_control,'
         . ' u.nombre_usuario AS usuario_nombre, u.user_usuario AS usuario_cuenta,'
         . ' mo.nombre_motivo,'
@@ -48,10 +48,8 @@ class Kardex extends Table
         . ' JOIN articulos a ON a.id_articulo = m.id_articulo'
         . ' JOIN usuarios u ON u.id_usuario = m.id_usuario'
         . ' LEFT JOIN motivos_ajustes_anulaciones mo ON mo.id_motivo = m.id_motivo'
-        . " LEFT JOIN documentos_entrada de ON m.origen_referencia = 'documentos_entrada'"
-        . ' AND de.id_doc_entrada = m.id_doc_referencia'
-        . " LEFT JOIN documentos_salida ds ON m.origen_referencia = 'documentos_salida'"
-        . ' AND ds.id_doc_salida = m.id_doc_referencia';
+        . ' LEFT JOIN documentos_entrada de ON de.id_doc_entrada = m.id_doc_entrada'
+        . ' LEFT JOIN documentos_salida ds ON ds.id_doc_salida = m.id_doc_salida';
 
     /**
      * Devuelve la lista paginada de movimientos.

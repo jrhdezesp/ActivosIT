@@ -365,11 +365,13 @@ class Equipos extends Table
             'INSERT INTO equipos_individuales ('
             . 'id_articulo, numero_serie_equipo, codigo_patrimonial_equipo,'
             . ' fecha_adquisicion, id_motivo, proveedor_origen, estado_operativo,'
-            . ' estado_fisico, id_ubicacion, garantia_vencimiento_equipo, observaciones_equipo,'
+            . ' estado_fisico, id_estado_fisico, id_ubicacion, garantia_vencimiento_equipo, observaciones_equipo,'
             . ' estado_registro'
             . ') VALUES ('
             . ':articulo, :serie, :patrimonial, :adquisicion, :motivo, :proveedor,'
-            . ' :operativo, :fisico, :ubicacion, :garantia, :observaciones, :estado'
+            . ' :operativo, :fisico,'
+            . ' (SELECT id_estado_fisico FROM estados_fisicos WHERE LOWER(nombre_estado_fisico) = LOWER(:fisicoCat) LIMIT 1),'
+            . ' :ubicacion, :garantia, :observaciones, :estado'
             . ')',
             [
                 'articulo' => intval($data['id_articulo']),
@@ -380,6 +382,7 @@ class Equipos extends Table
                 'proveedor' => $data['proveedor_origen'],
                 'operativo' => $data['estado_operativo'],
                 'fisico' => $data['estado_fisico'],
+                'fisicoCat' => $data['estado_fisico'],
                 'ubicacion' => intval($data['id_ubicacion']),
                 'garantia' => $data['garantia_vencimiento_equipo'],
                 'observaciones' => $data['observaciones_equipo'],
@@ -408,6 +411,7 @@ class Equipos extends Table
             . ' codigo_patrimonial_equipo = :patrimonial, fecha_adquisicion = :adquisicion,'
             . ' id_motivo = :motivo, proveedor_origen = :proveedor,'
             . ' estado_operativo = :operativo, estado_fisico = :fisico,'
+            . ' id_estado_fisico = (SELECT id_estado_fisico FROM estados_fisicos WHERE LOWER(nombre_estado_fisico) = LOWER(:fisicoCat) LIMIT 1),'
             . ' id_ubicacion = :ubicacion,'
             . ' garantia_vencimiento_equipo = :garantia,'
             . ' observaciones_equipo = :observaciones, estado_registro = :estado'
@@ -421,6 +425,7 @@ class Equipos extends Table
                 'proveedor' => $data['proveedor_origen'],
                 'operativo' => $data['estado_operativo'],
                 'fisico' => $data['estado_fisico'],
+                'fisicoCat' => $data['estado_fisico'],
                 'ubicacion' => intval($data['id_ubicacion']),
                 'garantia' => $data['garantia_vencimiento_equipo'],
                 'observaciones' => $data['observaciones_equipo'],
