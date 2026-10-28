@@ -42,6 +42,18 @@ class Auditoria extends PrivateController
             'label' => 'Cambio de clave',
             'icon' => 'fa-key',
         ],
+        'AJUSTE_INVENTARIO' => [
+            'label' => 'Ajuste de inventario',
+            'icon' => 'fa-scale-balanced',
+        ],
+        'TRASLADO_EQUIPO' => [
+            'label' => 'Traslado de equipo',
+            'icon' => 'fa-truck-arrow-right',
+        ],
+        'DESACTIVAR_CATALOGO' => [
+            'label' => 'Catálogo desactivado',
+            'icon' => 'fa-toggle-off',
+        ],
         'REGISTRO' => [
             'label' => 'Registro de cuenta',
             'icon' => 'fa-user-plus',

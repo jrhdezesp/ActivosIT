@@ -231,6 +231,12 @@ abstract class CatalogosList extends PrivateController
                 'title' => 'Registro eliminado',
                 'message' => 'El registro se eliminó del catálogo.',
             ],
+            'deactivated' => [
+                'type' => 'warning',
+                'icon' => 'fa-toggle-off',
+                'title' => 'Registro desactivado',
+                'message' => 'El registro está en uso por otros datos, por lo que se desactivó en lugar de eliminarse. El historial se conserva.',
+            ],
             'error' => [
                 'type' => 'danger',
                 'icon' => 'fa-circle-exclamation',

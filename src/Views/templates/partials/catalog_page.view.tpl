@@ -103,8 +103,8 @@
             <a class="catalog-item__action" href="{{!editUrl}}" title="Editar {{!name}}" aria-label="Editar {{!name}}">
               <i class="fa-solid fa-pen" aria-hidden="true"></i>
             </a>
-            <a class="catalog-item__action catalog-item__action--danger" href="{{!deleteUrl}}" title="Eliminar {{!name}}" aria-label="Eliminar {{!name}}">
-              <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+            <a class="catalog-item__action catalog-item__action--danger" href="{{!deleteUrl}}" title="Desactivar {{!name}}" aria-label="Desactivar {{!name}}">
+              <i class="fa-solid fa-toggle-off" aria-hidden="true"></i>
             </a>
           </div>
         </div>

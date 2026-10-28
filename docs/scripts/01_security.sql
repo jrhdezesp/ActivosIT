@@ -464,4 +464,41 @@ JOIN `permisos` p
   )
 WHERE r.`id_rol` = 2;
 
+-- -----------------------------------------------------------------------------
+-- Ajustes de inventario y traslados de equipos
+-- -----------------------------------------------------------------------------
+INSERT INTO `permisos` (`nombre_permiso`, `descripcion_permiso`, `modulo_permiso`, `tipo_permiso`, `estado_permiso`) VALUES
+('Controllers\\Inventario\\Ajuste',   'Ajustes manuales de inventario',  'Inventario', 'CTR', 1),
+('Menu_InventarioAjustes',            'Menu: ajustes de inventario',     'Inventario', 'MNU', 1),
+('Acciones.Inventario.Ajustes.Crear', 'Registrar ajustes de inventario', 'Inventario', 'ACC', 1),
+('Controllers\\Equipos\\Traslado',    'Traslado de equipos',             'Equipos',    'CTR', 1),
+('Menu_EquiposTraslado',              'Menu: traslados de equipos',      'Equipos',    'MNU', 1),
+('Acciones.Equipos.Trasladar',        'Registrar traslados de equipos',  'Equipos',    'ACC', 1)
+ON DUPLICATE KEY UPDATE `estado_permiso` = 1;
+
+INSERT IGNORE INTO `roles_permisos` (`id_rol`, `id_permiso`)
+SELECT r.`id_rol`, p.`id_permiso`
+FROM `roles` r
+JOIN `permisos` p
+  ON p.`nombre_permiso` IN (
+    'Controllers\\Inventario\\Ajuste',
+    'Menu_InventarioAjustes',
+    'Acciones.Inventario.Ajustes.Crear',
+    'Controllers\\Equipos\\Traslado',
+    'Menu_EquiposTraslado',
+    'Acciones.Equipos.Trasladar'
+  )
+WHERE r.`nombre_rol` = 'Administrador';
+
+INSERT IGNORE INTO `roles_permisos` (`id_rol`, `id_permiso`)
+SELECT r.`id_rol`, p.`id_permiso`
+FROM `roles` r
+JOIN `permisos` p
+  ON p.`nombre_permiso` IN (
+    'Controllers\\Equipos\\Traslado',
+    'Menu_EquiposTraslado',
+    'Acciones.Equipos.Trasladar'
+  )
+WHERE r.`nombre_rol` = 'Técnico de Soporte';
+
 SET FOREIGN_KEY_CHECKS = 1;

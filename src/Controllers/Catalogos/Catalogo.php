@@ -199,29 +199,22 @@ class Catalogo extends PrivateController
             throw new \RuntimeException('No se encontró el registro solicitado.');
         }
 
-        try {
-            if (!DaoCatalogos::deleteItem($this->type, $this->id)) {
-                throw new \RuntimeException('No se pudo eliminar el registro.');
-            }
-        } catch (\PDOException $ex) {
-            if ($ex->getCode() === '23000') {
-                throw new \RuntimeException(
-                    'No se puede eliminar el registro porque está en uso por otros datos del sistema.'
-                );
-            }
-            throw $ex;
+        // El borrado del catalogo es logico: se marca inactivo para conservar
+        // las relaciones con articulos, equipos y movimientos historicos.
+        if (!DaoCatalogos::deleteItem($this->type, $this->id)) {
+            throw new \RuntimeException('No se pudo desactivar el registro.');
         }
 
         Bitacora::registrar(
-            'ELIMINAR_CATALOGO',
+            'DESACTIVAR_CATALOGO',
             'Catálogos',
             Bitacora::RESULTADO_EXITO,
             $this->id,
             ['tipo' => $this->type, 'item' => $before],
-            ['tipo' => $this->type, 'eliminado' => true]
+            ['tipo' => $this->type, 'desactivado' => true]
         );
 
-        Site::redirectTo($this->listUrl() . '&msg=deleted');
+        Site::redirectTo($this->listUrl() . '&msg=deactivated');
     }
 
     private function renderForm(): void
@@ -267,10 +260,10 @@ class Catalogo extends PrivateController
             $submitLabel = 'Guardar cambios';
             $submitIcon = 'fa-floppy-disk';
         } elseif ($this->mode === 'DEL') {
-            $formTitle = 'Eliminar registro';
-            $formDescription = 'Confirma la eliminación del registro. Esta acción no se puede deshacer.';
-            $submitLabel = 'Eliminar registro';
-            $submitIcon = 'fa-trash-can';
+            $formTitle = 'Desactivar registro';
+            $formDescription = 'El registro dejará de estar disponible para nuevas operaciones, pero se conserva en el historial.';
+            $submitLabel = 'Desactivar registro';
+            $submitIcon = 'fa-toggle-off';
         }
 
         $formAction = 'index.php?page=Catalogos_Catalogo&tipo=' . urlencode($this->type) . '&mode=' . $this->mode;

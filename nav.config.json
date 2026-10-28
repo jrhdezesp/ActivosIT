@@ -38,6 +38,13 @@
                     "icon": "fa-laptop",
                     "nav_url": "index.php?page=Equipos_Equipos",
                     "status": "active"
+                },
+                {
+                    "id": "Menu_EquiposTraslado",
+                    "nav_label": "Traslados",
+                    "icon": "fa-truck-arrow-right",
+                    "nav_url": "index.php?page=Equipos_Traslado",
+                    "status": "active"
                 }
             ],
             "description": "Artículos y equipos de TI."
@@ -76,6 +83,13 @@
                     "nav_label": "Mantenimientos",
                     "icon": "fa-screwdriver-wrench",
                     "nav_url": "index.php?page=Inventario_Mantenimientos",
+                    "status": "active"
+                },
+                {
+                    "id": "Menu_InventarioAjustes",
+                    "nav_label": "Ajustes de inventario",
+                    "icon": "fa-scale-balanced",
+                    "nav_url": "index.php?page=Inventario_Ajuste",
                     "status": "active"
                 }
             ],

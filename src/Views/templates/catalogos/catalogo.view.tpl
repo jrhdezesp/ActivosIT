@@ -28,7 +28,7 @@
         <div class="alert alert--danger alert--compact catalog-form__warning" role="alert">
           <span class="alert__icon" aria-hidden="true"><i class="fa-solid fa-triangle-exclamation"></i></span>
           <div class="alert__content">
-            <p class="alert__message">Se eliminará <strong>{{!FormRecordName}}</strong>. Esta acción no se puede deshacer.</p>
+            <p class="alert__message">Se desactivará <strong>{{!FormRecordName}}</strong>. Dejará de estar disponible para nuevas operaciones, pero se conserva en el historial.</p>
           </div>
         </div>
         {{endif FormDanger}}
