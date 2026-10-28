@@ -105,37 +105,37 @@
         <p>Actualiza la clave de acceso de tu cuenta.</p>
       </div>
 
-      {{if PasswordSuccess}}
+      {{if &PasswordSuccess}}
       <div class="alert alert--success alert--compact" role="status">
         <span class="alert__icon" aria-hidden="true"><i class="fa-solid fa-circle-check"></i></span>
         <div class="alert__body">
-          <p class="alert__message">{{!PasswordSuccess}}</p>
+          <p class="alert__message">{{!&PasswordSuccess}}</p>
         </div>
       </div>
-      {{endif PasswordSuccess}}
+      {{endif &PasswordSuccess}}
 
-      {{if PasswordErrorGeneral}}
-      <div class="form-error-summary" role="alert">{{!PasswordErrorGeneral}}</div>
-      {{endif PasswordErrorGeneral}}
+      {{if &PasswordErrorGeneral}}
+      <div class="form-error-summary" role="alert">{{!&PasswordErrorGeneral}}</div>
+      {{endif &PasswordErrorGeneral}}
 
       <form action="index.php?page=Perfil_Perfil" method="post">
         <input type="hidden" name="form_action" value="cambiar_clave" />
-        <input type="hidden" name="token" value="{{!PasswordFormToken}}" />
+        <input type="hidden" name="token" value="{{!&PasswordFormToken}}" />
         <div class="form-grid form-grid--2">
-          <div class="form-field form-field--full {{if PasswordErrorCurrent}}has-error{{endif PasswordErrorCurrent}}">
+          <div class="form-field form-field--full {{if &PasswordErrorCurrent}}has-error{{endif &PasswordErrorCurrent}}">
             <label for="perfilCurrentPassword">Clave actual</label>
             <input type="password" id="perfilCurrentPassword" name="current_password" autocomplete="current-password" required />
-            {{if PasswordErrorCurrent}}<p class="form-error">{{!PasswordErrorCurrent}}</p>{{endif PasswordErrorCurrent}}
+            {{if &PasswordErrorCurrent}}<p class="form-error">{{!&PasswordErrorCurrent}}</p>{{endif &PasswordErrorCurrent}}
           </div>
-          <div class="form-field {{if PasswordErrorNew}}has-error{{endif PasswordErrorNew}}">
+          <div class="form-field {{if &PasswordErrorNew}}has-error{{endif &PasswordErrorNew}}">
             <label for="perfilNewPassword">Nueva clave</label>
             <input type="password" id="perfilNewPassword" name="new_password" autocomplete="new-password" minlength="8" maxlength="32" required />
-            {{if PasswordErrorNew}}<p class="form-error">{{!PasswordErrorNew}}</p>{{endif PasswordErrorNew}}
+            {{if &PasswordErrorNew}}<p class="form-error">{{!&PasswordErrorNew}}</p>{{endif &PasswordErrorNew}}
           </div>
-          <div class="form-field {{if PasswordErrorConfirm}}has-error{{endif PasswordErrorConfirm}}">
+          <div class="form-field {{if &PasswordErrorConfirm}}has-error{{endif &PasswordErrorConfirm}}">
             <label for="perfilConfirmPassword">Confirmar clave</label>
             <input type="password" id="perfilConfirmPassword" name="confirm_password" autocomplete="new-password" minlength="8" maxlength="32" required />
-            {{if PasswordErrorConfirm}}<p class="form-error">{{!PasswordErrorConfirm}}</p>{{endif PasswordErrorConfirm}}
+            {{if &PasswordErrorConfirm}}<p class="form-error">{{!&PasswordErrorConfirm}}</p>{{endif &PasswordErrorConfirm}}
           </div>
         </div>
         <p class="form-help">Usa entre 8 y 32 caracteres con mayuscula, minuscula, numero y simbolo.</p>
