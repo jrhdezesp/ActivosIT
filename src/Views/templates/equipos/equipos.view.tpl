@@ -163,6 +163,7 @@
                 <i class="fa-solid {{estadoIcon}}" aria-hidden="true"></i>
                 {{!estadoLabel}}
               </span>
+              <span class="badge {{estadoFisicoClass}}">Fisico: {{!estadoFisicoLabel}}</span>
               {{if motivoLabel}}<span class="data-table__subtext" title="{{!motivoLabel}}">{{!motivoLabel}}</span>{{endif motivoLabel}}
             </div>
           </td>

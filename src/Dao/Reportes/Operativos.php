@@ -112,8 +112,8 @@ class Operativos extends Table
         'equipos_estado' => [
             'title' => 'Equipos por estado',
             'description' => 'Equipos disponibles, asignados, en mantenimiento o fuera de servicio.',
-            'columns' => ['Serie', 'Código patrimonial', 'Artículo', 'Estado', 'Ubicación', 'Observaciones'],
-            'select' => 'eq.numero_serie_equipo, eq.codigo_patrimonial_equipo, ar.nombre_articulo, eq.estado_operativo, ub.nombre_ubicacion, eq.observaciones_equipo',
+            'columns' => ['Serie', 'Código patrimonial', 'Artículo', 'Estado', 'Estado fisico', 'Ubicación', 'Observaciones'],
+            'select' => 'eq.numero_serie_equipo, eq.codigo_patrimonial_equipo, ar.nombre_articulo, eq.estado_operativo, eq.estado_fisico, ub.nombre_ubicacion, eq.observaciones_equipo',
             'from' => 'equipos_individuales eq JOIN articulos ar ON ar.id_articulo = eq.id_articulo LEFT JOIN ubicaciones ub ON ub.id_ubicacion = eq.id_ubicacion',
             'where' => 'eq.estado_registro = 1',
             'search' => ['eq.numero_serie_equipo', 'eq.codigo_patrimonial_equipo', 'ar.nombre_articulo', 'ub.nombre_ubicacion'],

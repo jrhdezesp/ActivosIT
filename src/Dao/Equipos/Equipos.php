@@ -28,7 +28,7 @@ use Dao\Table;
  * Claves de $data para insertar o actualizar:
  * - id_articulo, numero_serie_equipo, codigo_patrimonial_equipo,
  *   fecha_adquisicion, id_motivo, proveedor_origen, estado_operativo,
- *   id_ubicacion, garantia_vencimiento_equipo,
+ *   estado_fisico, id_ubicacion, garantia_vencimiento_equipo,
  *   observaciones_equipo, estado_registro.
  */
 class Equipos extends Table
@@ -357,11 +357,11 @@ class Equipos extends Table
             'INSERT INTO equipos_individuales ('
             . 'id_articulo, numero_serie_equipo, codigo_patrimonial_equipo,'
             . ' fecha_adquisicion, id_motivo, proveedor_origen, estado_operativo,'
-            . ' id_ubicacion, garantia_vencimiento_equipo, observaciones_equipo,'
+            . ' estado_fisico, id_ubicacion, garantia_vencimiento_equipo, observaciones_equipo,'
             . ' estado_registro'
             . ') VALUES ('
             . ':articulo, :serie, :patrimonial, :adquisicion, :motivo, :proveedor,'
-            . ' :operativo, :ubicacion, :garantia, :observaciones, :estado'
+            . ' :operativo, :fisico, :ubicacion, :garantia, :observaciones, :estado'
             . ')',
             [
                 'articulo' => intval($data['id_articulo']),
@@ -371,6 +371,7 @@ class Equipos extends Table
                 'motivo' => $data['id_motivo'],
                 'proveedor' => $data['proveedor_origen'],
                 'operativo' => $data['estado_operativo'],
+                'fisico' => $data['estado_fisico'],
                 'ubicacion' => intval($data['id_ubicacion']),
                 'garantia' => $data['garantia_vencimiento_equipo'],
                 'observaciones' => $data['observaciones_equipo'],
@@ -393,7 +394,8 @@ class Equipos extends Table
             . ' id_articulo = :articulo, numero_serie_equipo = :serie,'
             . ' codigo_patrimonial_equipo = :patrimonial, fecha_adquisicion = :adquisicion,'
             . ' id_motivo = :motivo, proveedor_origen = :proveedor,'
-            . ' estado_operativo = :operativo, id_ubicacion = :ubicacion,'
+            . ' estado_operativo = :operativo, estado_fisico = :fisico,'
+            . ' id_ubicacion = :ubicacion,'
             . ' garantia_vencimiento_equipo = :garantia,'
             . ' observaciones_equipo = :observaciones, estado_registro = :estado'
             . ' WHERE id_equipo = :id',
@@ -405,6 +407,7 @@ class Equipos extends Table
                 'motivo' => $data['id_motivo'],
                 'proveedor' => $data['proveedor_origen'],
                 'operativo' => $data['estado_operativo'],
+                'fisico' => $data['estado_fisico'],
                 'ubicacion' => intval($data['id_ubicacion']),
                 'garantia' => $data['garantia_vencimiento_equipo'],
                 'observaciones' => $data['observaciones_equipo'],

@@ -58,6 +58,12 @@ class Equipos extends PrivateController
         ],
     ];
 
+    private const ESTADOS_FISICOS = [
+        'BUENO' => ['label' => 'Bueno', 'class' => 'badge--success'],
+        'REGULAR' => ['label' => 'Regular', 'class' => 'badge--warning'],
+        'MALO' => ['label' => 'Malo', 'class' => 'badge--danger'],
+    ];
+
     private $search = '';
     private $status = '';
     private $estadoOperativo = '';
@@ -231,6 +237,11 @@ class Equipos extends PrivateController
             'class' => 'badge--outline',
             'icon' => 'fa-circle-question',
         ];
+        $fisico = strval($row['estado_fisico'] ?? '');
+        $fisicoData = self::ESTADOS_FISICOS[$fisico] ?? [
+            'label' => 'Sin definir',
+            'class' => 'badge--outline',
+        ];
 
         $serial = trim(strval($row['numero_serie_equipo'] ?? ''));
         $patrimonial = trim(strval($row['codigo_patrimonial_equipo'] ?? ''));
@@ -269,6 +280,8 @@ class Equipos extends PrivateController
             'estadoLabel' => $estadoData['label'],
             'estadoClass' => $estadoData['class'],
             'estadoIcon' => $estadoData['icon'],
+            'estadoFisicoLabel' => $fisicoData['label'],
+            'estadoFisicoClass' => $fisicoData['class'],
             'motivoLabel' => $motivo,
             'acquisitionLabel' => $acquisition !== '' ? $acquisition : 'Sin fecha de adquisición',
             'warrantyLabel' => $warranty !== '' ? 'Garantía: ' . $warranty : 'Sin garantía registrada',

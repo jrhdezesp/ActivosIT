@@ -84,6 +84,17 @@
             {{if FormEstadoOperativoError}}<p class="form-error">{{!FormEstadoOperativoError}}</p>{{endif FormEstadoOperativoError}}
           </div>
 
+          <div class="form-field {{if FormEstadoFisicoError}}has-error{{endif FormEstadoFisicoError}}">
+            <label for="estado_fisico" class="form-label {{if FormRequired}}form-label--required{{endif FormRequired}}">Estado fisico</label>
+            <select name="estado_fisico" id="estado_fisico" {{FormRequired}} {{FormDisabled}}>
+              {{foreach EstadoFisicoOptions}}
+              <option value="{{!value}}" {{selected}}>{{!label}}</option>
+              {{endfor EstadoFisicoOptions}}
+            </select>
+            <p class="form-help">Condicion material del equipo: bueno, regular o malo.</p>
+            {{if FormEstadoFisicoError}}<p class="form-error">{{!FormEstadoFisicoError}}</p>{{endif FormEstadoFisicoError}}
+          </div>
+
           <div class="form-field {{if FormFechaAdquisicionError}}has-error{{endif FormFechaAdquisicionError}}">
             <label for="fecha_adquisicion" class="form-label">Fecha de adquisición</label>
             <input type="date" name="fecha_adquisicion" id="fecha_adquisicion" value="{{!FormFechaAdquisicion}}" {{FormReadonly}} />

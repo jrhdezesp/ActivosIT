@@ -36,6 +36,14 @@ class Equipo extends PrivateController
         'DE_BAJA' => 'De baja',
     ];
 
+    private const ESTADOS_FISICOS = ['BUENO', 'REGULAR', 'MALO'];
+
+    private const ESTADOS_FISICOS_LABELS = [
+        'BUENO' => 'Bueno',
+        'REGULAR' => 'Regular',
+        'MALO' => 'Malo',
+    ];
+
     private const MOTIVOS_APLICA_LABELS = [
         'AJUSTE_ENTRADA' => 'Ajuste de entrada',
         'AJUSTE_SALIDA' => 'Ajuste de salida',
@@ -124,6 +132,7 @@ class Equipo extends PrivateController
                 'garantia_vencimiento_equipo',
                 'proveedor_origen',
                 'estado_operativo',
+                'estado_fisico',
                 'id_ubicacion',
                 'id_motivo',
                 'observaciones_equipo',
@@ -148,6 +157,7 @@ class Equipo extends PrivateController
             'garantia_vencimiento_equipo' => '',
             'proveedor_origen' => '',
             'estado_operativo' => 'DISPONIBLE',
+            'estado_fisico' => 'BUENO',
             'id_ubicacion' => '0',
             'id_motivo' => '0',
             'observaciones_equipo' => '',
@@ -165,6 +175,7 @@ class Equipo extends PrivateController
             'garantia_vencimiento_equipo' => strval($row['garantia_vencimiento_equipo'] ?? ''),
             'proveedor_origen' => strval($row['proveedor_origen'] ?? ''),
             'estado_operativo' => strval($row['estado_operativo'] ?? 'DISPONIBLE'),
+            'estado_fisico' => strval($row['estado_fisico'] ?? 'BUENO'),
             'id_ubicacion' => strval($row['id_ubicacion'] ?? '0'),
             'id_motivo' => $row['id_motivo'] === null ? '0' : strval($row['id_motivo']),
             'observaciones_equipo' => strval($row['observaciones_equipo'] ?? ''),
@@ -294,6 +305,11 @@ class Equipo extends PrivateController
             }
         }
 
+        $fisico = strval($this->item['estado_fisico'] ?? '');
+        if (!in_array($fisico, self::ESTADOS_FISICOS, true)) {
+            $this->errors['estado_fisico'] = 'Selecciona un estado fisico valido.';
+        }
+
         $fechaAdquisicionEntrada = trim(strval($this->item['fecha_adquisicion'] ?? ''));
         $adquisicion = Fechas::normalizarFecha($fechaAdquisicionEntrada);
         if ($fechaAdquisicionEntrada !== '' && $adquisicion === null) {
@@ -351,6 +367,7 @@ class Equipo extends PrivateController
             'id_motivo' => $motivoId > 0 ? $motivoId : null,
             'proveedor_origen' => $proveedor === '' ? null : $proveedor,
             'estado_operativo' => strval($this->item['estado_operativo']),
+            'estado_fisico' => strval($this->item['estado_fisico']),
             'id_ubicacion' => intval($this->item['id_ubicacion']),
             'garantia_vencimiento_equipo' => $this->nullIfEmpty(
                 strval($this->item['garantia_vencimiento_equipo'] ?? '')
@@ -521,6 +538,7 @@ class Equipo extends PrivateController
             'FormGarantia' => strval($this->item['garantia_vencimiento_equipo'] ?? ''),
             'FormProveedor' => strval($this->item['proveedor_origen'] ?? ''),
             'FormEstadoOperativo' => strval($this->item['estado_operativo'] ?? 'DISPONIBLE'),
+            'FormEstadoFisico' => strval($this->item['estado_fisico'] ?? 'BUENO'),
             'FormUbicacion' => $selectedUbicacion,
             'FormMotivo' => $selectedMotivo,
             'FormObservaciones' => strval($this->item['observaciones_equipo'] ?? ''),
@@ -532,6 +550,7 @@ class Equipo extends PrivateController
             'FormGarantiaError' => strval($this->errors['garantia_vencimiento_equipo'] ?? ''),
             'FormProveedorError' => strval($this->errors['proveedor_origen'] ?? ''),
             'FormEstadoOperativoError' => strval($this->errors['estado_operativo'] ?? ''),
+            'FormEstadoFisicoError' => strval($this->errors['estado_fisico'] ?? ''),
             'FormUbicacionError' => strval($this->errors['id_ubicacion'] ?? ''),
             'FormMotivoError' => strval($this->errors['id_motivo'] ?? ''),
             'FormObservacionesError' => strval($this->errors['observaciones_equipo'] ?? ''),
@@ -545,6 +564,10 @@ class Equipo extends PrivateController
             'EstadoOperativoOptions' => ArrUtils::marcarOpcionesSeleccionadas(
                 $this->buildEstadoOperativoOptions(),
                 strval($this->item['estado_operativo'] ?? 'DISPONIBLE')
+            ),
+            'EstadoFisicoOptions' => ArrUtils::marcarOpcionesSeleccionadas(
+                $this->buildEstadoFisicoOptions(),
+                strval($this->item['estado_fisico'] ?? 'BUENO')
             ),
             'EstadoOptions' => ArrUtils::marcarOpcionesSeleccionadas(
                 [
@@ -560,6 +583,16 @@ class Equipo extends PrivateController
     {
         $options = [];
         foreach (self::ESTADOS_OPERATIVOS_LABELS as $value => $label) {
+            $options[] = ['value' => $value, 'label' => $label];
+        }
+
+        return $options;
+    }
+
+    private function buildEstadoFisicoOptions(): array
+    {
+        $options = [];
+        foreach (self::ESTADOS_FISICOS_LABELS as $value => $label) {
             $options[] = ['value' => $value, 'label' => $label];
         }
 
