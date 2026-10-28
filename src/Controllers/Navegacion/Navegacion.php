@@ -15,6 +15,7 @@ class Navegacion extends PrivateController
     /** Prepara los grupos y accesos que aparecen en la pantalla de navegacion. */
     public function run(): void
     {
+        $this->requireAction('Acciones.Seguridad.Navegacion.Administrar');
         $entries = NavRenderer::forEditor(Nav::getPrivateNavigation());
         $groups = array_values(array_filter($entries, function ($entry) {
             return isset($entry["type"]) && $entry["type"] === "group";

@@ -60,6 +60,13 @@ class Equipo extends PrivateController
     {
         try {
             $this->getParams();
+            if ($this->mode === 'DEL') {
+                $this->requireAction('Acciones.Equipos.Desactivar');
+            } elseif ($this->mode === 'UPD') {
+                $this->requireAction('Acciones.Equipos.Editar');
+            } else {
+                $this->requireAction('Acciones.Equipos.Crear');
+            }
             $this->loadOptions();
 
             if ($this->isPostBack()) {

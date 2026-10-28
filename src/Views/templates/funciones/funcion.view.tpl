@@ -26,6 +26,7 @@
             <option value="MNU" {{fntyp_mnu}}>Menú</option>
             <option value="MNT" {{fntyp_mnt}}>Mantenimiento</option>
             <option value="RPT" {{fntyp_rpt}}>Reporte</option>
+            <option value="ACC" {{fntyp_acc}}>Accion</option>
           </select>
           {{if fntyp_error}}
           <p class="form-error">{{fntyp_error}}</p>

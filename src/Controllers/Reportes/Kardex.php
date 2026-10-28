@@ -69,6 +69,9 @@ class Kardex extends PrivateController
     {
         $this->getParams();
 
+        if (ReportExport::getRequestedFormat() !== '') {
+            $this->requireAction('Acciones.Reportes.Exportar');
+        }
         $exportFormat = ReportExport::getRequestedFormat();
         if ($exportFormat !== '') {
             $this->export($exportFormat);

@@ -28,6 +28,7 @@ class Catalogo extends PrivateController
     {
         try {
             $this->getParams();
+            $this->requireAction('Acciones.Catalogos.Administrar');
             if ($this->isPostBack()) {
                 CSRF::requireValid('catalogo', $_POST['token'] ?? '');
                 if ($this->mode === 'DEL') {

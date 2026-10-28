@@ -57,6 +57,7 @@ class Funciones extends Table
                 WHEN 'MNU' THEN 'Menú'
                 WHEN 'MNT' THEN 'Mantenimiento'
                 WHEN 'RPT' THEN 'Reporte'
+                WHEN 'ACC' THEN 'Accion'
                 ELSE p.tipo_permiso
             END AS fntypDsc
         FROM permisos p";

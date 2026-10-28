@@ -42,7 +42,7 @@ ON DUPLICATE KEY UPDATE
 SET @admin_id = (
     SELECT `id_usuario`
     FROM `usuarios`
-    WHERE `user_usuario` = @admin_email
+    WHERE `user_usuario` = @admin_email COLLATE utf8mb4_unicode_ci
     LIMIT 1
 );
 
@@ -65,4 +65,4 @@ SELECT
 FROM `usuarios` u
 LEFT JOIN `usuarios_roles` ur ON ur.`id_usuario` = u.`id_usuario`
 LEFT JOIN `roles` r ON r.`id_rol` = ur.`id_rol`
-WHERE u.`user_usuario` = @admin_email;
+WHERE u.`user_usuario` = @admin_email COLLATE utf8mb4_unicode_ci;

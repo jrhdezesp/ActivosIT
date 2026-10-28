@@ -42,6 +42,9 @@ class Operativos extends PrivateController
         ];
 
         $format = strtolower(trim(strval($_GET['export'] ?? '')));
+        if (in_array($format, ['csv', 'xlsx', 'pdf'], true)) {
+            $this->requireAction('Acciones.Reportes.Exportar');
+        }
         if (!in_array($format, ['csv', 'xlsx', 'pdf'], true)) {
             $filters['paginate'] = true;
         }

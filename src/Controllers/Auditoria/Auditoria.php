@@ -78,6 +78,7 @@ class Auditoria extends PrivateController
         $this->getParams();
 
         if ($this->isCsvExport()) {
+            $this->requireAction('Acciones.Auditoria.Exportar');
             $this->exportCsv();
             return;
         }

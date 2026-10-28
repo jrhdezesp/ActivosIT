@@ -34,6 +34,19 @@ abstract class PrivateController extends PublicController
             $feature
         );
     }
+
+    /**
+     * Exige un permiso de accion para crear, editar, confirmar o anular.
+     *
+     * @param string $action Nombre del permiso de accion.
+     * @return void
+     */
+    protected function requireAction(string $action): void
+    {
+        if (!Security::isAuthorized(Security::getUserId(), $action, 'ACC')) {
+            throw new PrivateNoAuthException();
+        }
+    }
     /** Confirma el acceso antes de permitir que se muestre la pagina privada. */
     public function __construct()
     {

@@ -33,6 +33,13 @@ class Mantenimiento extends PrivateController
     {
         try {
             $this->getParams();
+            if ($this->mode === 'DEL') {
+                $this->requireAction('Acciones.Inventario.Mantenimientos.Cancelar');
+            } elseif ($this->mode === 'UPD') {
+                $this->requireAction('Acciones.Inventario.Mantenimientos.Editar');
+            } else {
+                $this->requireAction('Acciones.Inventario.Mantenimientos.Crear');
+            }
             $this->loadOptions();
 
             if ($this->isPostBack()) {

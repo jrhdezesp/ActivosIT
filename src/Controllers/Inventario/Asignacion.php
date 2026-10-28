@@ -34,6 +34,13 @@ class Asignacion extends PrivateController
     {
         try {
             $this->getParams();
+            if ($this->mode === 'DEV') {
+                $this->requireAction('Acciones.Inventario.Asignaciones.Devolver');
+            } elseif ($this->mode === 'UPD') {
+                $this->requireAction('Acciones.Inventario.Asignaciones.Editar');
+            } else {
+                $this->requireAction('Acciones.Inventario.Asignaciones.Crear');
+            }
             $this->loadOptions();
 
             if ($this->isPostBack()) {

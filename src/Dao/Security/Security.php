@@ -149,9 +149,9 @@ class Security extends Table
     /** Registra o actualiza una funcion disponible para asignar. */
     public static function addNewFeature($fncod, $fndsc, $fnest = 'ACT', $fntyp = 'FNC')
     {
-        $tipo = in_array($fntyp, ["CTR", "MNU", "MNT", "RPT"], true) ? $fntyp : "CTR";
+        $tipo = in_array($fntyp, ["CTR", "MNU", "MNT", "RPT", "ACC"], true) ? $fntyp : "CTR";
         $estado = in_array($fnest, ["ACT", "1", 1, true], true) ? 1 : 0;
-        $moduloPorTipo = ["CTR" => "Controladores", "MNU" => "Menús", "MNT" => "Mantenimientos", "RPT" => "Reportes"];
+        $moduloPorTipo = ["CTR" => "Controladores", "MNU" => "Menús", "MNT" => "Mantenimientos", "RPT" => "Reportes", "ACC" => "Acciones"];
         $sqlins = "INSERT INTO `permisos` (`nombre_permiso`, `descripcion_permiso`, `modulo_permiso`, `tipo_permiso`, `estado_permiso`)
             VALUES (:fncod, :fndsc, :modulo, :tipo, :estado)
             ON DUPLICATE KEY UPDATE

@@ -45,6 +45,7 @@ class Usuario extends PrivateController
     {
         try {
             $this->getData();
+            $this->requireAction('Acciones.Seguridad.Usuarios.Administrar');
             $this->loadRolesData();
             if ($this->isPostBack()) {
                 CSRF::requireValid('usuario', $_POST['token'] ?? '');

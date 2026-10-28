@@ -42,6 +42,7 @@ class Rol extends PrivateController
     {
         try {
             $this->getData();
+            $this->requireAction('Acciones.Seguridad.Roles.Administrar');
             $this->loadFuncionesData();
             if ($this->isPostBack()) {
                 CSRF::requireValid('rol', $_POST['token'] ?? '');

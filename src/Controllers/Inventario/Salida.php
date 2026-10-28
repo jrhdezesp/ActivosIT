@@ -40,6 +40,16 @@ class Salida extends PrivateController
     {
         try {
             $this->getParams();
+            if ($this->mode === 'DEL') {
+                $this->requireAction('Acciones.Inventario.Salidas.Anular');
+            } elseif ($this->mode === 'UPD') {
+                $this->requireAction('Acciones.Inventario.Salidas.Editar');
+            } else {
+                $this->requireAction('Acciones.Inventario.Salidas.Crear');
+            }
+            if ($this->isPostBack() && strval($_POST['accion'] ?? '') === 'confirmar') {
+                $this->requireAction('Acciones.Inventario.Salidas.Confirmar');
+            }
             $this->loadOptions();
 
             if ($this->isPostBack()) {

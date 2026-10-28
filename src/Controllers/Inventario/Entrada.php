@@ -40,6 +40,16 @@ class Entrada extends PrivateController
     {
         try {
             $this->getParams();
+            if ($this->mode === 'DEL') {
+                $this->requireAction('Acciones.Inventario.Entradas.Anular');
+            } elseif ($this->mode === 'UPD') {
+                $this->requireAction('Acciones.Inventario.Entradas.Editar');
+            } else {
+                $this->requireAction('Acciones.Inventario.Entradas.Crear');
+            }
+            if ($this->isPostBack() && strval($_POST['accion'] ?? '') === 'confirmar') {
+                $this->requireAction('Acciones.Inventario.Entradas.Confirmar');
+            }
             $this->loadOptions();
 
             if ($this->isPostBack()) {

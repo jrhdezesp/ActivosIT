@@ -40,6 +40,7 @@ class Funcion extends PrivateController
     {
         try {
             $this->getData();
+            $this->requireAction('Acciones.Seguridad.Permisos.Administrar');
             if ($this->isPostBack()) {
                 CSRF::requireValid('funcion', $_POST['token'] ?? '');
                 if ($this->validateData()) {
@@ -103,7 +104,7 @@ class Funcion extends PrivateController
             $errors['fnest_error'] = 'El estado de la función es invalido';
         }
 
-        if (!in_array($this->funcion['fntyp'], ['CTR', 'MNU', 'MNT', 'RPT'])) {
+        if (!in_array($this->funcion['fntyp'], ['CTR', 'MNU', 'MNT', 'RPT', 'ACC'])) {
             $errors['fntyp_error'] = 'El tipo de la función es invalido';
         }
 

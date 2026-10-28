@@ -360,4 +360,89 @@ JOIN `permisos` p
   )
 WHERE r.`nombre_rol` IN ('Administrador', 'Auditor');
 
+
+-- Permisos por operacion para proteger acciones dentro de cada modulo.
+INSERT INTO `permisos`
+  (`nombre_permiso`, `descripcion_permiso`, `modulo_permiso`, `tipo_permiso`, `estado_permiso`)
+VALUES
+  ('Acciones.Articulos.Crear', 'Crear articulos', 'Acciones', 'ACC', 1),
+  ('Acciones.Articulos.Editar', 'Editar articulos', 'Acciones', 'ACC', 1),
+  ('Acciones.Articulos.Desactivar', 'Desactivar articulos', 'Acciones', 'ACC', 1),
+  ('Acciones.Equipos.Crear', 'Crear equipos', 'Acciones', 'ACC', 1),
+  ('Acciones.Equipos.Editar', 'Editar equipos', 'Acciones', 'ACC', 1),
+  ('Acciones.Equipos.Desactivar', 'Desactivar equipos', 'Acciones', 'ACC', 1),
+  ('Acciones.Catalogos.Administrar', 'Administrar catalogos', 'Acciones', 'ACC', 1),
+  ('Acciones.Seguridad.Usuarios.Administrar', 'Administrar usuarios', 'Acciones', 'ACC', 1),
+  ('Acciones.Seguridad.Roles.Administrar', 'Administrar roles', 'Acciones', 'ACC', 1),
+  ('Acciones.Seguridad.Permisos.Administrar', 'Administrar permisos', 'Acciones', 'ACC', 1),
+  ('Acciones.Seguridad.Navegacion.Administrar', 'Administrar navegacion', 'Acciones', 'ACC', 1),
+  ('Acciones.Inventario.Entradas.Crear', 'Crear entradas', 'Acciones', 'ACC', 1),
+  ('Acciones.Inventario.Entradas.Editar', 'Editar entradas', 'Acciones', 'ACC', 1),
+  ('Acciones.Inventario.Entradas.Confirmar', 'Confirmar entradas', 'Acciones', 'ACC', 1),
+  ('Acciones.Inventario.Entradas.Anular', 'Anular entradas', 'Acciones', 'ACC', 1),
+  ('Acciones.Inventario.Salidas.Crear', 'Crear salidas', 'Acciones', 'ACC', 1),
+  ('Acciones.Inventario.Salidas.Editar', 'Editar salidas', 'Acciones', 'ACC', 1),
+  ('Acciones.Inventario.Salidas.Confirmar', 'Confirmar salidas', 'Acciones', 'ACC', 1),
+  ('Acciones.Inventario.Salidas.Anular', 'Anular salidas', 'Acciones', 'ACC', 1),
+  ('Acciones.Inventario.Asignaciones.Crear', 'Crear asignaciones', 'Acciones', 'ACC', 1),
+  ('Acciones.Inventario.Asignaciones.Editar', 'Editar asignaciones', 'Acciones', 'ACC', 1),
+  ('Acciones.Inventario.Asignaciones.Devolver', 'Registrar devoluciones', 'Acciones', 'ACC', 1),
+  ('Acciones.Inventario.Mantenimientos.Crear', 'Crear mantenimientos', 'Acciones', 'ACC', 1),
+  ('Acciones.Inventario.Mantenimientos.Editar', 'Editar mantenimientos', 'Acciones', 'ACC', 1),
+  ('Acciones.Inventario.Mantenimientos.Cancelar', 'Cancelar mantenimientos', 'Acciones', 'ACC', 1),
+  ('Acciones.Reportes.Exportar', 'Exportar reportes', 'Acciones', 'ACC', 1),
+  ('Acciones.Auditoria.Exportar', 'Exportar auditoria', 'Acciones', 'ACC', 1)
+ON DUPLICATE KEY UPDATE
+  `descripcion_permiso` = VALUES(`descripcion_permiso`),
+  `modulo_permiso` = VALUES(`modulo_permiso`),
+  `tipo_permiso` = VALUES(`tipo_permiso`),
+  `estado_permiso` = VALUES(`estado_permiso`);
+
+INSERT IGNORE INTO `roles_permisos` (`id_rol`, `id_permiso`)
+SELECT r.`id_rol`, p.`id_permiso`
+FROM `roles` r
+JOIN `permisos` p
+  ON p.`tipo_permiso` = 'ACC'
+WHERE r.`id_rol` = 1;
+
+INSERT IGNORE INTO `roles_permisos` (`id_rol`, `id_permiso`)
+SELECT r.`id_rol`, p.`id_permiso`
+FROM `roles` r
+JOIN `permisos` p
+  ON p.`nombre_permiso` IN (
+    'Acciones.Articulos.Crear',
+    'Acciones.Articulos.Editar',
+    'Acciones.Articulos.Desactivar',
+    'Acciones.Equipos.Crear',
+    'Acciones.Equipos.Editar',
+    'Acciones.Equipos.Desactivar',
+    'Acciones.Inventario.Entradas.Crear',
+    'Acciones.Inventario.Entradas.Editar',
+    'Acciones.Inventario.Entradas.Confirmar',
+    'Acciones.Inventario.Entradas.Anular',
+    'Acciones.Inventario.Salidas.Crear',
+    'Acciones.Inventario.Salidas.Editar',
+    'Acciones.Inventario.Salidas.Confirmar',
+    'Acciones.Inventario.Salidas.Anular',
+    'Acciones.Inventario.Asignaciones.Crear',
+    'Acciones.Inventario.Asignaciones.Editar',
+    'Acciones.Inventario.Asignaciones.Devolver',
+    'Acciones.Inventario.Mantenimientos.Crear',
+    'Acciones.Inventario.Mantenimientos.Editar',
+    'Acciones.Inventario.Mantenimientos.Cancelar',
+    'Acciones.Reportes.Exportar'
+  )
+WHERE r.`id_rol` = 3;
+
+
+INSERT IGNORE INTO `roles_permisos` (`id_rol`, `id_permiso`)
+SELECT r.`id_rol`, p.`id_permiso`
+FROM `roles` r
+JOIN `permisos` p
+  ON p.`nombre_permiso` IN (
+    'Acciones.Reportes.Exportar',
+    'Acciones.Auditoria.Exportar'
+  )
+WHERE r.`id_rol` = 2;
+
 SET FOREIGN_KEY_CHECKS = 1;

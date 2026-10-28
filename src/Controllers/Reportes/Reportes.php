@@ -46,6 +46,9 @@ class Reportes extends PrivateController
      */
     public function run(): void
     {
+        if (ReportExport::getRequestedFormat() !== '') {
+            $this->requireAction('Acciones.Reportes.Exportar');
+        }
         $resumen = DaoReportes::getResumenGeneral();
         $stockBajo = DaoReportes::getStockBajo(6);
         $movimientos = DaoReportes::getMovimientosRecientes(6);
