@@ -68,8 +68,7 @@ class Site
         $redirto = $_GET["redirto"] ?? "";
         Context::setContext("redirto", is_string($redirto) ? $redirto : "");
         Context::setContext("request_uri", $_SERVER["REQUEST_URI"] ?? "");
-        $pageRequest = "Controllers\\"
-            . str_replace(array("_", "-", "."), "\\", $pageRequest);
+        $pageRequest = self::resolveControllerClass($pageRequest);
 
         if (Security::isLogged()) {
             $publicEntryPoints = array(
@@ -101,6 +100,34 @@ class Site
         }
 
         return $pageRequest;
+    }
+
+    /**
+     * Resuelve el nombre del controlador tolerando diferencias de mayusculas.
+     *
+     * Un enlace escrito en minusculas (por ejemplo "sec_logout") funciona en
+     * Windows porque el sistema de archivos no distingue mayusculas, pero falla
+     * en servidores Linux. Se prueba el nombre tal cual y, si la clase no
+     * existe, con cada segmento capitalizado.
+     *
+     * @param string $pageName Nombre recibido en el parametro page.
+     * @return string Clase del controlador que existe o el nombre original.
+     */
+    private static function resolveControllerClass(string $pageName): string
+    {
+        $className = "Controllers\\" . str_replace(array("_", "-", "."), "\\", $pageName);
+        if (class_exists($className)) {
+            return $className;
+        }
+        $segments = explode("\\", $className);
+        foreach ($segments as $index => $segment) {
+            if ($index === 0 || $segment === "") {
+                continue;
+            }
+            $segments[$index] = ucfirst($segment);
+        }
+        $candidate = implode("\\", $segments);
+        return class_exists($candidate) ? $candidate : $className;
     }
     // Redirige a una ruta local y finaliza la solicitud.
     public static function redirectTo($url)

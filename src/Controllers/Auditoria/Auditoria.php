@@ -34,6 +34,10 @@ class Auditoria extends PrivateController
             'label' => 'Cierre de sesión',
             'icon' => 'fa-right-from-bracket',
         ],
+        'SESION_REEMPLAZADA' => [
+            'label' => 'Sesión reemplazada',
+            'icon' => 'fa-arrows-rotate',
+        ],
         'REGISTRO' => [
             'label' => 'Registro de cuenta',
             'icon' => 'fa-user-plus',

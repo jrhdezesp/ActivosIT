@@ -23,6 +23,7 @@ class Login extends PublicController
     private $generalError = "";
     private $hasError = false;
     private $csrf_token = "";
+    private $motivo = "";
 
     /**
      * Revisa los datos de acceso y abre la sesion cuando son validos.
@@ -30,6 +31,10 @@ class Login extends PublicController
     public function run() :void
     {
         $this->csrf_token = CSRF::token('login');
+        $this->motivo = strval($_GET['motivo'] ?? '');
+        if ($this->motivo === 'sesion_reemplazada' && !$this->isPostBack()) {
+            $this->generalError = "Tu sesión se cerró porque se inició sesión en otro dispositivo.";
+        }
         if ($this->isPostBack() && !CSRF::validate('login', $_POST['csrf_token'] ?? '')) {
             $this->txtEmail = strval($_POST['txtEmail'] ?? '');
             $this->generalError = "El formulario expiró o no es válido. Intente de nuevo.";
@@ -124,11 +129,29 @@ class Login extends PublicController
                     if (! $this->hasError) {
                         LoginAttemptsDao::clear($this->txtEmail, $ip);
                         DaoSecurity::updateUltimoAcceso($dbUser["usercod"]);
+                        // Si la cuenta tenia una sesion abierta, este inicio
+                        // de sesion la reemplaza y se deja rastro en auditoria.
+                        $teniaSesionActiva = DaoSecurity::getSesionToken($dbUser["usercod"]) !== null;
                         Security::login(
                             $dbUser["usercod"],
                             $dbUser["username"],
                             $dbUser["useremail"]
                         );
+                        if ($teniaSesionActiva) {
+                            Bitacora::registrar(
+                                'SESION_REEMPLAZADA',
+                                'Seguridad',
+                                Bitacora::RESULTADO_EXITO,
+                                null,
+                                null,
+                                [
+                                    'email' => $dbUser["useremail"],
+                                    'motivo' => 'El inicio de sesion revoco la sesion anterior',
+                                    'ip_nueva' => $ip,
+                                ],
+                                intval($dbUser["usercod"])
+                            );
+                        }
                         Bitacora::registrar(
                             'LOGIN',
                             'Seguridad',

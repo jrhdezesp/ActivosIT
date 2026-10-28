@@ -3,6 +3,7 @@
 namespace Controllers;
 
 use Utilities\Security;
+use Utilities\Site;
 
 /**
  * Base para paginas que requieren una cuenta activa y permiso de acceso.
@@ -52,6 +53,12 @@ abstract class PrivateController extends PublicController
     {
         parent::__construct();
         $this->_isAuthenticated();
+        // Una sola sesion por cuenta: si otro dispositivo inicio sesion
+        // despues, esta sesion deja de ser la vigente y se cierra aqui.
+        if (!Security::assertActiveSession()) {
+            Security::logout(false);
+            Site::redirectTo("index.php?page=Sec_Login&motivo=sesion_reemplazada");
+        }
         // El control de acceso se aplica siempre. En desarrollo solo se
         // registran automáticamente los permisos que aún no existen, pero un
         // usuario sin el permiso asignado a su rol no puede entrar.

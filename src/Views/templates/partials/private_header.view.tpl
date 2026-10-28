@@ -24,7 +24,7 @@
             <i class="fa-solid fa-circle-user" aria-hidden="true"></i>
             <span>{{!userName}}</span>
           </a>
-          <a class="icon-button" href="index.php?page=sec_logout" title="Cerrar sesión" aria-label="Cerrar sesión">
+          <a class="icon-button" href="index.php?page=Sec_Logout" title="Cerrar sesión" aria-label="Cerrar sesión">
             <i class="fa-solid fa-arrow-right-from-bracket"></i>
           </a>
         {{endwith login}}

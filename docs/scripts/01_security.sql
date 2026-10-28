@@ -23,6 +23,12 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
   `tipo_usuario` VARCHAR(3) NOT NULL DEFAULT 'PBL',
   `estado_usuario` BOOLEAN NOT NULL DEFAULT 1,
   `ultimo_acceso_usuario` DATETIME NULL,
+  -- Sesion vigente de la cuenta. Una sola por usuario: al iniciar sesion en
+  -- otro dispositivo se reemplaza el token y la sesion anterior queda
+  -- invalidada en su siguiente peticion.
+  `sesion_token` CHAR(64) NULL,
+  `sesion_iniciada` DATETIME NULL,
+  `sesion_ip` VARCHAR(45) NULL,
   PRIMARY KEY (`id_usuario`),
   UNIQUE KEY `uq_usuarios_user` (`user_usuario`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

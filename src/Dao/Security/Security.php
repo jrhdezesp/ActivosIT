@@ -93,6 +93,55 @@ class Security extends Table
         ]);
     }
 
+    /**
+     * Registra la sesion activa de una cuenta.
+     *
+     * El token se guarda siempre como hash SHA-256 para que una copia de la
+     * base de datos no permita reutilizar sesiones ajenas.
+     *
+     * @param int $userId Cuenta autenticada.
+     * @param string $tokenHash Hash SHA-256 del token de sesion.
+     * @param string|null $ip Direccion IP de origen.
+     * @return int Filas afectadas.
+     */
+    public static function registrarSesionUnica($userId, $tokenHash, $ip = null): int
+    {
+        $sqlstr = "UPDATE `usuarios`
+            SET `sesion_token` = :token,
+                `sesion_iniciada` = NOW(),
+                `sesion_ip` = :ip
+            WHERE `id_usuario` = :userId;";
+        return self::executeNonQuery($sqlstr, [
+            "token" => $tokenHash,
+            "ip" => $ip,
+            "userId" => intval($userId),
+        ]);
+    }
+
+    /** Devuelve el hash del token de la sesion activa o null si no hay ninguna. */
+    public static function getSesionToken($userId): ?string
+    {
+        $row = self::obtenerUnRegistro(
+            "SELECT `sesion_token` FROM `usuarios` WHERE `id_usuario` = :userId LIMIT 1;",
+            ["userId" => intval($userId)]
+        );
+        if (!is_array($row) || empty($row["sesion_token"])) {
+            return null;
+        }
+        return strval($row["sesion_token"]);
+    }
+
+    /** Elimina el token de la sesion activa de una cuenta. */
+    public static function cerrarSesion($userId): int
+    {
+        $sqlstr = "UPDATE `usuarios`
+            SET `sesion_token` = NULL,
+                `sesion_iniciada` = NULL,
+                `sesion_ip` = NULL
+            WHERE `id_usuario` = :userId;";
+        return self::executeNonQuery($sqlstr, ["userId" => intval($userId)]);
+    }
+
     private static function _saltPassword($password)
     {
         return hash_hmac(
