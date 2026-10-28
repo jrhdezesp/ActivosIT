@@ -65,7 +65,29 @@ class Dao {
                   \PDO::ATTR_PERSISTENT => false
                 )
             );
+            self::sincronizarZonaHoraria(self::$_conn);
         }
         return self::$_conn;
+    }
+
+    /**
+     * Alinea la zona horaria de la sesion MySQL con la de la aplicacion.
+     *
+     * La bitacora y otras tablas usan NOW() y CURRENT_TIMESTAMP, que toman la
+     * hora del servidor de base de datos. Si esa hora difiere de la configurada
+     * en parameters.env los registros quedarian desfasados respecto a la hora
+     * que muestra el sistema.
+     *
+     * @param \PDO $conn Conexion recien creada.
+     * @return void
+     */
+    private static function sincronizarZonaHoraria(\PDO $conn): void
+    {
+        try {
+            $offset = (new \DateTime('now'))->format('P');
+            $conn->exec('SET time_zone = ' . $conn->quote($offset));
+        } catch (\Throwable $ex) {
+            error_log('No se pudo ajustar la zona horaria de MySQL: ' . $ex->getMessage());
+        }
     }
 }
