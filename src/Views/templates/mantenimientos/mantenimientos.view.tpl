@@ -136,7 +136,7 @@
       <tbody>
         {{foreach Mantenimientos}}
         <tr>
-          <td>
+          <td class="data-table__col--equipo">
             <div class="equipment-stack">
               <a class="data-table__link" href="{{!editUrl}}" title="Ver mantenimiento del equipo {{!equipoLabel}}">
                 <span class="data-table__code">{{!equipoLabel}}</span>
@@ -144,30 +144,30 @@
               <span class="data-table__subtext" title="{{!equipoSubtext}}">{{!equipoSubtext}}</span>
             </div>
           </td>
-          <td>
+          <td class="data-table__col--servicio">
             <div class="equipment-stack">
               <span class="data-table__truncate" title="{{!tipo}}">{{!tipo}}</span>
               <span class="data-table__subtext" title="{{!tecnico}}">{{!tecnico}}</span>
             </div>
           </td>
-          <td>
+          <td class="data-table__col--fecha">
             <div class="data-table__stack">
               <span class="data-table__nowrap">{{!fechaRecepcionDate}}</span>
               {{if fechaRecepcionTime}}<span class="data-table__subtext">{{!fechaRecepcionTime}}</span>{{endif fechaRecepcionTime}}
               {{if duracionLabel}}<span class="data-table__subtext">{{!duracionLabel}}</span>{{endif duracionLabel}}
             </div>
           </td>
-          <td>
+          <td class="data-table__col--costo">
             <span class="data-table__nowrap">L {{!costoFmt}}</span>
           </td>
-          <td>
+          <td class="data-table__col--estado">
             <span class="badge {{estadoClass}}">
               <i class="fa-solid {{estadoIcon}}" aria-hidden="true"></i>
               {{!estadoLabel}}
             </span>
           </td>
           {{if ~CanManage}}
-          <td>
+          <td class="data-table__col--actions is-right">
             <div class="data-table__actions">
               <a class="table-action" href="{{!editUrl}}" title="{{!rowActionTitle}}" aria-label="{{!rowActionTitle}}">
                 <i class="fa-solid {{rowActionIcon}}" aria-hidden="true"></i>

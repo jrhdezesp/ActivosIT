@@ -3843,3 +3843,111 @@
     padding: 0.85rem 1rem;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Distribucion del contenido en tablas
+
+   Las tablas de listado usan table-layout: fixed y anchos porcentuales por
+   columna. Cuando un valor no cabe (series largas, codigos, etiquetas de
+   estado) el texto se desbordaba y se dibujaba encima de la columna vecina.
+   Estas reglas obligan a partir el contenido dentro de su propia celda.
+   --------------------------------------------------------------------------- */
+.data-table--list tbody td,
+.data-table--list thead th {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: normal;
+  vertical-align: top;
+}
+
+/* Las fechas y los valores cortos que ya usan la clase nowrap se conservan. */
+.data-table--list tbody td.data-table__nowrap,
+.data-table--list tbody td .data-table__nowrap {
+  white-space: nowrap;
+}
+
+/* Series, codigos y textos monoespaciados se parten sin invadir la celda. */
+.data-table--list tbody td .data-table__code,
+.data-table--list tbody td .audit-mono {
+  overflow-wrap: anywhere;
+  word-break: break-all;
+  white-space: normal;
+}
+
+/* Las etiquetas de estado pueden ocupar dos lineas dentro de su columna. */
+.data-table--list tbody td .badge {
+  white-space: normal;
+  line-height: 1.25;
+}
+
+/* Las columnas de acciones mantienen sus botones en una sola linea. */
+.data-table--list .data-table__col--acciones,
+.data-table--list .data-table__col--actions {
+  white-space: nowrap;
+}
+
+/* El texto secundario (series, patrimoniales, tecnicos) debe partirse dentro
+   de su columna en lugar de desbordarse sobre la columna siguiente. */
+.data-table--list tbody td .data-table__subtext {
+  display: block;
+  max-width: 100%;
+  overflow: visible;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+}
+
+/* La columna de detalle de auditoria necesita espacio para su boton. */
+.data-table--auditoria .data-table__col--acciones {
+  width: 96px;
+}
+
+/* El encabezado de la columna de acciones se ajusta para no desbordar. */
+.data-table--list thead th.data-table__col--actions,
+.data-table--list thead th.data-table__col--acciones {
+  font-size: 0.72rem;
+  letter-spacing: 0;
+}
+
+/* En pantallas medianas la rejilla de reportes pasa a una sola columna: con
+   dos columnas el titulo y la descripcion quedaban sin espacio. */
+@media (max-width: 1024px) {
+  .report-links {
+    grid-template-columns: 1fr;
+  }
+
+  .report-link {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .report-link__metric {
+    flex-direction: row;
+    align-items: baseline;
+    grid-column: 2;
+    gap: 0.35rem;
+  }
+
+  .report-link__arrow {
+    display: none;
+  }
+}
+
+/* Las fechas se mantienen en una linea sin invadir la columna vecina. */
+.data-table--list tbody td.data-table__col--fecha .data-table__nowrap,
+.data-table--list tbody td .data-table__col--fecha .data-table__nowrap {
+  font-size: 0.8rem;
+}
+
+/* Las fechas con hora se apilan en columnas estrechas: se ajusta el tamano
+   para que quepan completas en su celda. */
+.data-table--list tbody td .data-table__stack .data-table__nowrap {
+  font-size: 0.78rem;
+}
+
+/* Las etiquetas de estado se parten solo entre palabras, nunca a mitad de
+   palabra (por ejemplo "En mantenimiento"). */
+.data-table--list tbody td .badge {
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+}
