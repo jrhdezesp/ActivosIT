@@ -28,7 +28,7 @@
       </select>
     </div>
     <div class="data-toolbar__actions">
-      <button class="button button--secondary" type="submit">
+      <button class="button button--secondary button--sm" type="submit">
         <i class="fa-solid fa-filter"></i>
         Filtrar
       </button>

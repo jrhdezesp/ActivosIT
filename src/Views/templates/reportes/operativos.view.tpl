@@ -129,7 +129,7 @@
       <input type="text" id="operativoEstado" name="estado" value="{{!Estado}}" maxlength="40" placeholder="Opcional" />
     </div>
     <div class="data-toolbar__actions">
-      <button class="button button--primary button--sm" type="submit">
+      <button class="button button--secondary button--sm" type="submit">
         <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
         Filtrar
       </button>

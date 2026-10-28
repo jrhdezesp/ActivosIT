@@ -267,6 +267,14 @@
   text-transform: uppercase;
 }
 
+/* Sobre superficies claras el eyebrow necesita contraste AA (4.5:1).
+   En los heroes oscuros se conserva el tono claro. */
+.data-panel .eyebrow,
+.form-card .eyebrow {
+  color: var(--brand-red);
+  font-size: 0.72rem;
+}
+
 .dashboard-hero h1 {
   margin: 0.2rem 0 0.6rem;
   color: var(--brand-white);
@@ -2078,11 +2086,11 @@
 }
 
 .data-table--articulos .data-table__col--code {
-  width: 14%;
+  width: 15%;
 }
 
 .data-table--articulos .data-table__col--name {
-  width: 36%;
+  width: 33%;
 }
 
 .data-table--articulos .data-table__col--control {
@@ -2090,15 +2098,30 @@
 }
 
 .data-table--articulos .data-table__col--stock {
-  width: 15%;
+  width: 16%;
 }
 
 .data-table--articulos .data-table__col--status {
-  width: 11%;
+  width: 10%;
 }
 
 .data-table--articulos .data-table__col--actions {
-  width: 12%;
+  width: 14%;
+}
+
+/* El codigo completo se conserva en el atributo title; en pantalla se recorta.
+   Las celdas del cuerpo no llevan clase de columna, por eso se usa nth-child. */
+.data-table--articulos tbody td:first-child .data-table__code {
+  display: block;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Las acciones del listado se mantienen en una sola fila */
+.data-table--articulos tbody td:last-child .data-table__actions {
+  flex-wrap: nowrap;
 }
 
 .article-stock {

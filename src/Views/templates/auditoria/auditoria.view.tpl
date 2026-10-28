@@ -94,7 +94,7 @@
       <input type="date" id="auditoriaHasta" name="hasta" value="{{!Hasta}}" />
     </div>
     <div class="data-toolbar__actions">
-      <button class="button button--primary button--sm" type="submit">
+      <button class="button button--secondary button--sm" type="submit">
         <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
         Filtrar
       </button>

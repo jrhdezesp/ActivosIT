@@ -64,7 +64,7 @@
     <input type="hidden" name="itemsPerPage" value="{{ItemsPerPage}}" />
     <div class="form-field">
       <label for="articleSearch">Buscar</label>
-      <input type="search" id="articleSearch" name="q" value="{{!Search}}" placeholder="Código, nombre o descripción" autocomplete="off" />
+      <input type="search" id="articleSearch" name="q" value="{{!Search}}" placeholder="Código o nombre" autocomplete="off" />
     </div>
     <div class="form-field">
       <label for="articleClassification">Clasificación</label>
@@ -84,7 +84,7 @@
       </select>
     </div>
     <div class="data-toolbar__actions">
-      <button class="button button--primary button--sm" type="submit">
+      <button class="button button--secondary button--sm" type="submit">
         <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
         Filtrar
       </button>
