@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS `detalles_entrada` (
   KEY `idx_det_ent_equipo` (`id_equipo`),
   CONSTRAINT `fk_det_entrada_documento`
     FOREIGN KEY (`id_doc_entrada`) REFERENCES `documentos_entrada` (`id_doc_entrada`)
-    ON DELETE CASCADE ON UPDATE CASCADE,
+    ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_det_entrada_articulo`
     FOREIGN KEY (`id_articulo`) REFERENCES `articulos` (`id_articulo`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
@@ -113,7 +113,7 @@ CREATE TABLE IF NOT EXISTS `detalles_salida` (
   KEY `idx_det_sal_equipo` (`id_equipo`),
   CONSTRAINT `fk_det_salida_documento`
     FOREIGN KEY (`id_doc_salida`) REFERENCES `documentos_salida` (`id_doc_salida`)
-    ON DELETE CASCADE ON UPDATE CASCADE,
+    ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_det_salida_articulo`
     FOREIGN KEY (`id_articulo`) REFERENCES `articulos` (`id_articulo`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
