@@ -98,6 +98,19 @@ CREATE TABLE IF NOT EXISTS `bitacora` (
     ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `intentos_login` (
+  `id_intento` INT NOT NULL AUTO_INCREMENT,
+  `email` VARCHAR(255) NOT NULL,
+  `direccion_ip` VARCHAR(45) NOT NULL DEFAULT '',
+  `intentos` INT NOT NULL DEFAULT 0,
+  `primer_intento` DATETIME NULL,
+  `ultimo_intento` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `bloqueado_hasta` DATETIME NULL,
+  PRIMARY KEY (`id_intento`),
+  UNIQUE KEY `uq_intentos_email_ip` (`email`, `direccion_ip`),
+  KEY `idx_intentos_bloqueo` (`bloqueado_hasta`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- -----------------------------------------------------------------------------
 -- 2. DATOS SEMILLA (SEEDS)
 -- -----------------------------------------------------------------------------

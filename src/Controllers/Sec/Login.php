@@ -2,6 +2,7 @@
 namespace Controllers\Sec;
 
 use Controllers\PublicController;
+use Dao\Security\LoginAttempts as LoginAttemptsDao;
 use Dao\Security\Security as DaoSecurity;
 use Utilities\Bitacora;
 use Utilities\CSRF;
@@ -46,6 +47,20 @@ class Login extends PublicController
         if ($this->isPostBack()) {
             $this->txtEmail = $_POST["txtEmail"] ?? "";
             $this->txtPswd = $_POST["txtPswd"] ?? "";
+            $ip = Bitacora::getClientIp();
+
+            if (LoginAttemptsDao::isBlocked($this->txtEmail, $ip)) {
+                $this->generalError = "Demasiados intentos fallidos. Intenta de nuevo en 15 minutos.";
+                $this->hasError = true;
+                Bitacora::registrar(
+                    'LOGIN',
+                    'Seguridad',
+                    Bitacora::RESULTADO_DENEGADO,
+                    null,
+                    null,
+                    ['email' => $this->txtEmail, 'motivo' => 'Bloqueo temporal por intentos']
+                );
+            }
 
             if (!Validators::IsValidEmail($this->txtEmail)) {
                 $this->errorEmail = "¡Correo no tiene el formato adecuado!";
@@ -80,6 +95,7 @@ class Login extends PublicController
                             ],
                             intval($dbUser["usercod"])
                         );
+                        $this->registerFailure();
                     }
                     if (! $this->hasError && !DaoSecurity::verifyPassword($this->txtPswd, $dbUser["userpswd"])) {
                         $this->generalError = "¡Credenciales son incorrectas!";
@@ -103,8 +119,10 @@ class Login extends PublicController
                             ],
                             intval($dbUser["usercod"])
                         );
+                        $this->registerFailure();
                     }
                     if (! $this->hasError) {
+                        LoginAttemptsDao::clear($this->txtEmail, $ip);
                         DaoSecurity::updateUltimoAcceso($dbUser["usercod"]);
                         Security::login(
                             $dbUser["usercod"],
@@ -142,11 +160,30 @@ class Login extends PublicController
                             'motivo' => 'Cuenta no encontrada',
                         ]
                     );
+                    $this->hasError = true;
                     $this->generalError = "¡Credenciales son incorrectas!";
+                    $this->registerFailure();
                 }
             }
         }
         $dataView = get_object_vars($this);
         Renderer::render("security/login", $dataView);
+    }
+
+    /**
+     * Registra un intento fallido y muestra el aviso de bloqueo si aplica.
+     *
+     * @return void
+     */
+    private function registerFailure(): void
+    {
+        $status = LoginAttemptsDao::registerFailure(
+            $this->txtEmail,
+            Bitacora::getClientIp()
+        );
+
+        if (!empty($status['bloqueado_hasta'])) {
+            $this->generalError = "Demasiados intentos fallidos. Intenta de nuevo en 15 minutos.";
+        }
     }
 }
