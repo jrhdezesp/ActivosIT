@@ -79,7 +79,12 @@
 
           <div class="form-field {{if FormDepartamentoError}}has-error{{endif FormDepartamentoError}}">
             <label for="departamento_destino" class="form-label {{if FormRequired}}form-label--required{{endif FormRequired}}">Departamento de destino</label>
-            <input type="text" name="departamento_destino" id="departamento_destino" value="{{!FormDepartamento}}" maxlength="150" placeholder="Ej. Gerencia de Ventas" autocomplete="off" {{FormRequired}} {{FormReadonly}} />
+            <input type="text" name="departamento_destino" id="departamento_destino" value="{{!FormDepartamento}}" maxlength="150" placeholder="Ej. Gerencia de Ventas" autocomplete="off" list="departamentosList" {{FormRequired}} {{FormReadonly}} />
+            <datalist id="departamentosList">
+              {{foreach DepartamentosForm}}
+              <option value="{{!value}}">{{!label}}</option>
+              {{endfor DepartamentosForm}}
+            </datalist>
             {{if FormDepartamentoError}}<p class="form-error">{{!FormDepartamentoError}}</p>{{endif FormDepartamentoError}}
           </div>
 

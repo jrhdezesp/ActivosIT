@@ -3,6 +3,7 @@
 namespace Controllers\Inventario;
 
 use Controllers\PrivateController;
+use Dao\Catalogos\Catalogos as DaoCatalogos;
 use Dao\Inventario\Asignaciones as DaoAsignaciones;
 use Utilities\Paging;
 use Views\Renderer;
@@ -272,6 +273,12 @@ class Asignaciones extends PrivateController
     private function decorateDepartamentoFiltro(): array
     {
         $departamentos = [];
+        foreach (DaoCatalogos::getItems('departamentos', '', '1') as $row) {
+            $value = strval($row['nombre_departamento'] ?? '');
+            if ($value !== '') {
+                $departamentos[$value] = $value;
+            }
+        }
         foreach (DaoAsignaciones::getDepartamentos() as $row) {
             $value = strval($row['departamento'] ?? '');
             if ($value !== '') {

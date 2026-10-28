@@ -3,6 +3,7 @@
 namespace Controllers\Inventario;
 
 use Controllers\PrivateController;
+use Dao\Catalogos\Catalogos as DaoCatalogos;
 use Dao\Inventario\Asignaciones as DaoAsignaciones;
 use Utilities\Bitacora;
 use Utilities\CSRF;
@@ -26,6 +27,7 @@ class Asignacion extends PrivateController
     private $errors = [];
     private $returnErrors = [];
     private $equipos = [];
+    private $departamentos = [];
 
     /**
      * Carga la asignacion, procesa una entrega o devolucion y muestra el formulario.
@@ -194,6 +196,8 @@ class Asignacion extends PrivateController
             $includeEquipo,
             $excludeAsignacion
         );
+
+        $this->departamentos = DaoCatalogos::getItems('departamentos', '', '1');
     }
 
     private function canEdit(): bool
@@ -562,6 +566,7 @@ class Asignacion extends PrivateController
             'FormEquipo' => $selectedEquipo,
             'FormPersona' => strval($this->item['persona_responsable'] ?? ''),
             'FormDepartamento' => strval($this->item['departamento_destino'] ?? ''),
+            'DepartamentosForm' => $this->buildDepartamentoOptions(),
             'FormFechaAsignacion' => strval($this->item['fecha_asignacion'] ?? ''),
             'FormCondicionEntrega' => strval($this->item['condicion_entrega'] ?? ''),
             'FormAccesorios' => strval($this->item['accesorios_entregados'] ?? ''),
@@ -583,6 +588,31 @@ class Asignacion extends PrivateController
             'HasEquiposOptions' => count($this->equipos) > 0,
             'EquipoPlaceholderSelected' => $selectedEquipo === '0' ? 'selected' : '',
         ]);
+    }
+
+    private function buildDepartamentoOptions(): array
+    {
+        $values = [];
+        foreach ($this->departamentos as $row) {
+            $value = trim(strval($row['nombre_departamento'] ?? ''));
+            if ($value !== '') {
+                $values[$value] = $value;
+            }
+        }
+
+        $current = trim(strval($this->item['departamento_destino'] ?? ''));
+        if ($current !== '' && !isset($values[$current])) {
+            $values[$current] = $current;
+        }
+
+        ksort($values, SORT_NATURAL | SORT_FLAG_CASE);
+
+        $options = [];
+        foreach ($values as $value) {
+            $options[] = ['value' => $value, 'label' => $value];
+        }
+
+        return $options;
     }
 
     private function buildEquipoOptionsHtml(string $selectedId): string
