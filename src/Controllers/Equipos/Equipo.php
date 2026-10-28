@@ -204,6 +204,10 @@ class Equipo extends PrivateController
                 }
             }
         }
+        $articuloId = intval($this->item['id_articulo'] ?? 0);
+        $this->item['id_articulo'] = strval($articuloId);
+        $articulo = DaoEquipos::getArticuloById($articuloId);
+
         if ($articuloId <= 0 || !$articulo) {
             $this->errors['id_articulo'] = 'Selecciona un artículo válido.';
         } elseif (strval($articulo['tipo_control'] ?? '') !== 'SERIE') {
