@@ -3,6 +3,7 @@
 namespace Controllers\Dashboard;
 
 use Controllers\PrivateController;
+use Dao\Reportes\Reportes;
 use Utilities\Context;
 use Utilities\Nav;
 use Utilities\NavRenderer;
@@ -24,9 +25,14 @@ class Dashboard extends PrivateController
         $cards = array_values(array_filter($cards, function ($card) {
             return !empty($card["dashboard"]);
         }));
+        $summary = Reportes::getResumenGeneral();
         Renderer::render("dashboard/dashboard", [
             "DashboardCards" => $cards,
-            "DashboardDate" => date("d/m/Y")
+            "DashboardDate" => date("d/m/Y"),
+            "DashboardUsuarios" => $summary['usuarios'] ?? 0,
+            "DashboardEquipos" => $summary['equipos'] ?? 0,
+            "DashboardMovimientos" => $summary['movimientos'] ?? 0,
+            "DashboardMantenimientos" => $summary['mantenimientos'] ?? 0,
         ]);
     }
 }
