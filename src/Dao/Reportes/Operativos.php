@@ -4,6 +4,21 @@ namespace Dao\Reportes;
 
 use Dao\Table;
 
+/**
+ * Acceso a los reportes operativos configurables.
+ *
+ * Variables:
+ * - $type: clave del informe dentro de REPORTS.
+ * - $filters: filtros comunes; q, desde, hasta, articulo, usuario,
+ *   departamento, estado, page, itemsPerPage y paginate.
+ * - $report: definicion del informe seleccionado.
+ * - $where: condiciones SQL construidas con filtros.
+ * - $params: valores asociados a las condiciones.
+ *
+ * Claves de una definicion de REPORTS:
+ * - title, description, columns, select, from, where, search,
+ *   group, union, date, article, user, department y status.
+ */
 class Operativos extends Table
 {
     // Definicion de cada informe: campos, origen, filtros y formato visible.
@@ -190,6 +205,13 @@ class Operativos extends Table
         return $types;
     }
 
+    /**
+     * Devuelve el resultado del informe solicitado.
+     *
+     * @param string $type Clave del informe.
+     * @param array $filters Filtros documentados en la clase.
+     * @return array{title:string, description:string, columns:array, rows:array, total:int, page:int, itemsPerPage:int, pages:int}
+     */
     public static function getReport(string $type, array $filters): array
     {
         $type = self::normalizeType($type);

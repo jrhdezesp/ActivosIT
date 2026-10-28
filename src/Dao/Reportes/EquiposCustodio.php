@@ -4,11 +4,30 @@ namespace Dao\Reportes;
 
 use Dao\Table;
 
+/**
+ * Acceso al reporte de equipos agrupados por custodio.
+ *
+ * Variables:
+ * - $search: texto para responsable o departamento.
+ * - $departamento: filtro por departamento.
+ * - $page: pagina basada en cero.
+ * - $itemsPerPage: cantidad de registros por pagina.
+ * - $custodios: pares persona/departamento de la pagina actual.
+ */
 class EquiposCustodio extends Table
 {
     /**
      * Agrupa las asignaciones vigentes por persona y departamento. El listado
      * se pagina por custodio, no por equipo.
+     */
+    /**
+     * Agrupa las asignaciones vigentes por persona y departamento.
+     *
+     * @param string $search Texto de busqueda.
+     * @param string $departamento Departamento.
+     * @param int $page Pagina basada en cero.
+     * @param int $itemsPerPage Registros por pagina.
+     * @return array{custodios: array, total: int, page: int, itemsPerPage: int, pages: int}
      */
     public static function getCustodios(
         string $search = '',

@@ -9,7 +9,10 @@ use Utilities\Enum;
  */
 final class UsuarioTipo extends Enum
 {
+    // Perfil de cuenta publica.
     const PUBLICO  = "PBL";
+    // Perfil con acceso administrativo.
     const ADMINITRADAOR = "ADM";
+    // Perfil de soporte tecnico.
     const TECNICO = "TEC";
 }

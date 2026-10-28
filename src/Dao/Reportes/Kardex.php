@@ -4,6 +4,20 @@ namespace Dao\Reportes;
 
 use Dao\Table;
 
+/**
+ * Acceso al historial de movimientos de inventario.
+ *
+ * Variables de filtro:
+ * - $search: texto para articulo, observacion o usuario.
+ * - $tipo: ENTRADA, SALIDA, AJUSTE_POSITIVO o AJUSTE_NEGATIVO.
+ * - $articuloId: filtro por articulo; 0 para todos.
+ * - $desde: fecha inicial en formato Y-m-d.
+ * - $hasta: fecha final en formato Y-m-d.
+ * - $orderBy: campo permitido para ordenar.
+ * - $orderDescending: true para orden descendente.
+ * - $page: pagina basada en cero.
+ * - $itemsPerPage: cantidad de registros por pagina.
+ */
 class Kardex extends Table
 {
     // Tipos de movimiento que pueden registrarse en el historial.
@@ -39,6 +53,20 @@ class Kardex extends Table
         . " LEFT JOIN documentos_salida ds ON m.origen_referencia = 'documentos_salida'"
         . ' AND ds.id_doc_salida = m.id_doc_referencia';
 
+    /**
+     * Devuelve la lista paginada de movimientos.
+     *
+     * @param string $search Texto de busqueda.
+     * @param string $tipo Tipo de movimiento.
+     * @param int $articuloId Articulo; 0 para todos.
+     * @param string $desde Fecha inicial.
+     * @param string $hasta Fecha final.
+     * @param string $orderBy Campo de orden permitido.
+     * @param bool $orderDescending true para orden descendente.
+     * @param int $page Pagina basada en cero.
+     * @param int $itemsPerPage Registros por pagina.
+     * @return array{movimientos: array, total: int, page: int, itemsPerPage: int, pages: int}
+     */
     public static function getMovimientos(
         string $search = '',
         string $tipo = '',

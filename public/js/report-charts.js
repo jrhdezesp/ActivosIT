@@ -34,6 +34,7 @@
     ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
     : false;
 
+  // Lee una variable CSS del tema y usa un valor de respaldo si no existe.
   function readCssVar(name, fallback) {
     var value = getComputedStyle(document.documentElement)
       .getPropertyValue(name)
@@ -41,6 +42,7 @@
     return value !== '' ? value : fallback;
   }
 
+  // Convierte un token de color del backend en un color CSS valido.
   function resolveColor(token, fallback) {
     if (!token) {
       return fallback || readCssVar('--brand-blue', FALLBACK_COLORS.brand);
@@ -58,6 +60,7 @@
     return fallback || readCssVar('--brand-blue', FALLBACK_COLORS.brand);
   }
 
+  // Agrega transparencia a un color hexadecimal.
   function withAlpha(color, alpha) {
     if (color.charAt(0) !== '#' || (color.length !== 7 && color.length !== 4)) {
       return color;
@@ -76,6 +79,7 @@
     return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + alpha + ')';
   }
 
+  // Devuelve el sufijo de unidad usado en tooltips y leyendas.
   function unitLabel(config, value) {
     if (!config.unit) {
       return '';
@@ -85,6 +89,7 @@
     return ' ' + (Number(value) === 1 && singular ? singular : config.unit);
   }
 
+  // Construye las opciones comunes de Chart.js.
   function baseOptions(config) {
     var muted = readCssVar('--text-muted', '#667085');
     var border = readCssVar('--border-subtle', '#DCE4F0');
@@ -204,6 +209,7 @@
     };
   }
 
+  // Convierte un dataset del backend al formato de Chart.js.
   function buildDataset(dataset, config, palette) {
     var color = resolveColor(dataset.color, palette[0]);
     var data = Array.isArray(dataset.data) ? dataset.data : [];
@@ -248,6 +254,7 @@
     };
   }
 
+  // Crea una instancia de Chart.js para un canvas.
   function createChart(canvas, config, palette) {
     if (typeof window.Chart !== 'function') {
       throw new Error('Chart.js no esta disponible');
@@ -276,6 +283,7 @@
     });
   }
 
+  // Muestra un mensaje cuando Chart.js no puede dibujar el grafico.
   function markFallback(canvas) {
     var wrapper = canvas.closest('.report-chart');
     if (!wrapper || wrapper.classList.contains('report-chart--failed')) {
@@ -291,6 +299,7 @@
     wrapper.appendChild(note);
   }
 
+  // Lee el JSON del backend y crea todos los graficos de la pagina.
   function boot() {
     var dataNode = document.getElementById('reportChartsData');
     if (!dataNode) {

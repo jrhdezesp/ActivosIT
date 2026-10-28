@@ -5,6 +5,26 @@ namespace Dao\Usuarios;
 use Dao\Table;
 use Utilities\Context;
 
+/**
+ * Acceso a datos de usuarios y sus roles.
+ *
+ * Variables de filtro:
+ * - $partialName: texto para buscar por nombre o correo.
+ * - $status: estado de la cuenta; vacio, ACT, INA, 1 o 0.
+ * - $orderBy: campo permitido para ordenar.
+ * - $orderDescending: true para orden descendente.
+ * - $page: pagina basada en cero.
+ * - $itemsPerPage: cantidad de registros por pagina.
+ *
+ * Variables de cuenta:
+ * - $usercod: clave primaria del usuario.
+ * - $useremail: correo o nombre de acceso.
+ * - $username: nombre visible.
+ * - $userpswd: contrasena en texto solo antes de calcular el hash.
+ * - $userest: estado de la cuenta.
+ * - $usertipo: perfil funcional; PBL, ADM, AUD o TEC.
+ * - $rolescod: identificador del rol asignado.
+ */
 class Usuarios extends Table
 {
     private static function hashPassword(string $password): string
@@ -18,6 +38,17 @@ class Usuarios extends Table
         return password_hash($saltedPassword, '2y');
     }
 
+    /**
+     * Devuelve la lista paginada de usuarios.
+     *
+     * @param string $partialName Texto para buscar por nombre o correo.
+     * @param string $status Estado de la cuenta.
+     * @param string $orderBy Campo de orden permitido.
+     * @param bool $orderDescending true para orden descendente.
+     * @param int $page Pagina basada en cero.
+     * @param int $itemsPerPage Registros por pagina.
+     * @return array{usuarios: array, total: int, page: int, itemsPerPage: int}
+     */
     public static function getUsuarios(
         string $partialName = '',
         string $status = '',
@@ -156,6 +187,16 @@ class Usuarios extends Table
         return in_array($usertipo, ['PBL', 'ADM', 'AUD', 'TEC'], true) ? $usertipo : 'PBL';
     }
 
+    /**
+     * Inserta una cuenta y devuelve su identificador.
+     *
+     * @param string $useremail Correo o nombre de acceso.
+     * @param string $username Nombre visible.
+     * @param string $userpswd Contrasena sin hash.
+     * @param string $userest Estado de la cuenta.
+     * @param string $usertipo Perfil funcional.
+     * @return int Identificador creado; 0 si fallo.
+     */
     public static function insertUsuario(
         string $useremail,
         string $username,
@@ -185,6 +226,17 @@ class Usuarios extends Table
         return intval($conn->lastInsertId());
     }
 
+    /**
+     * Actualiza una cuenta existente.
+     *
+     * @param int $usercod Clave primaria del usuario.
+     * @param string $useremail Correo o nombre de acceso.
+     * @param string $username Nombre visible.
+     * @param string $userpswd Nueva contrasena; vacia para conservar la actual.
+     * @param string $userest Estado de la cuenta.
+     * @param string $usertipo Perfil funcional.
+     * @return int Cantidad de filas afectadas.
+     */
     public static function updateUsuario(
         int $usercod,
         string $useremail,

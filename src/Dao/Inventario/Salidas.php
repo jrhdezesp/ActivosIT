@@ -4,6 +4,29 @@ namespace Dao\Inventario;
 
 use Dao\Table;
 
+/**
+ * Acceso a documentos de salida y sus movimientos de Kardex.
+ *
+ * Variables de filtro:
+ * - $search: texto para correlativo, destino, autorizacion, observaciones o tipo.
+ * - $estado: BORRADOR, CONFIRMADO o ANULADO.
+ * - $tipoDocId: filtro por tipo de documento.
+ * - $orderBy: campo permitido para ordenar.
+ * - $orderDescending: true para orden descendente.
+ * - $page: pagina basada en cero.
+ * - $itemsPerPage: cantidad de registros por pagina.
+ *
+ * Variables de documento:
+ * - $docId: clave del documento de salida.
+ * - $userId: usuario que confirma o anula.
+ *
+ * Claves de $data:
+ * - id_tipo_doc, fecha_movimiento, id_usuario, id_motivo,
+ *   destino_salida, autorizacion, estado_doc, observaciones.
+ *
+ * Claves de cada detalle:
+ * - id_articulo, cantidad, id_equipo.
+ */
 class Salidas extends Table
 {
     // Estados posibles de un documento de salida.
@@ -367,6 +390,12 @@ class Salidas extends Table
         return intval($row['total'] ?? 0) > 0;
     }
 
+    /**
+     * Inserta el encabezado de una salida y genera su correlativo.
+     *
+     * @param array $data Claves documentadas en la clase.
+     * @return int Identificador del documento creado.
+     */
     public static function insertDocumento(array $data): int
     {
         $tempCorrelativo = 'TMP-' . bin2hex(random_bytes(8));
@@ -429,6 +458,13 @@ class Salidas extends Table
         );
     }
 
+    /**
+     * Reemplaza las lineas de detalle de una salida.
+     *
+     * @param int $docId Documento de salida.
+     * @param array $detalles Lineas con las claves documentadas en la clase.
+     * @return void
+     */
     public static function replaceDetalles(int $docId, array $detalles): void
     {
         self::executeNonQuery(
@@ -463,6 +499,13 @@ class Salidas extends Table
      * movimiento de salida en el Kardex y actualiza el estado de los equipos
      * serializados. Debe ejecutarse dentro de una transaccion iniciada por el
      * controlador.
+     */
+    /**
+     * Confirma una salida, descuenta existencias y registra el Kardex.
+     *
+     * @param int $docId Documento de salida.
+     * @param int $userId Usuario que confirma.
+     * @return void
      */
     public static function confirmar(int $docId, int $userId): void
     {
@@ -646,6 +689,13 @@ class Salidas extends Table
      * Anula el documento. Si estaba confirmado devuelve las existencias, deja
      * el ajuste positivo en el Kardex y libera los equipos serializados. Debe
      * ejecutarse dentro de una transaccion iniciada por el controlador.
+     */
+    /**
+     * Anula una salida y revierte sus efectos si estaba confirmada.
+     *
+     * @param int $docId Documento de salida.
+     * @param int $userId Usuario que anula.
+     * @return void
      */
     public static function anular(int $docId, int $userId): void
     {

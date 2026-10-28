@@ -4,8 +4,36 @@ namespace Dao\Funciones;
 
 use Dao\Table;
 
+/**
+ * Acceso a datos de permisos y funciones del sistema.
+ *
+ * Variables de filtro:
+ * - $partialName: texto para buscar por codigo o descripcion.
+ * - $status: estado del permiso.
+ * - $orderBy: campo permitido para ordenar.
+ * - $orderDescending: true para orden descendente.
+ * - $page: pagina basada en cero.
+ * - $itemsPerPage: cantidad de registros por pagina.
+ *
+ * Variables de permiso:
+ * - $fncod: codigo o nombre del permiso.
+ * - $fndsc: descripcion del permiso.
+ * - $fnest: estado; ACT o INA.
+ * - $fntyp: tipo; CTR, MNU, MNT o RPT.
+ */
 class Funciones extends Table
 {
+    /**
+     * Devuelve la lista paginada de permisos.
+     *
+     * @param string $partialName Texto de busqueda.
+     * @param string $status Estado del permiso.
+     * @param string $orderBy Campo de orden permitido.
+     * @param bool $orderDescending true para orden descendente.
+     * @param int $page Pagina basada en cero.
+     * @param int $itemsPerPage Registros por pagina.
+     * @return array{funciones: array, total: int, page: int, itemsPerPage: int}
+     */
     public static function getFunciones(
         string $partialName = '',
         string $status = '',

@@ -4,6 +4,33 @@ namespace Dao\Equipos;
 
 use Dao\Table;
 
+/**
+ * Acceso a datos de equipos individuales.
+ *
+ * Variables de filtro:
+ * - $search: texto para serie, codigo patrimonial, proveedor, articulo o codigo.
+ * - $status: estado logico; vacio, '1' o '0'.
+ * - $estadoOperativo: estado operativo permitido.
+ * - $articuloId: filtro por articulo; 0 para todos.
+ * - $orderBy: campo permitido para ordenar.
+ * - $orderDescending: true para orden descendente.
+ * - $page: pagina basada en cero.
+ * - $itemsPerPage: cantidad de registros por pagina.
+ *
+ * Variables de apoyo:
+ * - $equipoId: clave primaria del equipo.
+ * - $serie: numero de serie.
+ * - $codigo: codigo patrimonial.
+ * - $excludeId: identificador que se excluye al validar duplicados.
+ * - $onlyActive: limita los selectores a registros activos.
+ * - $includeId: incluye un identificador aunque este inactivo.
+ *
+ * Claves de $data para insertar o actualizar:
+ * - id_articulo, numero_serie_equipo, codigo_patrimonial_equipo,
+ *   fecha_adquisicion, id_motivo, proveedor_origen, estado_operativo,
+ *   id_ubicacion, garantia_vencimiento_equipo,
+ *   observaciones_equipo, estado_registro.
+ */
 class Equipos extends Table
 {
     // Estados que describen la situacion operativa de un equipo.
@@ -39,6 +66,19 @@ class Equipos extends Table
         . ' LEFT JOIN ubicaciones u ON u.id_ubicacion = e.id_ubicacion'
         . ' LEFT JOIN motivos_ajustes_anulaciones m ON m.id_motivo = e.id_motivo';
 
+    /**
+     * Devuelve la lista paginada de equipos.
+     *
+     * @param string $search Texto de busqueda.
+     * @param string $status Estado logico.
+     * @param string $estadoOperativo Estado operativo.
+     * @param int $articuloId Articulo; 0 para todos.
+     * @param string $orderBy Campo de orden permitido.
+     * @param bool $orderDescending true para orden descendente.
+     * @param int $page Pagina basada en cero.
+     * @param int $itemsPerPage Registros por pagina.
+     * @return array{equipos: array, total: int, page: int, itemsPerPage: int, pages: int}
+     */
     public static function getEquipos(
         string $search = '',
         string $status = '',
@@ -302,6 +342,12 @@ class Equipos extends Table
         return $row ?: null;
     }
 
+    /**
+     * Inserta un equipo con las claves documentadas en la clase.
+     *
+     * @param array $data Datos del equipo.
+     * @return bool true si la insercion fue correcta.
+     */
     public static function insertEquipo(array $data): bool
     {
         return self::executeNonQuery(
@@ -330,6 +376,13 @@ class Equipos extends Table
         );
     }
 
+    /**
+     * Actualiza un equipo existente.
+     *
+     * @param int $id Clave primaria del equipo.
+     * @param array $data Datos del equipo.
+     * @return bool true si la actualizacion fue correcta.
+     */
     public static function updateEquipo(int $id, array $data): bool
     {
         return self::executeNonQuery(

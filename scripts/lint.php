@@ -9,10 +9,12 @@
  */
 
 $root = dirname(__DIR__);
+// Directorios generados o locales que no se deben revisar.
 $excludedDirs = ['.git', 'vendor', 'node_modules', 'data'];
 $errors = [];
 $checked = 0;
 
+// Recorre el proyecto y omite los directorios excluidos.
 $iterator = new RecursiveIteratorIterator(
     new RecursiveDirectoryIterator($root, FilesystemIterator::SKIP_DOTS)
 );
@@ -36,6 +38,7 @@ foreach ($iterator as $file) {
     }
 
     $checked++;
+    // Ejecuta php -l sobre cada archivo encontrado.
     $output = [];
     $exitCode = 0;
     exec(escapeshellarg(PHP_BINARY) . ' -l ' . escapeshellarg($path) . ' 2>&1', $output, $exitCode);
@@ -46,6 +49,7 @@ foreach ($iterator as $file) {
 }
 
 foreach (['composer.json', 'nav.config.json'] as $jsonFile) {
+    // Valida los archivos JSON de configuracion del proyecto.
     $jsonPath = $root . DIRECTORY_SEPARATOR . $jsonFile;
     if (!is_file($jsonPath)) {
         $errors[] = 'Falta el archivo ' . $jsonFile;

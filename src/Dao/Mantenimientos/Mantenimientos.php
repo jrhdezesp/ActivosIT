@@ -4,6 +4,31 @@ namespace Dao\Mantenimientos;
 
 use Dao\Table;
 
+/**
+ * Acceso a mantenimientos de equipos.
+ *
+ * Variables de filtro:
+ * - $search: texto para serie, articulo, tecnico, diagnostico o tipo.
+ * - $estado: EN_PROCESO, COMPLETADO o CANCELADO.
+ * - $tipoId: filtro por tipo de mantenimiento.
+ * - $orderBy: campo permitido para ordenar.
+ * - $orderDescending: true para orden descendente.
+ * - $page: pagina basada en cero.
+ * - $itemsPerPage: cantidad de registros por pagina.
+ *
+ * Variables de apoyo:
+ * - $equipoId: clave del equipo.
+ * - $excludeId: mantenimiento que se excluye al validar.
+ * - $includeId: equipo que se incluye aunque este de baja.
+ * - $excludeMantenimientoId: mantenimiento que se conserva al editar.
+ *
+ * Claves de $data:
+ * - id_equipo, id_tipo_mantenimiento, fecha_recepcion,
+ *   diagnostico_inicial, trabajo_realizado, resultado_mantenimiento,
+ *   recomendaciones, tecnico_responsable, repuestos_utilizados,
+ *   costo_mantenimiento, fecha_finalizacion, estado_mantenimiento,
+ *   id_usuario_registro.
+ */
 class Mantenimientos extends Table
 {
     // Estados posibles de un registro de mantenimiento.
@@ -282,6 +307,12 @@ class Mantenimientos extends Table
         return intval($row['total'] ?? 0) > 0;
     }
 
+    /**
+     * Registra un mantenimiento y devuelve su identificador.
+     *
+     * @param array $data Claves documentadas en la clase.
+     * @return int Identificador creado.
+     */
     public static function insertMantenimiento(array $data): int
     {
         self::executeNonQuery(
@@ -326,6 +357,13 @@ class Mantenimientos extends Table
      * Actualiza un mantenimiento únicamente mientras siga en proceso. La
      * condición en el WHERE evita sobrescribir un registro ya cerrado.
      */
+    /**
+     * Actualiza un mantenimiento en proceso.
+     *
+     * @param int $id Clave del mantenimiento.
+     * @param array $data Claves documentadas en la clase.
+     * @return bool true si la actualizacion fue correcta.
+     */
     public static function updateMantenimiento(int $id, array $data): bool
     {
         return self::executeNonQuery(
@@ -360,6 +398,14 @@ class Mantenimientos extends Table
         );
     }
 
+    /**
+     * Cancela un mantenimiento en proceso.
+     *
+     * @param int $id Clave del mantenimiento.
+     * @param string $fechaFinalizacion Fecha de cierre.
+     * @param string|null $motivoCancelacion Motivo del cierre.
+     * @return bool true si la cancelacion fue correcta.
+     */
     public static function cancelarMantenimiento(
         int $id,
         string $fechaFinalizacion,

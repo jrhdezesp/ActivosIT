@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Front controller de ActivosIT.
+ *
+ * Carga Composer, configura la sesion y las cabeceras de seguridad,
+ * inicializa el contexto y despacha la pagina solicitada.
+ */
+
 use Utilities\Context;
 use Utilities\Site;
 
@@ -10,6 +17,7 @@ if (!file_exists($autoloadPath)) {
 }
 require $autoloadPath;
 
+// Configura una sesion estricta y una cookie de sesion segura.
 ini_set('session.use_strict_mode', '1');
 ini_set('session.cookie_httponly', '1');
 session_name('ACTIVOSITSESSID');
@@ -26,6 +34,7 @@ session_set_cookie_params([
 ]);
 session_start();
 
+// Aplica cabeceras de seguridad para limitar el contenido y las conexiones.
 header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: SAMEORIGIN');
 header('Referrer-Policy: strict-origin-when-cross-origin');
@@ -42,6 +51,7 @@ header(
 );
 
 try {
+    // Carga la configuracion, resuelve el controlador y ejecuta la pagina.
     Site::configure();
     $pageRequest = Site::getPageRequest();
     $instance = new $pageRequest();

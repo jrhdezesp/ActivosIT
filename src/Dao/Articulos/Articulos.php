@@ -4,6 +4,30 @@ namespace Dao\Articulos;
 
 use Dao\Table;
 
+/**
+ * Acceso a datos de articulos.
+ *
+ * Variables de filtro:
+ * - $search: texto libre para codigo, nombre, descripcion, marca o modelo.
+ * - $status: estado logico; vacio para todos, '1' activo, '0' inactivo.
+ * - $clasificacionId: filtro por clasificacion; 0 para todas.
+ * - $orderBy: campo permitido para ordenar.
+ * - $orderDescending: true para orden descendente.
+ * - $page: pagina basada en cero.
+ * - $itemsPerPage: cantidad de registros por pagina.
+ *
+ * Variables de apoyo:
+ * - $id: clave primaria del articulo.
+ * - $excludeId: identificador que se excluye al validar duplicados.
+ * - $onlyActive: limita los selectores a registros activos.
+ * - $includeId: incluye un identificador aunque este inactivo.
+ *
+ * Claves de $data para insertar o actualizar:
+ * - codigo_interno_articulo, nombre_articulo, descripcion_articulo,
+ *   marca_articulo, modelo_articulo, observaciones_articulo,
+ *   id_clasificacion, id_unidad_medida, tipo_control,
+ *   existencia_minima, existencia_actual, estado_registro.
+ */
 class Articulos extends Table
 {
     // Columnas permitidas para ordenar los articulos.
@@ -16,6 +40,18 @@ class Articulos extends Table
         'id_articulo',
     ];
 
+    /**
+     * Devuelve la lista paginada de articulos.
+     *
+     * @param string $search Texto de busqueda.
+     * @param string $status Estado logico; vacio, '1' o '0'.
+     * @param int $clasificacionId Clasificacion; 0 para todas.
+     * @param string $orderBy Campo de orden permitido.
+     * @param bool $orderDescending true para orden descendente.
+     * @param int $page Pagina basada en cero.
+     * @param int $itemsPerPage Registros por pagina.
+     * @return array{articulos: array, total: int, page: int, itemsPerPage: int, pages: int}
+     */
     public static function getArticulos(
         string $search = '',
         string $status = '',
@@ -112,6 +148,11 @@ class Articulos extends Table
         return $row ?: null;
     }
 
+    /**
+     * Devuelve los totales del catalogo de articulos.
+     *
+     * @return array{total:int,cantidad:int,serie:int,bajo:int}
+     */
     public static function getSummary(): array
     {
         $row = self::obtenerUnRegistro(
@@ -229,6 +270,12 @@ class Articulos extends Table
         return $row ?: null;
     }
 
+    /**
+     * Inserta un articulo con las claves documentadas en la clase.
+     *
+     * @param array $data Datos del articulo.
+     * @return bool true si la insercion fue correcta.
+     */
     public static function insertArticulo(array $data): bool
     {
         return self::executeNonQuery(
@@ -258,6 +305,13 @@ class Articulos extends Table
         );
     }
 
+    /**
+     * Actualiza un articulo existente.
+     *
+     * @param int $id Clave primaria del articulo.
+     * @param array $data Datos del articulo.
+     * @return bool true si la actualizacion fue correcta.
+     */
     public static function updateArticulo(int $id, array $data): bool
     {
         return self::executeNonQuery(

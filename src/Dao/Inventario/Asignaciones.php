@@ -4,6 +4,29 @@ namespace Dao\Inventario;
 
 use Dao\Table;
 
+/**
+ * Acceso a asignaciones y devoluciones de equipos.
+ *
+ * Variables de filtro:
+ * - $search: texto para responsable, departamento, condicion, serie o articulo.
+ * - $estado: ACTIVA o DEVUELTO.
+ * - $departamento: departamento de destino.
+ * - $orderBy: campo permitido para ordenar.
+ * - $orderDescending: true para orden descendente.
+ * - $page: pagina basada en cero.
+ * - $itemsPerPage: cantidad de registros por pagina.
+ *
+ * Variables de apoyo:
+ * - $equipoId: clave del equipo.
+ * - $excludeId: asignacion que se excluye al validar.
+ * - $includeId: equipo que se incluye aunque no este disponible.
+ * - $excludeAsignacionId: asignacion que se conserva al editar.
+ *
+ * Claves de $data:
+ * - id_equipo, persona_responsable, departamento_destino,
+ *   id_usuario_entrega, fecha_asignacion, condicion_entrega,
+ *   accesorios_entregados, observaciones.
+ */
 class Asignaciones extends Table
 {
     // Estados que indican si una asignacion sigue activa o fue devuelta.
@@ -299,6 +322,12 @@ class Asignaciones extends Table
         return intval($row['total'] ?? 0) > 0;
     }
 
+    /**
+     * Registra una asignacion y devuelve su identificador.
+     *
+     * @param array $data Claves documentadas en la clase.
+     * @return int Identificador creado.
+     */
     public static function insertAsignacion(array $data): int
     {
         self::executeNonQuery(
@@ -334,6 +363,13 @@ class Asignaciones extends Table
     /**
      * Actualiza una asignación únicamente mientras siga activa.
      */
+    /**
+     * Actualiza una asignacion activa.
+     *
+     * @param int $id Clave de la asignacion.
+     * @param array $data Claves documentadas en la clase.
+     * @return bool true si la actualizacion fue correcta.
+     */
     public static function updateAsignacion(int $id, array $data): bool
     {
         return self::executeNonQuery(
@@ -358,6 +394,15 @@ class Asignaciones extends Table
         );
     }
 
+    /**
+     * Registra la devolucion de una asignacion activa.
+     *
+     * @param int $id Clave de la asignacion.
+     * @param string $fechaDevolucion Fecha de devolucion.
+     * @param int $usuarioRecibe Usuario que recibe el equipo.
+     * @param string|null $condicionDevolucion Condicion del equipo.
+     * @return bool true si la devolucion fue correcta.
+     */
     public static function registrarDevolucion(
         int $id,
         string $fechaDevolucion,

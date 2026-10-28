@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * Generador de archivos base para un modulo CRUD.
+ *
+ * Uso:
+ *   php scripts/generate_ww.php <tabla> [ModuloPlural]
+ *
+ * Lee la estructura de una tabla MySQL y genera los archivos de DAO,
+ * controladores y vistas necesarios para el modulo.
+ */
+
 // Compatibilidad con PHP 7.4 para las funciones agregadas en PHP 8.0.
 if (!function_exists('str_contains')) {
     function str_contains(string $haystack, string $needle): bool
@@ -67,6 +77,7 @@ if (count($columns) === 0) {
     exit(1);
 }
 
+// Convierte un nombre separado por guiones o guiones bajos en StudlyCase.
 function studly(string $text): string
 {
     $parts = preg_split('/[_\-\s]+/', strtolower($text));
@@ -74,12 +85,14 @@ function studly(string $text): string
     return implode('', array_map('ucfirst', $parts));
 }
 
+// Convierte el nombre del modulo en camelCase.
 function camel(string $text): string
 {
     $s = studly($text);
     return lcfirst($s);
 }
 
+// Obtiene el plural simple de un nombre de tabla.
 function pluralize(string $word): string
 {
     if (str_ends_with($word, 's')) {
@@ -91,6 +104,7 @@ function pluralize(string $word): string
     return $word.'s';
 }
 
+// Obtiene el singular simple de un nombre de modulo.
 function singularize(string $word): string
 {
     if (str_ends_with($word, 'es')) {
@@ -102,6 +116,7 @@ function singularize(string $word): string
     return $word;
 }
 
+// Traduce el tipo MySQL al tipo PHP usado en las firmas generadas.
 function detectPhpType(string $mysqlType): string
 {
     $type = strtolower($mysqlType);
@@ -114,12 +129,14 @@ function detectPhpType(string $mysqlType): string
     return 'string';
 }
 
+// Indica si el tipo MySQL corresponde a texto.
 function isTextType(string $mysqlType): bool
 {
     $type = strtolower($mysqlType);
     return str_contains($type, 'char') || str_contains($type, 'text');
 }
 
+// Genera el acceso usado por las plantillas para una columna.
 function toTemplateAccessor(string $column): string
 {
     return '{{'.$column.'}}';
@@ -368,6 +385,7 @@ foreach ($columns as $col) {
 
 $formTemplate = "<section class=\"container-m row px-4 py-4\">\n  <h1>{{FormTitle}}</h1>\n</section>\n<section class=\"container-m row px-4 py-4\">\n  {{with ".$dataVarSingular."}}\n  <form action=\"index.php?page=".$classPlural."_".$classSingular."&mode={{~mode}}&".$pkName."={{".$pkName."}}\" method=\"POST\" class=\"col-12 col-m-8 offset-m-2\">\n".implode("", $formInputs)."    {{endwith ".$dataVarSingular."}}\n    <div class=\"row my-4 align-center flex-end\">\n      {{if showCommitBtn}}\n      <button class=\"primary col-12 col-m-2\" type=\"submit\" name=\"btnConfirmar\">Confirmar</button>\n      &nbsp;\n      {{endif showCommitBtn}}\n      <button class=\"col-12 col-m-2\" type=\"button\" id=\"btnCancelar\">\n        {{if showCommitBtn}}\n        Cancelar\n        {{endif showCommitBtn}}\n        {{ifnot showCommitBtn}}\n        Regresar\n        {{endifnot showCommitBtn}}\n      </button>\n    </div>\n  </form>\n</section>\n\n<script>\n  document.addEventListener(\"DOMContentLoaded\", ()=>{\n    const btnCancelar = document.getElementById(\"btnCancelar\");\n    btnCancelar.addEventListener(\"click\", (e)=>{\n      e.preventDefault();\n      e.stopPropagation();\n      window.location.assign(\"index.php?page=".$classPlural."_".$classPlural."\");\n    });\n  });\n</script>\n";
 
+// Define los archivos que se generan para el modulo.
 $targets = [
     __DIR__ . '/../src/Dao/'.$modulePlural.'/'.$classPlural.'.php' => $daoContent,
     __DIR__ . '/../src/Controllers/'.$modulePlural.'/'.$classPlural.'.php' => $listControllerContent,

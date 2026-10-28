@@ -14,6 +14,24 @@ if (version_compare(phpversion(), '7.4.0', '<')) {
 /**
  * Reune operaciones de acceso, cuentas y permisos usados por la aplicacion.
  */
+/**
+ * Acceso a datos de seguridad, cuentas y permisos.
+ *
+ * Variables:
+ * - $email: correo usado para localizar una cuenta.
+ * - $userId: clave primaria de la cuenta.
+ * - $password: contrasena en texto antes del hash.
+ * - $raw_password: contrasena recibida durante la verificacion.
+ * - $hash_password: hash almacenado en la base.
+ * - $fncod: codigo del permiso.
+ * - $fndsc: descripcion del permiso.
+ * - $fnest: estado del permiso.
+ * - $fntyp: tipo de permiso.
+ * - $userCod: clave primaria del usuario.
+ * - $rolescod: identificador del rol.
+ * - $rolesdsc: descripcion del rol.
+ * - $rolesest: estado del rol.
+ */
 class Security extends Table
 {
     /** Busca una cuenta mediante su correo. */

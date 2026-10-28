@@ -4,11 +4,23 @@ namespace Dao\Reportes;
 
 use Dao\Table;
 
+/**
+ * Acceso a los indicadores y graficos del centro de reportes.
+ *
+ * Variables:
+ * - $limit: cantidad maxima de filas para listados cortos.
+ * - $meses: cantidad de meses de la serie temporal.
+ * - $desde: fecha inicial de la serie.
+ * - $rows: filas devueltas por la consulta.
+ * - $labels, $entradas, $salidas, $movimientos: series del grafico.
+ */
 class Reportes extends Table
 {
     /**
      * Indicadores generales del inventario. Todas las consultas son de solo
      * lectura y consideran unicamente registros activos.
+     *
+     * @return array{usuarios:int,articulos:int,stock_bajo:int,existencias:int,equipos:int,equipos_disponibles:int,equipos_asignados:int,equipos_mantenimiento:int,equipos_revision:int,equipos_baja:int,movimientos:int,movimientos_mes:int,asignaciones_activas:int,custodios:int,mantenimientos:int,mantenimientos_proceso:int,mantenimientos_completados:int}
      */
     public static function getResumenGeneral(): array
     {
@@ -86,6 +98,12 @@ class Reportes extends Table
      * Articulos por cantidad cuya existencia actual esta en el minimo o por
      * debajo. Usa el mismo criterio que el catalogo de articulos.
      */
+    /**
+     * Devuelve articulos por cantidad con existencia en el minimo o por debajo.
+     *
+     * @param int $limit Cantidad maxima de filas.
+     * @return array Articulos con stock bajo.
+     */
     public static function getStockBajo(int $limit = 6): array
     {
         $limit = max(1, min(50, $limit));
@@ -110,6 +128,12 @@ class Reportes extends Table
 
     /**
      * Ultimos movimientos registrados en el kardex para el panel de reportes.
+     */
+    /**
+     * Devuelve los ultimos movimientos registrados.
+     *
+     * @param int $limit Cantidad maxima de filas.
+     * @return array Movimientos recientes.
      */
     public static function getMovimientosRecientes(int $limit = 6): array
     {
@@ -139,6 +163,12 @@ class Reportes extends Table
      * Serie de entradas y salidas por mes para el grafico del centro de
      * reportes. Rellena los meses sin movimientos con ceros para que el eje
      * temporal no tenga huecos.
+     */
+    /**
+     * Devuelve la serie mensual de entradas y salidas.
+     *
+     * @param int $meses Cantidad de meses; entre 1 y 24.
+     * @return array Series y totales del periodo.
      */
     public static function getMovimientosPorMes(int $meses = 6): array
     {
@@ -204,6 +234,8 @@ class Reportes extends Table
     /**
      * Conteo historico de movimientos por tipo para el grafico del centro
      * de reportes. Incluye los tipos sin movimientos con valor cero.
+     *
+     * @return array Etiquetas y valores por tipo de movimiento.
      */
     public static function getDistribucionTipos(): array
     {

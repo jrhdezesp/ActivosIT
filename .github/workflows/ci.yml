@@ -1,3 +1,5 @@
+# Integracion continua de ActivosIT.
+# Ejecuta validaciones de Composer y sintaxis en cada push o pull request.
 name: CI
 
 on:
@@ -19,9 +21,11 @@ jobs:
       contents: read
 
     steps:
+      # Descarga el codigo del repositorio.
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
+      # Prepara la version de PHP y las extensiones necesarias.
       - name: Configurar PHP
         uses: shivammathur/setup-php@bf6b4fbd49ca58e4608c9c89fba0b8d90bd2a39f # 2.35.5
         with:
@@ -29,16 +33,20 @@ jobs:
           extensions: pdo_mysql
           coverage: none
 
+      # Valida el archivo de dependencias del proyecto.
       - name: Validar composer.json
         run: composer validate --strict --no-interaction
 
+      # Genera el autoload sin ejecutar scripts adicionales.
       - name: Generar autoload
         run: composer dump-autoload --optimize --no-scripts --no-interaction
 
+      # Revisa la sintaxis PHP y la validez de los JSON.
       - name: Revisar sintaxis y JSON
         run: php scripts/lint.php
 
-      - name: Detectar archivos de configuración rastreados
+      # Evita que se versionen archivos con credenciales o configuracion local.
+      - name: Detectar archivos de configuracion rastreados
         shell: bash
         run: |
           if git ls-files | grep -E '(^|/)(parameters\.env|\.env)(\.|$)|(^|/)renameTo_parameters\.env$'; then

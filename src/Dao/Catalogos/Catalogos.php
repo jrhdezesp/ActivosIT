@@ -4,11 +4,38 @@ namespace Dao\Catalogos;
 
 use Dao\Table;
 
+/**
+ * Acceso a los catalogos generales y operativos.
+ *
+ * Variables:
+ * - $type: clave del catalogo; por ejemplo clasificaciones o ubicaciones.
+ * - $search: texto libre para los campos de busqueda del catalogo.
+ * - $status: estado logico del registro.
+ * - $id: clave primaria del registro.
+ * - $name: nombre que se valida como unico.
+ * - $excludeId: identificador que se excluye al validar duplicados.
+ * - $data: valores del formulario.
+ * - $definition: configuracion del catalogo.
+ * - $field: definicion de un campo.
+ * - $value: valor que se normaliza antes de guardar.
+ *
+ * Claves de una definicion:
+ * - table, pk, nameField, statusField, page, title, description,
+ *   icon, tone, searchFields y fields.
+ *
+ * Claves de cada campo:
+ * - name, label, type, required, maxlength, full, help y options.
+ */
 class Catalogos extends Table
 {
     // Definiciones de catalogos que se reutilizan durante la solicitud.
     private static $definitions = null;
 
+    /**
+     * Devuelve las definiciones de todos los catalogos.
+     *
+     * @return array Definiciones indexadas por tipo de catalogo.
+     */
     public static function getDefinitions(): array
     {
         if (self::$definitions === null) {
@@ -321,6 +348,14 @@ class Catalogos extends Table
         return $definitions[$type];
     }
 
+    /**
+     * Devuelve los registros de un catalogo.
+     *
+     * @param string $type Clave del catalogo.
+     * @param string $search Texto de busqueda.
+     * @param string $status Estado del registro.
+     * @return array Registros del catalogo.
+     */
     public static function getItems(string $type, string $search = '', string $status = ''): array
     {
         $definition = self::getDefinition($type);
@@ -389,6 +424,13 @@ class Catalogos extends Table
         return intval($row['total'] ?? 0) > 0;
     }
 
+    /**
+     * Inserta un registro en el catalogo indicado.
+     *
+     * @param string $type Clave del catalogo.
+     * @param array $data Valores del formulario.
+     * @return bool true si la insercion fue correcta.
+     */
     public static function insertItem(string $type, array $data): bool
     {
         $definition = self::getDefinition($type);
@@ -410,6 +452,14 @@ class Catalogos extends Table
         return self::executeNonQuery($sql, $params);
     }
 
+    /**
+     * Actualiza un registro del catalogo indicado.
+     *
+     * @param string $type Clave del catalogo.
+     * @param int $id Clave primaria del registro.
+     * @param array $data Valores del formulario.
+     * @return bool true si la actualizacion fue correcta.
+     */
     public static function updateItem(string $type, int $id, array $data): bool
     {
         $definition = self::getDefinition($type);

@@ -4,8 +4,33 @@ namespace Dao\Roles;
 
 use Dao\Table;
 
+/**
+ * Acceso a datos de roles y su relacion con permisos.
+ *
+ * Variables:
+ * - $rolescod: identificador del rol.
+ * - $rolesdsc: descripcion del rol.
+ * - $rolesest: estado del rol; ACT o INA.
+ * - $fncod: codigo del permiso.
+ * - $fnest: estado de la relacion rol-permiso.
+ * - $orderBy: campo permitido para ordenar.
+ * - $orderDescending: true para orden descendente.
+ * - $page: pagina basada en cero.
+ * - $itemsPerPage: cantidad de registros por pagina.
+ */
 class Roles extends Table
 {
+    /**
+     * Devuelve la lista paginada de roles.
+     *
+     * @param string $partialName Texto de busqueda.
+     * @param string $status Estado del rol.
+     * @param string $orderBy Campo de orden permitido.
+     * @param bool $orderDescending true para orden descendente.
+     * @param int $page Pagina basada en cero.
+     * @param int $itemsPerPage Registros por pagina.
+     * @return array{roles: array, total: int, page: int, itemsPerPage: int}
+     */
     public static function getRoles(
         string $partialName = '',
         string $status = '',

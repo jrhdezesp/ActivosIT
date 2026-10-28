@@ -4,6 +4,30 @@ namespace Dao\Auditoria;
 
 use Dao\Table;
 
+/**
+ * Acceso a la bitacora de auditoria.
+ *
+ * Variables de filtro:
+ * - $search: texto para tipo, modulo, IP, usuario o identificadores.
+ * - $modulo: modulo afectado.
+ * - $tipo: tipo de operacion.
+ * - $resultado: EXITO, DENEGADO o ERROR.
+ * - $desde: fecha inicial en formato Y-m-d.
+ * - $hasta: fecha final en formato Y-m-d.
+ * - $orderBy: campo permitido para ordenar.
+ * - $orderDescending: true para orden descendente.
+ * - $page: pagina basada en cero.
+ * - $itemsPerPage: cantidad de registros por pagina.
+ *
+ * Variables del evento:
+ * - $usuarioId: usuario relacionado; puede ser null.
+ * - $tipoOperacion: nombre de la accion.
+ * - $moduloAfectado: modulo donde ocurrio.
+ * - $registroRelacionadoId: registro afectado.
+ * - $direccionIp: IP de origen.
+ * - $datosAnteriores y $datosNuevos: cambios en formato de arreglo.
+ * - $resultado: resultado del evento.
+ */
 class Bitacora extends Table
 {
     // Resultados que puede tener una accion registrada.
@@ -30,6 +54,21 @@ class Bitacora extends Table
     private const FROM_JOINS = ' FROM bitacora b'
         . ' LEFT JOIN usuarios u ON u.id_usuario = b.id_usuario';
 
+    /**
+     * Devuelve la lista paginada de eventos.
+     *
+     * @param string $search Texto de busqueda.
+     * @param string $modulo Modulo afectado.
+     * @param string $tipo Tipo de operacion.
+     * @param string $resultado Resultado del evento.
+     * @param string $desde Fecha inicial.
+     * @param string $hasta Fecha final.
+     * @param string $orderBy Campo de orden permitido.
+     * @param bool $orderDescending true para orden descendente.
+     * @param int $page Pagina basada en cero.
+     * @param int $itemsPerPage Registros por pagina.
+     * @return array{eventos: array, total: int, page: int, itemsPerPage: int, pages: int}
+     */
     public static function getEventos(
         string $search = '',
         string $modulo = '',
@@ -173,6 +212,19 @@ class Bitacora extends Table
      * Registra un evento de auditoria. No lanza errores de validacion:
      * normaliza los valores para que la operacion principal nunca falle
      * por un detalle del registro de bitacora.
+     */
+    /**
+     * Inserta un evento de auditoria.
+     *
+     * @param int|null $usuarioId Usuario relacionado.
+     * @param string $tipoOperacion Accion realizada.
+     * @param string $moduloAfectado Modulo afectado.
+     * @param int|null $registroRelacionadoId Registro afectado.
+     * @param string|null $direccionIp IP de origen.
+     * @param array|null $datosAnteriores Datos previos.
+     * @param array|null $datosNuevos Datos nuevos.
+     * @param string $resultado Resultado del evento.
+     * @return bool true si el evento se registro.
      */
     public static function insertEvento(
         ?int $usuarioId,
