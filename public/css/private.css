@@ -3712,7 +3712,7 @@
 }
 
 .data-table--auditoria .data-table__col--acciones {
-  width: 8%;
+  width: 96px;
   white-space: nowrap;
 }
 
@@ -3900,6 +3900,9 @@
 /* Las etiquetas de estado pueden ocupar dos lineas dentro de su columna. */
 .data-table--list tbody td .badge {
   white-space: normal;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
   line-height: 1.25;
 }
 
@@ -3918,11 +3921,6 @@
   white-space: normal;
   overflow-wrap: anywhere;
   text-overflow: clip;
-}
-
-/* La columna de detalle de auditoria necesita espacio para su boton. */
-.data-table--auditoria .data-table__col--acciones {
-  width: 96px;
 }
 
 /* El encabezado de la columna de acciones se ajusta para no desbordar. */
@@ -3967,10 +3965,3 @@
   font-size: 0.78rem;
 }
 
-/* Las etiquetas de estado se parten solo entre palabras, nunca a mitad de
-   palabra (por ejemplo "En mantenimiento"). */
-.data-table--list tbody td .badge {
-  overflow-wrap: normal;
-  word-break: normal;
-  hyphens: none;
-}

@@ -3,7 +3,7 @@
 <html lang="es">
 <head>
 {{include partials/head}}
-<link rel="stylesheet" href="{{BASE_DIR}}/public/css/private.css?v=20261028-08">
+<link rel="stylesheet" href="{{BASE_DIR}}/public/css/private.css?v=20261028-09">
 </head>
 <body class="site-private">
   <a class="skip-link" href="#main-content">Saltar al contenido</a>
