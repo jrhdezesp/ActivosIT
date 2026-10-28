@@ -36,7 +36,7 @@ class EquiposCustodio extends PrivateController
     {
         $this->getParams();
 
-        $exportFormat = $this->getExportFormat();
+        $exportFormat = ReportExport::getRequestedFormat();
         if ($exportFormat !== '') {
             $this->export($exportFormat);
             return;
@@ -560,13 +560,6 @@ class EquiposCustodio extends PrivateController
         }
 
         return 'Custodios con más equipos: ' . implode(', ', $partes) . '.';
-    }
-
-    private function getExportFormat(): string
-    {
-        $format = strtolower(trim(strval($_GET['export'] ?? '')));
-
-        return in_array($format, ['csv', 'xlsx', 'pdf'], true) ? $format : '';
     }
 
     private function buildExportUrl(string $format = 'csv'): string

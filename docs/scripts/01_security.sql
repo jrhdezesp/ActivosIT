@@ -11,20 +11,9 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- 1. ESTRUCTURA DE TABLAS
 -- -----------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS `roles_permisos`;
-DROP TABLE IF EXISTS `usuarios_roles`;
-DROP TABLE IF EXISTS `permisos`;
-DROP TABLE IF EXISTS `roles`;
-DROP TABLE IF EXISTS `usuarios`;
-DROP TABLE IF EXISTS `bitacora`;
 
--- Limpieza de tablas obsoletas si existiesen
-DROP TABLE IF EXISTS `funciones_roles`;
-DROP TABLE IF EXISTS `roles_usuarios`;
-DROP TABLE IF EXISTS `funciones`;
-DROP TABLE IF EXISTS `usuario`;
 
-CREATE TABLE `usuarios` (
+CREATE TABLE IF NOT EXISTS `usuarios` (
   `id_usuario` INT NOT NULL AUTO_INCREMENT,
   `user_usuario` VARCHAR(255) NOT NULL,
   `clave_usuario` VARCHAR(255) NOT NULL,
@@ -38,7 +27,7 @@ CREATE TABLE `usuarios` (
   UNIQUE KEY `uq_usuarios_user` (`user_usuario`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE `roles` (
+CREATE TABLE IF NOT EXISTS `roles` (
   `id_rol` INT NOT NULL AUTO_INCREMENT,
   `nombre_rol` VARCHAR(255) NOT NULL,
   `descripcion_rol` VARCHAR(255) NULL,
@@ -47,7 +36,7 @@ CREATE TABLE `roles` (
   UNIQUE KEY `uq_roles_nombre` (`nombre_rol`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE `permisos` (
+CREATE TABLE IF NOT EXISTS `permisos` (
   `id_permiso` INT NOT NULL AUTO_INCREMENT,
   -- nombre_permiso es el codigo que valida el sistema:
   --   * Clase completa del controlador (Controllers\Usuarios\Usuarios) para tipo CTR
@@ -63,7 +52,7 @@ CREATE TABLE `permisos` (
   KEY `idx_permisos_tipo` (`tipo_permiso`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE `usuarios_roles` (
+CREATE TABLE IF NOT EXISTS `usuarios_roles` (
   `id_usuario_rol` INT NOT NULL AUTO_INCREMENT,
   `id_usuario` INT NOT NULL,
   `id_rol` INT NOT NULL,
@@ -77,7 +66,7 @@ CREATE TABLE `usuarios_roles` (
     ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE `roles_permisos` (
+CREATE TABLE IF NOT EXISTS `roles_permisos` (
   `id_rol_permiso` INT NOT NULL AUTO_INCREMENT,
   `id_rol` INT NOT NULL,
   `id_permiso` INT NOT NULL,
@@ -91,7 +80,7 @@ CREATE TABLE `roles_permisos` (
     ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE `bitacora` (
+CREATE TABLE IF NOT EXISTS `bitacora` (
   `id_bitacora` INT NOT NULL AUTO_INCREMENT,
   `id_usuario` INT NULL,
   `fecha_hora` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -123,7 +112,7 @@ INSERT INTO `roles` (`id_rol`, `nombre_rol`, `descripcion_rol`, `estado_rol`) VA
 (1, 'Administrador', 'Control total de la infraestructura y configuraciones de IT', 1),
 (2, 'Auditor', 'Consulta, visualización de movimientos, kardex e informes', 1),
 (3, 'Técnico de Soporte', 'Operación de inventario, traslados y mantenimientos', 1),
-(4, 'Público', 'Cuenta creada por auto-registro: solo accede a su perfil', 1);
+(4, 'Público', 'Cuenta creada por auto-registro: solo accede a su perfil', 1) ON DUPLICATE KEY UPDATE `nombre_rol` = VALUES(`nombre_rol`), `descripcion_rol` = VALUES(`descripcion_rol`), `estado_rol` = VALUES(`estado_rol`);
 
 -- Permisos iniciales.
 -- Los permisos de tipo CTR usan el nombre completo de la clase del controlador
@@ -185,12 +174,12 @@ INSERT INTO `permisos` (`id_permiso`, `nombre_permiso`, `descripcion_permiso`, `
 (44, 'Controllers\\Reportes\\Kardex',                  'Kardex de movimientos',                          'Reportes',   'CTR', 1),
 (45, 'Controllers\\Reportes\\EquiposCustodio',         'Equipos por custodio',                           'Reportes',   'CTR', 1),
 -- Controlador de la bitácora de auditoría.
-(46, 'Controllers\\Auditoria\\Auditoria',              'Bitácora de auditoría',                          'Auditoría',  'CTR', 1);
+(46, 'Controllers\\Auditoria\\Auditoria',              'Bitácora de auditoría',                          'Auditoría',  'CTR', 1) ON DUPLICATE KEY UPDATE `descripcion_permiso` = VALUES(`descripcion_permiso`), `modulo_permiso` = VALUES(`modulo_permiso`), `tipo_permiso` = VALUES(`tipo_permiso`), `estado_permiso` = VALUES(`estado_permiso`);
 
 -- Las cuentas y sus roles se asignan durante el bootstrap del despliegue.
 
 -- Asignación de Permisos a Roles
-INSERT INTO `roles_permisos` (`id_rol`, `id_permiso`) VALUES
+INSERT IGNORE INTO `roles_permisos` (`id_rol`, `id_permiso`) VALUES
 -- Administrador: todos los permisos (1..46)
 (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8),
 (1, 9), (1, 10), (1, 11), (1, 12), (1, 13), (1, 14), (1, 15), (1, 16),
@@ -213,5 +202,162 @@ INSERT INTO `roles_permisos` (`id_rol`, `id_permiso`) VALUES
 (3, 45),
 -- Público: únicamente su perfil
 (4, 14), (4, 32);
+
+
+-- Permisos de los modulos operativos y asignacion final a roles.
+INSERT INTO `permisos`
+  (`nombre_permiso`, `descripcion_permiso`, `modulo_permiso`, `tipo_permiso`, `estado_permiso`)
+VALUES
+  ('Menu_Equipos',                     'Menú: equipos',                        'Activos',    'MNU', 1),
+  ('Controllers\\Equipos\\Equipos',    'Equipos individuales (listado)',       'Activos',    'CTR', 1),
+  ('Controllers\\Equipos\\Equipo',     'Formulario de equipo',                 'Activos',    'CTR', 1),
+  ('Menu_Entradas',                    'Menú: entradas de inventario',         'Inventario', 'MNU', 1),
+  ('Controllers\\Inventario\\Entradas','Entradas de inventario (listado)',     'Inventario', 'CTR', 1),
+  ('Controllers\\Inventario\\Entrada', 'Formulario de entrada',                'Inventario', 'CTR', 1),
+  ('Menu_Salidas',                     'Menú: salidas de inventario',          'Inventario', 'MNU', 1),
+  ('Controllers\\Inventario\\Salidas', 'Salidas de inventario (listado)',      'Inventario', 'CTR', 1),
+  ('Controllers\\Inventario\\Salida',  'Formulario de salida',                 'Inventario', 'CTR', 1)
+ON DUPLICATE KEY UPDATE
+  `descripcion_permiso` = VALUES(`descripcion_permiso`),
+  `modulo_permiso`      = VALUES(`modulo_permiso`),
+  `tipo_permiso`        = VALUES(`tipo_permiso`),
+  `estado_permiso`      = VALUES(`estado_permiso`);
+
+INSERT IGNORE INTO `roles_permisos` (`id_rol`, `id_permiso`)
+SELECT r.`id_rol`, p.`id_permiso`
+FROM `roles` r
+JOIN `permisos` p
+  ON p.`nombre_permiso` IN (
+    'Menu_Equipos',
+    'Controllers\\Equipos\\Equipos',
+    'Menu_Entradas',
+    'Controllers\\Inventario\\Entradas',
+    'Menu_Salidas',
+    'Controllers\\Inventario\\Salidas'
+  )
+WHERE r.`nombre_rol` IN ('Administrador', 'Auditor', 'Tecnico de Soporte', 'Técnico de Soporte');
+
+INSERT IGNORE INTO `roles_permisos` (`id_rol`, `id_permiso`)
+SELECT r.`id_rol`, p.`id_permiso`
+FROM `roles` r
+JOIN `permisos` p
+  ON p.`nombre_permiso` IN (
+    'Controllers\\Equipos\\Equipo',
+    'Controllers\\Inventario\\Entrada',
+    'Controllers\\Inventario\\Salida'
+  )
+WHERE r.`nombre_rol` IN ('Administrador', 'Tecnico de Soporte', 'Técnico de Soporte');
+
+INSERT INTO `permisos`
+  (`nombre_permiso`, `descripcion_permiso`, `modulo_permiso`, `tipo_permiso`, `estado_permiso`)
+VALUES
+  ('Menu_Mantenimientos',                       'Menú: mantenimientos de equipos',      'Inventario', 'MNU', 1),
+  ('Controllers\\Inventario\\Mantenimientos',  'Mantenimientos de equipos (listado)',  'Inventario', 'CTR', 1),
+  ('Controllers\\Inventario\\Mantenimiento',   'Formulario de mantenimiento',          'Inventario', 'CTR', 1)
+ON DUPLICATE KEY UPDATE
+  `descripcion_permiso` = VALUES(`descripcion_permiso`),
+  `modulo_permiso`      = VALUES(`modulo_permiso`),
+  `tipo_permiso`        = VALUES(`tipo_permiso`),
+  `estado_permiso`      = VALUES(`estado_permiso`);
+
+INSERT IGNORE INTO `roles_permisos` (`id_rol`, `id_permiso`)
+SELECT r.`id_rol`, p.`id_permiso`
+FROM `roles` r
+JOIN `permisos` p
+  ON p.`nombre_permiso` IN (
+    'Menu_Mantenimientos',
+    'Controllers\\Inventario\\Mantenimientos'
+  )
+WHERE r.`nombre_rol` IN ('Administrador', 'Auditor', 'Tecnico de Soporte', 'Técnico de Soporte');
+
+INSERT IGNORE INTO `roles_permisos` (`id_rol`, `id_permiso`)
+SELECT r.`id_rol`, p.`id_permiso`
+FROM `roles` r
+JOIN `permisos` p
+  ON p.`nombre_permiso` = 'Controllers\\Inventario\\Mantenimiento'
+WHERE r.`nombre_rol` IN ('Administrador', 'Tecnico de Soporte', 'Técnico de Soporte');
+
+INSERT INTO `permisos`
+  (`nombre_permiso`, `descripcion_permiso`, `modulo_permiso`, `tipo_permiso`, `estado_permiso`)
+VALUES
+  ('Menu_Asignaciones',                        'Menú: asignaciones de equipos',        'Inventario', 'MNU', 1),
+  ('Controllers\\Inventario\\Asignaciones',   'Asignaciones de equipos (listado)',    'Inventario', 'CTR', 1),
+  ('Controllers\\Inventario\\Asignacion',     'Formulario de asignación y devolución','Inventario', 'CTR', 1)
+ON DUPLICATE KEY UPDATE
+  `descripcion_permiso` = VALUES(`descripcion_permiso`),
+  `modulo_permiso`      = VALUES(`modulo_permiso`),
+  `tipo_permiso`        = VALUES(`tipo_permiso`),
+  `estado_permiso`      = VALUES(`estado_permiso`);
+
+INSERT IGNORE INTO `roles_permisos` (`id_rol`, `id_permiso`)
+SELECT r.`id_rol`, p.`id_permiso`
+FROM `roles` r
+JOIN `permisos` p
+  ON p.`nombre_permiso` IN (
+    'Menu_Asignaciones',
+    'Controllers\\Inventario\\Asignaciones'
+  )
+WHERE r.`nombre_rol` IN ('Administrador', 'Auditor', 'Tecnico de Soporte', 'Técnico de Soporte');
+
+INSERT IGNORE INTO `roles_permisos` (`id_rol`, `id_permiso`)
+SELECT r.`id_rol`, p.`id_permiso`
+FROM `roles` r
+JOIN `permisos` p
+  ON p.`nombre_permiso` = 'Controllers\\Inventario\\Asignacion'
+WHERE r.`nombre_rol` IN ('Administrador', 'Tecnico de Soporte', 'Técnico de Soporte');
+
+INSERT INTO `permisos`
+  (`nombre_permiso`, `descripcion_permiso`, `modulo_permiso`, `tipo_permiso`, `estado_permiso`)
+VALUES
+  ('Menu_CentroReportes',                        'Menú: centro de reportes',             'Reportes', 'MNU', 1),
+  ('Menu_Kardex',                                'Menú: Kardex de movimientos',          'Reportes', 'MNU', 1),
+  ('Menu_EquiposCustodio',                       'Menú: equipos por custodio',           'Reportes', 'MNU', 1),
+  ('Menu_ReportesOperativos',                    'Menú: reportes operativos',             'Reportes', 'MNU', 1),
+  ('Controllers\\Reportes\\Reportes',            'Centro de reportes (indicadores)',     'Reportes', 'CTR', 1),
+  ('Controllers\\Reportes\\Kardex',              'Kardex de movimientos (reporte)',      'Reportes', 'CTR', 1),
+  ('Controllers\\Reportes\\EquiposCustodio',     'Equipos por custodio (reporte)',       'Reportes', 'CTR', 1),
+  ('Controllers\\Reportes\\Operativos',          'Reportes operativos detallados',       'Reportes', 'CTR', 1)
+ON DUPLICATE KEY UPDATE
+  `descripcion_permiso` = VALUES(`descripcion_permiso`),
+  `modulo_permiso`      = VALUES(`modulo_permiso`),
+  `tipo_permiso`        = VALUES(`tipo_permiso`),
+  `estado_permiso`      = VALUES(`estado_permiso`);
+
+INSERT IGNORE INTO `roles_permisos` (`id_rol`, `id_permiso`)
+SELECT r.`id_rol`, p.`id_permiso`
+FROM `roles` r
+JOIN `permisos` p
+  ON p.`nombre_permiso` IN (
+    'Menu_CentroReportes',
+    'Menu_Kardex',
+    'Menu_EquiposCustodio',
+    'Menu_ReportesOperativos',
+    'Controllers\\Reportes\\Reportes',
+    'Controllers\\Reportes\\Kardex',
+    'Controllers\\Reportes\\EquiposCustodio',
+    'Controllers\\Reportes\\Operativos'
+  )
+WHERE r.`nombre_rol` IN ('Administrador', 'Auditor', 'Tecnico de Soporte', 'Técnico de Soporte');
+
+INSERT INTO `permisos`
+  (`nombre_permiso`, `descripcion_permiso`, `modulo_permiso`, `tipo_permiso`, `estado_permiso`)
+VALUES
+  ('Menu_Auditoria',                    'Menú: auditoría',                 'Auditoría', 'MNU', 1),
+  ('Controllers\\Auditoria\\Auditoria', 'Bitácora de auditoría (consulta)', 'Auditoría', 'CTR', 1)
+ON DUPLICATE KEY UPDATE
+  `descripcion_permiso` = VALUES(`descripcion_permiso`),
+  `modulo_permiso`      = VALUES(`modulo_permiso`),
+  `tipo_permiso`        = VALUES(`tipo_permiso`),
+  `estado_permiso`      = VALUES(`estado_permiso`);
+
+INSERT IGNORE INTO `roles_permisos` (`id_rol`, `id_permiso`)
+SELECT r.`id_rol`, p.`id_permiso`
+FROM `roles` r
+JOIN `permisos` p
+  ON p.`nombre_permiso` IN (
+    'Menu_Auditoria',
+    'Controllers\\Auditoria\\Auditoria'
+  )
+WHERE r.`nombre_rol` IN ('Administrador', 'Auditor');
 
 SET FOREIGN_KEY_CHECKS = 1;

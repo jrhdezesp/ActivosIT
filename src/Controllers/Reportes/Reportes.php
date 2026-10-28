@@ -54,7 +54,7 @@ class Reportes extends PrivateController
         $estadosEquipo = $this->buildEstadosEquipo($resumen);
         $charts = $this->buildCharts($estadosEquipo, $serieMes, $distribucion);
 
-        $exportFormat = $this->getExportFormat();
+        $exportFormat = ReportExport::getRequestedFormat();
         if ($exportFormat !== '') {
             $this->export($exportFormat, $resumen, $stockBajo, $movimientos, $serieMes, $distribucion);
             return;
@@ -89,13 +89,6 @@ class Reportes extends PrivateController
             'ExportXlsxUrl' => 'index.php?page=Reportes_Reportes&export=xlsx',
             'ExportPdfUrl' => 'index.php?page=Reportes_Reportes&export=pdf',
         ]);
-    }
-
-    private function getExportFormat(): string
-    {
-        $format = strtolower(trim(strval($_GET['export'] ?? '')));
-
-        return in_array($format, ['csv', 'xlsx', 'pdf'], true) ? $format : '';
     }
 
     private function buildKpis(array $resumen): array

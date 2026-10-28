@@ -658,9 +658,10 @@ class Entradas extends Table
         }
 
         self::executeNonQuery(
-            "UPDATE documentos_entrada SET estado_doc = 'ANULADO'"
+            "UPDATE documentos_entrada SET estado_doc = 'ANULADO',"
+            . ' id_usuario_anulacion = :usuario, fecha_anulacion = NOW()'
             . ' WHERE id_doc_entrada = :id',
-            ['id' => $docId]
+            ['usuario' => $userId, 'id' => $docId]
         );
     }
 

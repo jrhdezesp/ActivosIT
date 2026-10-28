@@ -1,6 +1,7 @@
 <?php
 namespace Controllers;
 
+use Utilities\Bitacora;
 use Utilities\Context;
 use Utilities\Security;
 use Views\Renderer;
@@ -13,6 +14,15 @@ class NoAuth extends PublicController
     /** Muestra el aviso de acceso no permitido. */
     public function run() :void
     {
+        Bitacora::registrar(
+            'ACCESO_DENEGADO',
+            'Seguridad',
+            Bitacora::RESULTADO_DENEGADO,
+            null,
+            null,
+            ['recurso' => strval(Context::getContextByKey('request_uri'))]
+        );
+
         http_response_code(403);
         if (Security::isLogged()){
             if (Context::getContextByKey("PRIVATE_LAYOUT") !== "") {

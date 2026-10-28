@@ -3,7 +3,7 @@
 namespace Dao\Usuarios;
 
 use Dao\Table;
-use Utilities\Context;
+use Dao\Security\Security as DaoSecurity;
 
 /**
  * Acceso a datos de usuarios y sus roles.
@@ -27,17 +27,6 @@ use Utilities\Context;
  */
 class Usuarios extends Table
 {
-    private static function hashPassword(string $password): string
-    {
-        $saltedPassword = hash_hmac('sha256', $password, Context::getContextByKey('PWD_HASH'));
-
-        if (version_compare(phpversion(), '7.4.0', '<')) {
-            return password_hash($saltedPassword, 1);
-        }
-
-        return password_hash($saltedPassword, '2y');
-    }
-
     /**
      * Devuelve la lista paginada de usuarios.
      *
@@ -205,7 +194,7 @@ class Usuarios extends Table
         string $usertipo
     ): int {
         $estado = in_array($userest, ['ACT', '1'], true) ? 1 : 0;
-        $hashed = self::hashPassword($userpswd);
+        $hashed = DaoSecurity::hashPassword($userpswd);
 
         $sqlstr = 'INSERT INTO usuarios (user_usuario, nombre_usuario, clave_usuario, tipo_usuario, estado_usuario, ultimo_acceso_usuario)
             VALUES (:useremail, :username, :clave, :usertipo, :estado, NOW())';
@@ -259,7 +248,7 @@ class Usuarios extends Table
                 'usercod' => $usercod,
                 'useremail' => $useremail,
                 'username' => $username,
-                'clave' => self::hashPassword($userpswd),
+                'clave' => DaoSecurity::hashPassword($userpswd),
                 'usertipo' => self::normalizeTipo($usertipo),
                 'estado' => $estado,
             ];

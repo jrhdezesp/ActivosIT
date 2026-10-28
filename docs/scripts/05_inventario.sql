@@ -23,16 +23,22 @@ CREATE TABLE IF NOT EXISTS `documentos_entrada` (
   `estado_doc` ENUM('BORRADOR', 'CONFIRMADO', 'ANULADO') NOT NULL DEFAULT 'BORRADOR',
   `observaciones` TEXT NULL,
   `fecha_creacion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `id_usuario_anulacion` INT NULL,
+  `fecha_anulacion` DATETIME NULL,
   PRIMARY KEY (`id_doc_entrada`),
   UNIQUE KEY `uq_doc_entrada_correlativo` (`correlativo`),
   KEY `idx_doc_ent_tipo` (`id_tipo_doc`),
   KEY `idx_doc_ent_usuario` (`id_usuario`),
   KEY `idx_doc_ent_motivo` (`id_motivo`),
+  KEY `idx_doc_ent_usuario_anulacion` (`id_usuario_anulacion`),
   CONSTRAINT `fk_doc_entrada_tipo`
     FOREIGN KEY (`id_tipo_doc`) REFERENCES `tipos_documentos` (`id_tipo_doc`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_doc_entrada_usuario`
     FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`)
+    ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_doc_entrada_usuario_anulacion`
+    FOREIGN KEY (`id_usuario_anulacion`) REFERENCES `usuarios` (`id_usuario`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_doc_entrada_motivo`
     FOREIGN KEY (`id_motivo`) REFERENCES `motivos_ajustes_anulaciones` (`id_motivo`)
@@ -73,16 +79,22 @@ CREATE TABLE IF NOT EXISTS `documentos_salida` (
   `estado_doc` ENUM('BORRADOR', 'CONFIRMADO', 'ANULADO') NOT NULL DEFAULT 'BORRADOR',
   `observaciones` TEXT NULL,
   `fecha_creacion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `id_usuario_anulacion` INT NULL,
+  `fecha_anulacion` DATETIME NULL,
   PRIMARY KEY (`id_doc_salida`),
   UNIQUE KEY `uq_doc_salida_correlativo` (`correlativo`),
   KEY `idx_doc_sal_tipo` (`id_tipo_doc`),
   KEY `idx_doc_sal_usuario` (`id_usuario`),
   KEY `idx_doc_sal_motivo` (`id_motivo`),
+  KEY `idx_doc_sal_usuario_anulacion` (`id_usuario_anulacion`),
   CONSTRAINT `fk_doc_salida_tipo`
     FOREIGN KEY (`id_tipo_doc`) REFERENCES `tipos_documentos` (`id_tipo_doc`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_doc_salida_usuario`
     FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`)
+    ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_doc_salida_usuario_anulacion`
+    FOREIGN KEY (`id_usuario_anulacion`) REFERENCES `usuarios` (`id_usuario`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_doc_salida_motivo`
     FOREIGN KEY (`id_motivo`) REFERENCES `motivos_ajustes_anulaciones` (`id_motivo`)

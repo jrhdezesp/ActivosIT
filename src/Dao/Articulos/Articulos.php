@@ -349,12 +349,4 @@ class Articulos extends Table
             ['id' => $id]
         );
     }
-
-    public static function deleteArticulo(int $id): bool
-    {
-        return self::executeNonQuery(
-            'DELETE FROM articulos WHERE id_articulo = :id',
-            ['id' => $id]
-        );
-    }
 }

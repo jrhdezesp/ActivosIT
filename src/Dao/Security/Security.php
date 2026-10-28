@@ -12,9 +12,6 @@ if (version_compare(phpversion(), '7.4.0', '<')) {
 }
 
 /**
- * Reune operaciones de acceso, cuentas y permisos usados por la aplicacion.
- */
-/**
  * Acceso a datos de seguridad, cuentas y permisos.
  *
  * Variables:
@@ -108,6 +105,17 @@ class Security extends Table
     private static function _hashPassword($password)
     {
         return password_hash(self::_saltPassword($password), PASSWORD_ALGORITHM);
+    }
+
+    /**
+     * Genera el hash de una contrasena con el PWD_HASH configurado.
+     *
+     * @param string $password Contrasena en texto.
+     * @return string Hash listo para guardar.
+     */
+    public static function hashPassword($password): string
+    {
+        return self::_hashPassword($password);
     }
 
     /** Comprueba si la contrasena ingresada corresponde a la cuenta. */

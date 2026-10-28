@@ -12,6 +12,18 @@ namespace Utilities;
 class ReportExport
 {
     /**
+     * Devuelve el formato de exportacion solicitado por la peticion.
+     *
+     * @return string csv, xlsx, pdf o cadena vacia.
+     */
+    public static function getRequestedFormat(): string
+    {
+        $format = strtolower(trim(strval($_GET['export'] ?? '')));
+
+        return in_array($format, ['csv', 'xlsx', 'pdf'], true) ? $format : '';
+    }
+
+    /**
      * Envia un CSV plano con una sola tabla.
      */
     public static function stream(string $filename, array $headers, array $rows): void

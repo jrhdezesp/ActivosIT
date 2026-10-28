@@ -767,9 +767,10 @@ class Salidas extends Table
         }
 
         self::executeNonQuery(
-            "UPDATE documentos_salida SET estado_doc = 'ANULADO'"
+            "UPDATE documentos_salida SET estado_doc = 'ANULADO',"
+            . ' id_usuario_anulacion = :usuario, fecha_anulacion = NOW()'
             . ' WHERE id_doc_salida = :id',
-            ['id' => $docId]
+            ['usuario' => $userId, 'id' => $docId]
         );
     }
 
