@@ -98,6 +98,55 @@
         </div>
       </dl>
     </div>
+
+    <div class="profile-security profile-password">
+      <div class="profile-password__heading">
+        <h3>Cambiar contrasena</h3>
+        <p>Actualiza la clave de acceso de tu cuenta.</p>
+      </div>
+
+      {{if PasswordSuccess}}
+      <div class="alert alert--success alert--compact" role="status">
+        <span class="alert__icon" aria-hidden="true"><i class="fa-solid fa-circle-check"></i></span>
+        <div class="alert__body">
+          <p class="alert__message">{{!PasswordSuccess}}</p>
+        </div>
+      </div>
+      {{endif PasswordSuccess}}
+
+      {{if PasswordErrorGeneral}}
+      <div class="form-error-summary" role="alert">{{!PasswordErrorGeneral}}</div>
+      {{endif PasswordErrorGeneral}}
+
+      <form action="index.php?page=Perfil_Perfil" method="post">
+        <input type="hidden" name="form_action" value="cambiar_clave" />
+        <input type="hidden" name="token" value="{{!PasswordFormToken}}" />
+        <div class="form-grid form-grid--2">
+          <div class="form-field form-field--full {{if PasswordErrorCurrent}}has-error{{endif PasswordErrorCurrent}}">
+            <label for="perfilCurrentPassword">Contrasena actual</label>
+            <input type="password" id="perfilCurrentPassword" name="current_password" autocomplete="current-password" required />
+            {{if PasswordErrorCurrent}}<p class="form-error">{{!PasswordErrorCurrent}}</p>{{endif PasswordErrorCurrent}}
+          </div>
+          <div class="form-field {{if PasswordErrorNew}}has-error{{endif PasswordErrorNew}}">
+            <label for="perfilNewPassword">Nueva contrasena</label>
+            <input type="password" id="perfilNewPassword" name="new_password" autocomplete="new-password" minlength="8" maxlength="32" required />
+            {{if PasswordErrorNew}}<p class="form-error">{{!PasswordErrorNew}}</p>{{endif PasswordErrorNew}}
+          </div>
+          <div class="form-field {{if PasswordErrorConfirm}}has-error{{endif PasswordErrorConfirm}}">
+            <label for="perfilConfirmPassword">Confirmar contrasena</label>
+            <input type="password" id="perfilConfirmPassword" name="confirm_password" autocomplete="new-password" minlength="8" maxlength="32" required />
+            {{if PasswordErrorConfirm}}<p class="form-error">{{!PasswordErrorConfirm}}</p>{{endif PasswordErrorConfirm}}
+          </div>
+        </div>
+        <p class="form-help">Usa entre 8 y 32 caracteres con mayuscula, minuscula, numero y simbolo.</p>
+        <div class="form-actions">
+          <button class="button button--primary" type="submit">
+            <i class="fa-solid fa-key" aria-hidden="true"></i>
+            Actualizar contrasena
+          </button>
+        </div>
+      </form>
+    </div>
   </section>
 </div>
 {{endwith PerfilUsuario}}
