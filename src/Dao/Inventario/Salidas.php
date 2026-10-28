@@ -731,21 +731,23 @@ class Salidas extends Table
 
             $anterior = intval($articulo['existencia_actual']);
             $cantidad = intval($cantidad);
+            $esSerie = strval($articulo['tipo_control'] ?? '') === 'SERIE';
+            $nueva = $esSerie ? $anterior : $anterior - $cantidad;
 
-            if ($anterior < $cantidad) {
-                throw new \RuntimeException(
-                    'No hay existencias suficientes de "' . strval($articulo['nombre_articulo'])
-                    . '" para confirmar la salida (disponible: ' . $anterior
-                    . ', requerido: ' . $cantidad . ').'
+            if (!$esSerie) {
+                if ($anterior < $cantidad) {
+                    throw new \RuntimeException(
+                        'No hay existencias suficientes de "' . strval($articulo['nombre_articulo'])
+                        . '" para confirmar la salida (disponible: ' . $anterior
+                        . ', requerido: ' . $cantidad . ').'
+                    );
+                }
+
+                self::executeNonQuery(
+                    'UPDATE articulos SET existencia_actual = :nueva WHERE id_articulo = :id',
+                    ['nueva' => $nueva, 'id' => $articuloId]
                 );
             }
-
-            $nueva = $anterior - $cantidad;
-
-            self::executeNonQuery(
-                'UPDATE articulos SET existencia_actual = :nueva WHERE id_articulo = :id',
-                ['nueva' => $nueva, 'id' => $articuloId]
-            );
 
             self::registrarMovimiento(
                 $articuloId,
@@ -771,6 +773,10 @@ class Salidas extends Table
                     'id' => $equipoId,
                 ]
             );
+        }
+
+        foreach (array_keys($totales) as $articuloSync) {
+            \Dao\Equipos\Equipos::sincronizarExistenciaSerie(intval($articuloSync));
         }
 
         self::executeNonQuery(
@@ -813,7 +819,7 @@ class Salidas extends Table
 
             foreach ($totales as $articuloId => $cantidad) {
                 $articulo = self::obtenerUnRegistro(
-                    'SELECT id_articulo, nombre_articulo, existencia_actual'
+                    'SELECT id_articulo, nombre_articulo, tipo_control, existencia_actual'
                     . ' FROM articulos WHERE id_articulo = :id FOR UPDATE',
                     ['id' => $articuloId]
                 );
@@ -824,12 +830,15 @@ class Salidas extends Table
 
                 $anterior = intval($articulo['existencia_actual']);
                 $cantidad = intval($cantidad);
-                $nueva = $anterior + $cantidad;
+                $esSerie = strval($articulo['tipo_control'] ?? '') === 'SERIE';
+                $nueva = $esSerie ? $anterior : $anterior + $cantidad;
 
-                self::executeNonQuery(
-                    'UPDATE articulos SET existencia_actual = :nueva WHERE id_articulo = :id',
-                    ['nueva' => $nueva, 'id' => $articuloId]
-                );
+                if (!$esSerie) {
+                    self::executeNonQuery(
+                        'UPDATE articulos SET existencia_actual = :nueva WHERE id_articulo = :id',
+                        ['nueva' => $nueva, 'id' => $articuloId]
+                    );
+                }
 
                 self::registrarMovimiento(
                     $articuloId,
@@ -863,6 +872,10 @@ class Salidas extends Table
 
         if (strval($doc['estado_doc']) === 'BORRADOR') {
             self::liberarReservasDocumento($docId);
+        }
+
+        foreach ($detalles as $detalleSync) {
+            \Dao\Equipos\Equipos::sincronizarExistenciaSerie(intval($detalleSync['id_articulo'] ?? 0));
         }
 
         self::executeNonQuery(

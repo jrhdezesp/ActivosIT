@@ -544,7 +544,7 @@ class Entradas extends Table
 
         foreach ($totales as $articuloId => $cantidad) {
             $articulo = self::obtenerUnRegistro(
-                'SELECT existencia_actual, nombre_articulo'
+                'SELECT existencia_actual, nombre_articulo, tipo_control'
                 . ' FROM articulos WHERE id_articulo = :id FOR UPDATE',
                 ['id' => $articuloId]
             );
@@ -554,12 +554,15 @@ class Entradas extends Table
             }
 
             $anterior = intval($articulo['existencia_actual']);
-            $nueva = $anterior + intval($cantidad);
+            $esSerie = strval($articulo['tipo_control'] ?? '') === 'SERIE';
+            $nueva = $esSerie ? $anterior : $anterior + intval($cantidad);
 
-            self::executeNonQuery(
-                'UPDATE articulos SET existencia_actual = :nueva WHERE id_articulo = :id',
-                ['nueva' => $nueva, 'id' => $articuloId]
-            );
+            if (!$esSerie) {
+                self::executeNonQuery(
+                    'UPDATE articulos SET existencia_actual = :nueva WHERE id_articulo = :id',
+                    ['nueva' => $nueva, 'id' => $articuloId]
+                );
+            }
 
             self::registrarMovimiento(
                 $articuloId,
@@ -615,7 +618,7 @@ class Entradas extends Table
 
             foreach ($totales as $articuloId => $cantidad) {
                 $articulo = self::obtenerUnRegistro(
-                    'SELECT existencia_actual, nombre_articulo'
+                    'SELECT existencia_actual, nombre_articulo, tipo_control'
                     . ' FROM articulos WHERE id_articulo = :id FOR UPDATE',
                     ['id' => $articuloId]
                 );
@@ -626,21 +629,23 @@ class Entradas extends Table
 
                 $anterior = intval($articulo['existencia_actual']);
                 $cantidad = intval($cantidad);
+                $esSerie = strval($articulo['tipo_control'] ?? '') === 'SERIE';
+                $nueva = $esSerie ? $anterior : $anterior - $cantidad;
 
-                if ($anterior < $cantidad) {
-                    throw new \RuntimeException(
-                        'No hay existencias suficientes de "' . strval($articulo['nombre_articulo'])
-                        . '" para anular la entrada (disponible: ' . $anterior
-                        . ', requerido: ' . $cantidad . ').'
+                if (!$esSerie) {
+                    if ($anterior < $cantidad) {
+                        throw new \RuntimeException(
+                            'No hay existencias suficientes de "' . strval($articulo['nombre_articulo'])
+                            . '" para anular la entrada (disponible: ' . $anterior
+                            . ', requerido: ' . $cantidad . ').'
+                        );
+                    }
+
+                    self::executeNonQuery(
+                        'UPDATE articulos SET existencia_actual = :nueva WHERE id_articulo = :id',
+                        ['nueva' => $nueva, 'id' => $articuloId]
                     );
                 }
-
-                $nueva = $anterior - $cantidad;
-
-                self::executeNonQuery(
-                    'UPDATE articulos SET existencia_actual = :nueva WHERE id_articulo = :id',
-                    ['nueva' => $nueva, 'id' => $articuloId]
-                );
 
                 self::registrarMovimiento(
                     $articuloId,

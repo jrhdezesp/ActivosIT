@@ -346,6 +346,13 @@ class Articulo extends PrivateController
             throw new \RuntimeException('No se encontró el artículo solicitado.');
         }
 
+        if (DaoArticulos::tieneEquiposActivos($this->id)) {
+            throw new \RuntimeException(
+                'No se puede desactivar un artículo con equipos activos. '
+                . 'Da de baja o desactiva primero sus equipos.'
+            );
+        }
+
         if (!DaoArticulos::deactivateArticulo($this->id)) {
             throw new \RuntimeException('No se pudo desactivar el artículo.');
         }

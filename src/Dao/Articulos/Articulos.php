@@ -349,4 +349,22 @@ class Articulos extends Table
             ['id' => $id]
         );
     }
+    /**
+     * Indica si el articulo tiene equipos individuales activos.
+     *
+     * Un articulo con equipos vigentes no debe desactivarse: dejaria equipos
+     * apuntando a un registro inactivo y descuadraria el inventario.
+     *
+     * @param int $id Articulo a consultar.
+     * @return bool
+     */
+    public static function tieneEquiposActivos(int $id): bool
+    {
+        $row = self::obtenerUnRegistro(
+            'SELECT COUNT(*) AS total FROM equipos_individuales'
+            . ' WHERE id_articulo = :id AND estado_registro = 1',
+            ['id' => $id]
+        );
+        return intval($row['total'] ?? 0) > 0;
+    }
 }

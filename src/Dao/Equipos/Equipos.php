@@ -525,7 +525,7 @@ class Equipos extends Table
         self::executeNonQuery(
             "UPDATE articulos a SET existencia_actual = (
                 SELECT COUNT(*) FROM equipos_individuales e
-                WHERE e.id_articulo = a.id_articulo AND e.estado_registro = 1
+                WHERE e.id_articulo = a.id_articulo AND e.estado_registro = 1 AND e.estado_operativo <> 'DE_BAJA'
             ) WHERE a.id_articulo = :id AND a.tipo_control = 'SERIE'",
             ['id' => $idArticulo]
         );
