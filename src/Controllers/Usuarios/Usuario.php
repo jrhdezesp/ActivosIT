@@ -61,7 +61,7 @@ class Usuario extends PrivateController
         } catch (\Exception $ex) {
             Site::redirectToWithMsg(
                 'index.php?page=Usuarios_Usuarios',
-                $ex->getMessage()
+                Site::safeMessage($ex)
             );
         }
     }
@@ -93,22 +93,26 @@ class Usuario extends PrivateController
         $this->usuario['usercod'] = $this->mode === 'INS'
             ? 0
             : intval($_GET['usercod'] ?? 0);
-        $this->usuario['useremail'] = strval($_POST['useremail'] ?? '');
-        $this->usuario['username'] = strval($_POST['username'] ?? '');
+        $this->usuario['useremail'] = trim(strval($_POST['useremail'] ?? ''));
+        $this->usuario['username'] = trim(strval($_POST['username'] ?? ''));
         $this->usuario['userpswd'] = strval($_POST['userpswd'] ?? '');
         $this->usuario['userest'] = strval($_POST['userest'] ?? '');
         $this->usuario['usertipo'] = strval($_POST['usertipo'] ?? '');
 
         if (Validators::IsEmpty($this->usuario['useremail'])) {
             $errors['useremail_error'] = 'El correo del usuario es requerido';
-        }
-
-        if (!Validators::IsValidEmail($this->usuario['useremail'])) {
+        } elseif (\Utilities\Text::length($this->usuario['useremail']) > 255) {
+            $errors['useremail_error'] = 'El correo no puede superar los 255 caracteres';
+        } elseif (!Validators::IsValidEmail($this->usuario['useremail'])) {
             $errors['useremail_error'] = 'El correo del usuario no es válido';
+        } elseif (UsuariosDao::emailExists($this->usuario['useremail'], intval($this->usuario['usercod']))) {
+            $errors['useremail_error'] = 'Ya existe una cuenta registrada con ese correo';
         }
 
         if (Validators::IsEmpty($this->usuario['username'])) {
             $errors['username_error'] = 'El nombre del usuario es requerido';
+        } elseif (\Utilities\Text::length($this->usuario['username']) > 100) {
+            $errors['username_error'] = 'El nombre no puede superar los 100 caracteres';
         }
 
         if ($this->mode === 'INS' && Validators::IsEmpty($this->usuario['userpswd'])) {

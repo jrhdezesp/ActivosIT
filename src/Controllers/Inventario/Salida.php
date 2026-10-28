@@ -66,7 +66,7 @@ class Salida extends PrivateController
         } catch (\Exception $ex) {
             Site::redirectToWithMsg(
                 'index.php?page=Inventario_Salidas&msg=error',
-                $ex->getMessage()
+                Site::safeMessage($ex)
             );
         }
     }
@@ -311,19 +311,19 @@ class Salida extends PrivateController
         $this->item['destino_salida'] = $destino;
         if ($destino === '') {
             $this->errors['destino_salida'] = 'Ingresa el destino de la salida.';
-        } elseif ($this->textLength($destino) > 255) {
+        } elseif (\Utilities\Text::length($destino) > 255) {
             $this->errors['destino_salida'] = 'El destino no puede superar los 255 caracteres.';
         }
 
         $autorizacion = trim(strval($this->item['autorizacion'] ?? ''));
         $this->item['autorizacion'] = $autorizacion;
-        if ($this->textLength($autorizacion) > 255) {
+        if (\Utilities\Text::length($autorizacion) > 255) {
             $this->errors['autorizacion'] = 'La autorización no puede superar los 255 caracteres.';
         }
 
         $observaciones = trim(strval($this->item['observaciones'] ?? ''));
         $this->item['observaciones'] = $observaciones;
-        if ($this->textLength($observaciones) > 65535) {
+        if (\Utilities\Text::length($observaciones) > 65535) {
             $this->errors['observaciones'] = 'Las observaciones superan el máximo permitido.';
         }
 
@@ -519,11 +519,11 @@ class Salida extends PrivateController
                     Bitacora::RESULTADO_ERROR,
                     intval($docId),
                     ['estado_doc' => 'BORRADOR'],
-                    ['error' => $ex->getMessage()]
+                    ['error' => Site::safeMessage($ex)]
                 );
                 Site::redirectToWithMsg(
                     'index.php?page=Inventario_Salida&mode=UPD&id=' . $docId . '&msg=confirm_error',
-                    $ex->getMessage()
+                    Site::safeMessage($ex)
                 );
             }
 
@@ -910,8 +910,4 @@ class Salida extends PrivateController
         return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     }
 
-    private function textLength(string $value): int
-    {
-        return function_exists('mb_strlen') ? mb_strlen($value, 'UTF-8') : strlen($value);
-    }
 }

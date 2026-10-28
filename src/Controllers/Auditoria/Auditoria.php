@@ -612,17 +612,13 @@ class Auditoria extends PrivateController
     private function cleanText(string $value, int $maxLength): string
     {
         $value = trim($value);
-        if ($this->textLength($value) > $maxLength) {
+        if (\Utilities\Text::length($value) > $maxLength) {
             $value = $this->substring($value, 0, $maxLength);
         }
 
         return $value;
     }
 
-    private function textLength(string $value): int
-    {
-        return function_exists('mb_strlen') ? mb_strlen($value, 'UTF-8') : strlen($value);
-    }
 
     private function substring(string $value, int $start, int $length): string
     {

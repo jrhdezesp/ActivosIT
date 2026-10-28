@@ -104,7 +104,7 @@ class Traslado extends PrivateController
 
             Site::redirectTo('index.php?page=Equipos_Traslado&msg=moved');
         } catch (\Throwable $ex) {
-            $this->errors[] = $ex->getMessage();
+            $this->errors[] = Site::safeMessage($ex);
         }
     }
 

@@ -52,7 +52,7 @@ class Funcion extends PrivateController
         } catch (\Exception $ex) {
             Site::redirectToWithMsg(
                 'index.php?page=Funciones_Funciones',
-                $ex->getMessage()
+                Site::safeMessage($ex)
             );
         }
     }
@@ -94,10 +94,16 @@ class Funcion extends PrivateController
 
         if (Validators::IsEmpty($this->funcion['fncod'])) {
             $errors['fncod_error'] = 'El código de la función es requerido';
+        } elseif (\Utilities\Text::length($this->funcion['fncod']) > 255) {
+            $errors['fncod_error'] = 'El código no puede superar los 255 caracteres';
+        } elseif ($this->mode === 'INS' && FuncionesDao::nombreExists($this->funcion['fncod'])) {
+            $errors['fncod_error'] = 'Ya existe un permiso con ese código';
         }
 
         if (Validators::IsEmpty($this->funcion['fndsc'])) {
             $errors['fndsc_error'] = 'La descripción de la función es requerida';
+        } elseif (\Utilities\Text::length($this->funcion['fndsc']) > 255) {
+            $errors['fndsc_error'] = 'La descripción no puede superar los 255 caracteres';
         }
 
         if (!in_array($this->funcion['fnest'], ['ACT', 'INA'])) {

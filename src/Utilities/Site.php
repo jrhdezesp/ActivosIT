@@ -154,6 +154,23 @@ class Site
         echo ' window.location.assign(' . json_encode((string) $url, $jsonFlags) . ');</script>';
         die();
     }
+
+    /**
+     * Devuelve un mensaje apto para mostrarse al usuario.
+     *
+     * Los errores de base de datos se sustituyen por un texto generico para no
+     * exponer SQLSTATE, nombres de restricciones ni valores duplicados.
+     *
+     * @param \Throwable $ex Excepcion capturada.
+     * @return string Mensaje seguro.
+     */
+    public static function safeMessage(\Throwable $ex): string
+    {
+        if ($ex instanceof \PDOException) {
+            return 'No se pudo completar la operacion: los datos entran en conflicto con registros existentes o estan en uso.';
+        }
+        return $ex->getMessage();
+    }
     /**
      * Redireccion a un destino externo de confianza.
      * No usar con URLs provenientes directamente del usuario.

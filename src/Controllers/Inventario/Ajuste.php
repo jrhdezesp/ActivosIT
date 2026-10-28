@@ -172,14 +172,14 @@ class Ajuste extends PrivateController
 
             Site::redirectTo('index.php?page=Inventario_Ajuste&msg=created');
         } catch (\Throwable $ex) {
-            $this->errors[] = $ex->getMessage();
+            $this->errors[] = Site::safeMessage($ex);
             Bitacora::registrar(
                 'AJUSTE_INVENTARIO',
                 'Inventario',
                 Bitacora::RESULTADO_ERROR,
                 $this->articuloId > 0 ? $this->articuloId : null,
                 null,
-                ['motivo' => $ex->getMessage()]
+                ['motivo' => Site::safeMessage($ex)]
             );
         }
     }

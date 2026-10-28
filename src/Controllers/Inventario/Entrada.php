@@ -66,7 +66,7 @@ class Entrada extends PrivateController
         } catch (\Exception $ex) {
             Site::redirectToWithMsg(
                 'index.php?page=Inventario_Entradas&msg=error',
-                $ex->getMessage()
+                Site::safeMessage($ex)
             );
         }
     }
@@ -301,7 +301,7 @@ class Entrada extends PrivateController
 
         $proveedor = trim(strval($this->item['proveedor_origen'] ?? ''));
         $this->item['proveedor_origen'] = $proveedor;
-        if ($this->textLength($proveedor) > 150) {
+        if (\Utilities\Text::length($proveedor) > 150) {
             $this->errors['proveedor_origen'] = 'El proveedor no puede superar los 150 caracteres.';
         } elseif (
             $proveedor === ''
@@ -313,7 +313,7 @@ class Entrada extends PrivateController
 
         $observaciones = trim(strval($this->item['observaciones'] ?? ''));
         $this->item['observaciones'] = $observaciones;
-        if ($this->textLength($observaciones) > 65535) {
+        if (\Utilities\Text::length($observaciones) > 65535) {
             $this->errors['observaciones'] = 'Las observaciones superan el máximo permitido.';
         }
 
@@ -883,8 +883,4 @@ class Entrada extends PrivateController
         return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     }
 
-    private function textLength(string $value): int
-    {
-        return function_exists('mb_strlen') ? mb_strlen($value, 'UTF-8') : strlen($value);
-    }
 }

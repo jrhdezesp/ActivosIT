@@ -65,12 +65,12 @@ class EquiposCustodio extends PrivateController
     private function getParams(): void
     {
         $this->search = trim(strval($_GET['q'] ?? ''));
-        if ($this->textLength($this->search) > 100) {
+        if (\Utilities\Text::length($this->search) > 100) {
             $this->search = $this->substring($this->search, 0, 100);
         }
 
         $this->departamento = trim(strval($_GET['departamento'] ?? ''));
-        if ($this->textLength($this->departamento) > 150) {
+        if (\Utilities\Text::length($this->departamento) > 150) {
             $this->departamento = $this->substring($this->departamento, 0, 150);
         }
 
@@ -347,7 +347,7 @@ class EquiposCustodio extends PrivateController
                 continue;
             }
             $letters .= $this->upper($this->substring($part, 0, 1));
-            if ($this->textLength($letters) >= 2) {
+            if (\Utilities\Text::length($letters) >= 2) {
                 break;
             }
         }
@@ -376,10 +376,6 @@ class EquiposCustodio extends PrivateController
             : strtoupper($value);
     }
 
-    private function textLength(string $value): int
-    {
-        return function_exists('mb_strlen') ? mb_strlen($value, 'UTF-8') : strlen($value);
-    }
 
     private function substring(string $value, int $start, int $length): string
     {
@@ -714,7 +710,7 @@ class EquiposCustodio extends PrivateController
 
     private function truncate(string $value, int $length): string
     {
-        if ($this->textLength($value) <= $length) {
+        if (\Utilities\Text::length($value) <= $length) {
             return $value;
         }
 

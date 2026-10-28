@@ -123,26 +123,4 @@ abstract class Table
         }
         return $query->execute();
     }
-
-    /**
-     * Filtra los datos recibidos usando las claves de una estructura.
-     *
-     * @param array $structure Estructura con las claves permitidas.
-     * @param array $data Datos recibidos.
-     * @return array Datos filtrados.
-     */
-    protected static function _getStructFrom($structure, $data)
-    {
-        if (is_array($data) && is_array($structure)) {
-            $newData = $structure;
-            foreach ($data as $itemKey => $itemVal) {
-                if (isset($newData[$itemKey])) {
-                    $newData[$itemKey] = $itemVal;
-                }
-            }
-            return $newData;
-        } else {
-            return array();
-        }
-    }
 }

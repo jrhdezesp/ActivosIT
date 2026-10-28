@@ -136,13 +136,13 @@ class Operativos extends PrivateController
             ? $itemsPerPage
             : 10;
 
-        if ($this->textLength($this->search) > 100) {
+        if (\Utilities\Text::length($this->search) > 100) {
             $this->search = $this->substring($this->search, 0, 100);
         }
-        if ($this->textLength($this->departamento) > 150) {
+        if (\Utilities\Text::length($this->departamento) > 150) {
             $this->departamento = $this->substring($this->departamento, 0, 150);
         }
-        if ($this->textLength($this->estado) > 40) {
+        if (\Utilities\Text::length($this->estado) > 40) {
             $this->estado = $this->substring($this->estado, 0, 40);
         }
         if ($this->desde !== '' && $this->hasta !== '' && $this->desde > $this->hasta) {
@@ -318,10 +318,6 @@ class Operativos extends PrivateController
         return strval($id);
     }
 
-    private function textLength(string $value): int
-    {
-        return function_exists('mb_strlen') ? mb_strlen($value, 'UTF-8') : strlen($value);
-    }
 
     private function substring(string $value, int $start, int $length): string
     {

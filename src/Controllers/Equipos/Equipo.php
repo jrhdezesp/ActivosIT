@@ -93,7 +93,7 @@ class Equipo extends PrivateController
         } catch (\Exception $ex) {
             Site::redirectToWithMsg(
                 'index.php?page=Equipos_Equipos&msg=error',
-                $ex->getMessage()
+                Site::safeMessage($ex)
             );
         }
     }
@@ -249,13 +249,13 @@ class Equipo extends PrivateController
 
         $serie = trim(strval($this->item['numero_serie_equipo'] ?? ''));
         $this->item['numero_serie_equipo'] = $serie;
-        if ($this->textLength($serie) > 100) {
+        if (\Utilities\Text::length($serie) > 100) {
             $this->errors['numero_serie_equipo'] = 'El número de serie no puede superar los 100 caracteres.';
         }
 
         $patrimonial = trim(strval($this->item['codigo_patrimonial_equipo'] ?? ''));
         $this->item['codigo_patrimonial_equipo'] = $patrimonial;
-        if ($this->textLength($patrimonial) > 100) {
+        if (\Utilities\Text::length($patrimonial) > 100) {
             $this->errors['codigo_patrimonial_equipo'] = 'El código patrimonial no puede superar los 100 caracteres.';
         }
 
@@ -345,13 +345,13 @@ class Equipo extends PrivateController
 
         $proveedor = trim(strval($this->item['proveedor_origen'] ?? ''));
         $this->item['proveedor_origen'] = $proveedor;
-        if ($this->textLength($proveedor) > 150) {
+        if (\Utilities\Text::length($proveedor) > 150) {
             $this->errors['proveedor_origen'] = 'El proveedor no puede superar los 150 caracteres.';
         }
 
         $observaciones = trim(strval($this->item['observaciones_equipo'] ?? ''));
         $this->item['observaciones_equipo'] = $observaciones;
-        if ($this->textLength($observaciones) > 65535) {
+        if (\Utilities\Text::length($observaciones) > 65535) {
             $this->errors['observaciones_equipo'] = 'Las observaciones superan el máximo permitido.';
         }
 
@@ -768,8 +768,4 @@ class Equipo extends PrivateController
         return $timestamp !== false ? date('d/m/Y', $timestamp) : $value;
     }
 
-    private function textLength(string $value): int
-    {
-        return function_exists('mb_strlen') ? mb_strlen($value, 'UTF-8') : strlen($value);
-    }
 }

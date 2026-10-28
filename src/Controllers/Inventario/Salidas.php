@@ -71,7 +71,7 @@ class Salidas extends PrivateController
     private function getParams(): void
     {
         $this->search = trim(strval($_GET['q'] ?? ''));
-        if ($this->textLength($this->search) > 100) {
+        if (\Utilities\Text::length($this->search) > 100) {
             $this->search = $this->substring($this->search, 0, 100);
         }
 
@@ -380,10 +380,6 @@ class Salidas extends PrivateController
         return $flashes[$code] ?? null;
     }
 
-    private function textLength(string $value): int
-    {
-        return function_exists('mb_strlen') ? mb_strlen($value, 'UTF-8') : strlen($value);
-    }
 
     private function substring(string $value, int $start, int $length): string
     {

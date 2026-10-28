@@ -61,7 +61,7 @@ class Asignacion extends PrivateController
         } catch (\Exception $ex) {
             Site::redirectToWithMsg(
                 'index.php?page=Inventario_Asignaciones&msg=error',
-                $ex->getMessage()
+                Site::safeMessage($ex)
             );
         }
     }
@@ -250,7 +250,7 @@ class Asignacion extends PrivateController
         $this->item['persona_responsable'] = $persona;
         if ($persona === '') {
             $this->errors['persona_responsable'] = 'Ingresa el nombre de la persona responsable.';
-        } elseif ($this->textLength($persona) > 150) {
+        } elseif (\Utilities\Text::length($persona) > 150) {
             $this->errors['persona_responsable'] = 'El nombre no puede superar los 150 caracteres.';
         }
 
@@ -258,7 +258,7 @@ class Asignacion extends PrivateController
         $this->item['departamento_destino'] = $departamento;
         if ($departamento === '') {
             $this->errors['departamento_destino'] = 'Ingresa el departamento de destino.';
-        } elseif ($this->textLength($departamento) > 150) {
+        } elseif (\Utilities\Text::length($departamento) > 150) {
             $this->errors['departamento_destino'] = 'El departamento no puede superar los 150 caracteres.';
         }
 
@@ -271,19 +271,19 @@ class Asignacion extends PrivateController
 
         $condicion = trim(strval($this->item['condicion_entrega'] ?? ''));
         $this->item['condicion_entrega'] = $condicion;
-        if ($this->textLength($condicion) > 65535) {
+        if (\Utilities\Text::length($condicion) > 65535) {
             $this->errors['condicion_entrega'] = 'La condición de entrega supera el máximo permitido.';
         }
 
         $observaciones = trim(strval($this->item['observaciones'] ?? ''));
         $this->item['observaciones'] = $observaciones;
-        if ($this->textLength($observaciones) > 65535) {
+        if (\Utilities\Text::length($observaciones) > 65535) {
             $this->errors['observaciones'] = 'Las observaciones superan el máximo permitido.';
         }
 
         $accesorios = trim(strval($this->item['accesorios_entregados'] ?? ''));
         $this->item['accesorios_entregados'] = $accesorios;
-        if ($this->textLength($accesorios) > 65535) {
+        if (\Utilities\Text::length($accesorios) > 65535) {
             $this->errors['accesorios_entregados'] = 'Los accesorios superan el máximo permitido.';
         }
 
@@ -316,7 +316,7 @@ class Asignacion extends PrivateController
 
         $condicion = trim(strval($this->returnItem['condicion_devolucion'] ?? ''));
         $this->returnItem['condicion_devolucion'] = $condicion;
-        if ($this->textLength($condicion) > 65535) {
+        if (\Utilities\Text::length($condicion) > 65535) {
             $this->returnErrors['condicion_devolucion'] = 'La condición de devolución supera el máximo permitido.';
         }
 
@@ -687,8 +687,4 @@ class Asignacion extends PrivateController
         return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     }
 
-    private function textLength(string $value): int
-    {
-        return function_exists('mb_strlen') ? mb_strlen($value, 'UTF-8') : strlen($value);
-    }
 }

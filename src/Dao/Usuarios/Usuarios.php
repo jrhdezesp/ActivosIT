@@ -314,4 +314,21 @@ class Usuarios extends Table
         $sqlstr = 'UPDATE usuarios SET estado_usuario = 0 WHERE id_usuario = :usercod';
         return self::executeNonQuery($sqlstr, ['usercod' => $usercod]);
     }
+
+    /**
+     * Indica si el correo ya esta registrado por otra cuenta.
+     *
+     * @param string $email Correo a verificar.
+     * @param int $excludeId Cuenta que se excluye (edicion).
+     * @return bool
+     */
+    public static function emailExists(string $email, int $excludeId = 0): bool
+    {
+        $row = self::obtenerUnRegistro(
+            'SELECT COUNT(*) AS total FROM usuarios'
+            . ' WHERE user_usuario = :email AND id_usuario <> :id',
+            ['email' => $email, 'id' => $excludeId]
+        );
+        return intval($row['total'] ?? 0) > 0;
+    }
 }

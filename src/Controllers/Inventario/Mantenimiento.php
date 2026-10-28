@@ -56,7 +56,7 @@ class Mantenimiento extends PrivateController
         } catch (\Exception $ex) {
             Site::redirectToWithMsg(
                 'index.php?page=Inventario_Mantenimientos&msg=error',
-                $ex->getMessage()
+                Site::safeMessage($ex)
             );
         }
     }
@@ -259,19 +259,19 @@ class Mantenimiento extends PrivateController
         $this->item['tecnico_responsable'] = $tecnico;
         if ($tecnico === '') {
             $this->errors['tecnico_responsable'] = 'Ingresa el nombre del técnico responsable.';
-        } elseif ($this->textLength($tecnico) > 150) {
+        } elseif (\Utilities\Text::length($tecnico) > 150) {
             $this->errors['tecnico_responsable'] = 'El nombre del técnico no puede superar los 150 caracteres.';
         }
 
         $diagnostico = trim(strval($this->item['diagnostico_inicial'] ?? ''));
         $this->item['diagnostico_inicial'] = $diagnostico;
-        if ($this->textLength($diagnostico) > 65535) {
+        if (\Utilities\Text::length($diagnostico) > 65535) {
             $this->errors['diagnostico_inicial'] = 'El diagnóstico supera el máximo permitido.';
         }
 
         $trabajo = trim(strval($this->item['trabajo_realizado'] ?? ''));
         $this->item['trabajo_realizado'] = $trabajo;
-        if ($this->textLength($trabajo) > 65535) {
+        if (\Utilities\Text::length($trabajo) > 65535) {
             $this->errors['trabajo_realizado'] = 'El trabajo realizado supera el máximo permitido.';
         } elseif ($completar && $trabajo === '') {
             $this->errors['trabajo_realizado'] = 'Describe el trabajo realizado antes de completar el mantenimiento.';
@@ -279,7 +279,7 @@ class Mantenimiento extends PrivateController
 
         foreach (['resultado_mantenimiento', 'recomendaciones'] as $field) {
             $this->item[$field] = trim(strval($this->item[$field] ?? ''));
-            if ($this->textLength($this->item[$field]) > 65535) {
+            if (\Utilities\Text::length($this->item[$field]) > 65535) {
                 $this->errors[$field] = 'El contenido supera el máximo permitido.';
             }
         }
@@ -289,7 +289,7 @@ class Mantenimiento extends PrivateController
 
         $repuestos = trim(strval($this->item['repuestos_utilizados'] ?? ''));
         $this->item['repuestos_utilizados'] = $repuestos;
-        if ($this->textLength($repuestos) > 65535) {
+        if (\Utilities\Text::length($repuestos) > 65535) {
             $this->errors['repuestos_utilizados'] = 'Los repuestos superan el máximo permitido.';
         }
 
@@ -656,8 +656,4 @@ class Mantenimiento extends PrivateController
         return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     }
 
-    private function textLength(string $value): int
-    {
-        return function_exists('mb_strlen') ? mb_strlen($value, 'UTF-8') : strlen($value);
-    }
 }

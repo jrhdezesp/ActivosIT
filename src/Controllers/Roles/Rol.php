@@ -58,7 +58,7 @@ class Rol extends PrivateController
         } catch (\Exception $ex) {
             Site::redirectToWithMsg(
                 'index.php?page=Roles_Roles',
-                $ex->getMessage()
+                Site::safeMessage($ex)
             );
         }
     }
@@ -99,10 +99,16 @@ class Rol extends PrivateController
 
         if (Validators::IsEmpty($this->rol['rolescod'])) {
             $errors['rolescod_error'] = 'El código del rol es requerido';
+        } elseif (\Utilities\Text::length($this->rol['rolescod']) > 255) {
+            $errors['rolescod_error'] = 'El código no puede superar los 255 caracteres';
+        } elseif ($this->mode === 'INS' && RolesDao::nombreExists($this->rol['rolescod'])) {
+            $errors['rolescod_error'] = 'Ya existe un rol con ese código';
         }
 
         if (Validators::IsEmpty($this->rol['rolesdsc'])) {
             $errors['rolesdsc_error'] = 'La descripción del rol es requerida';
+        } elseif (\Utilities\Text::length($this->rol['rolesdsc']) > 255) {
+            $errors['rolesdsc_error'] = 'La descripción no puede superar los 255 caracteres';
         }
 
         if (!in_array($this->rol['rolesest'], ['ACT', 'INA'])) {

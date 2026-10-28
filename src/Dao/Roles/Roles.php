@@ -256,4 +256,19 @@ class Roles extends Table
             'rolescodInt' => intval($rolescod),
         ]);
     }
+
+    /**
+     * Indica si ya existe un rol con ese nombre.
+     *
+     * @param string $nombre Nombre del rol.
+     * @return bool
+     */
+    public static function nombreExists(string $nombre): bool
+    {
+        $row = self::obtenerUnRegistro(
+            'SELECT COUNT(*) AS total FROM roles WHERE nombre_rol = :nombre',
+            ['nombre' => $nombre]
+        );
+        return intval($row['total'] ?? 0) > 0;
+    }
 }

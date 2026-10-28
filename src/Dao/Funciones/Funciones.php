@@ -156,9 +156,9 @@ class Funciones extends Table
         string $fnest,
         string $fntyp
     ): int {
-        $tipo = in_array($fntyp, ['CTR', 'MNU', 'MNT', 'RPT'], true) ? $fntyp : 'CTR';
+        $tipo = in_array($fntyp, ['CTR', 'MNU', 'MNT', 'RPT', 'ACC'], true) ? $fntyp : 'CTR';
         $estado = in_array($fnest, ['ACT', '1'], true) ? 1 : 0;
-        $moduloPorTipo = ['CTR' => 'Controladores', 'MNU' => 'Menús', 'MNT' => 'Mantenimientos', 'RPT' => 'Reportes'];
+        $moduloPorTipo = ['CTR' => 'Controladores', 'MNU' => 'Menús', 'MNT' => 'Mantenimientos', 'RPT' => 'Reportes', 'ACC' => 'Acciones'];
 
         $sqlstr = 'INSERT INTO permisos (nombre_permiso, descripcion_permiso, modulo_permiso, tipo_permiso, estado_permiso)
             VALUES (:fncod, :fndsc, :modulo, :tipo, :estado)
@@ -182,7 +182,7 @@ class Funciones extends Table
         string $fnest,
         string $fntyp
     ): int {
-        $tipo = in_array($fntyp, ['CTR', 'MNU', 'MNT', 'RPT'], true) ? $fntyp : 'CTR';
+        $tipo = in_array($fntyp, ['CTR', 'MNU', 'MNT', 'RPT', 'ACC'], true) ? $fntyp : 'CTR';
         $estado = in_array($fnest, ['ACT', '1'], true) ? 1 : 0;
 
         // modulo_permiso es informativo/agrupador: no se sobrescribe al editar
@@ -211,5 +211,20 @@ class Funciones extends Table
             'fncod' => $fncod,
             'fncodInt' => intval($fncod),
         ]);
+    }
+
+    /**
+     * Indica si ya existe un permiso con ese nombre.
+     *
+     * @param string $nombre Nombre del permiso.
+     * @return bool
+     */
+    public static function nombreExists(string $nombre): bool
+    {
+        $row = self::obtenerUnRegistro(
+            'SELECT COUNT(*) AS total FROM permisos WHERE nombre_permiso = :nombre',
+            ['nombre' => $nombre]
+        );
+        return intval($row['total'] ?? 0) > 0;
     }
 }

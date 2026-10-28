@@ -56,7 +56,7 @@ class Articulo extends PrivateController
         } catch (\Exception $ex) {
             Site::redirectToWithMsg(
                 'index.php?page=Articulos_Articulos&msg=error',
-                $ex->getMessage()
+                Site::safeMessage($ex)
             );
         }
     }
@@ -182,7 +182,7 @@ class Articulo extends PrivateController
         $this->item['codigo_interno_articulo'] = $code;
         if ($code === '') {
             $this->errors['codigo_interno_articulo'] = 'Este campo es requerido.';
-        } elseif ($this->textLength($code) > 255) {
+        } elseif (\Utilities\Text::length($code) > 255) {
             $this->errors['codigo_interno_articulo'] = 'El código no puede superar los 255 caracteres.';
         } else {
             $excludeId = $this->mode === 'UPD' ? $this->id : 0;
@@ -195,13 +195,13 @@ class Articulo extends PrivateController
         $this->item['nombre_articulo'] = $name;
         if ($name === '') {
             $this->errors['nombre_articulo'] = 'Este campo es requerido.';
-        } elseif ($this->textLength($name) > 255) {
+        } elseif (\Utilities\Text::length($name) > 255) {
             $this->errors['nombre_articulo'] = 'El nombre no puede superar los 255 caracteres.';
         }
 
         $description = trim(strval($this->item['descripcion_articulo'] ?? ''));
         $this->item['descripcion_articulo'] = $description;
-        if ($this->textLength($description) > 65535) {
+        if (\Utilities\Text::length($description) > 65535) {
             $this->errors['descripcion_articulo'] = 'La descripción supera el máximo permitido.';
         }
 
@@ -211,7 +211,7 @@ class Articulo extends PrivateController
             'observaciones_articulo' => 65535,
         ] as $field => $maxLength) {
             $this->item[$field] = trim(strval($this->item[$field] ?? ''));
-            if ($this->textLength($this->item[$field]) > $maxLength) {
+            if (\Utilities\Text::length($this->item[$field]) > $maxLength) {
                 $this->errors[$field] = 'El contenido supera el máximo permitido.';
             }
         }
@@ -256,15 +256,11 @@ class Articulo extends PrivateController
             $this->item['existencia_minima'] = strval(intval($minimum));
         }
 
-        $actual = trim(strval($this->item['existencia_actual'] ?? ''));
+        // La existencia no se captura a mano: en articulos por cantidad se
+        // carga con documentos de entrada y en articulos por serie se calcula
+        // a partir de los equipos registrados.
         if ($this->mode === 'INS') {
-            if ($actual === '') {
-                $this->errors['existencia_actual'] = 'Este campo es requerido.';
-            } elseif (!preg_match('/^\d{1,10}$/', $actual) || intval($actual) > 2147483647) {
-                $this->errors['existencia_actual'] = 'Ingresa un número entero mayor o igual a 0.';
-            } else {
-                $this->item['existencia_actual'] = strval(intval($actual));
-            }
+            $this->item['existencia_actual'] = '0';
         } else {
             $this->item['existencia_actual'] = strval(intval($this->originalItem['existencia_actual'] ?? 0));
         }
@@ -440,7 +436,7 @@ class Articulo extends PrivateController
             'FormTipoControl' => strval($this->item['tipo_control'] ?? ''),
             'FormExistenciaMinima' => strval($this->item['existencia_minima'] ?? '0'),
             'FormExistenciaActual' => strval($this->item['existencia_actual'] ?? '0'),
-            'FormExistenciaActualReadonly' => $this->mode === 'UPD' ? 'readonly' : '',
+            'FormExistenciaActualReadonly' => 'readonly',
             'FormEstado' => strval($this->item['estado_registro'] ?? '1'),
             'FormCodeError' => strval($this->errors['codigo_interno_articulo'] ?? ''),
             'FormNameError' => strval($this->errors['nombre_articulo'] ?? ''),
@@ -567,10 +563,6 @@ class Articulo extends PrivateController
         return $timestamp !== false ? date('d/m/Y H:i', $timestamp) : $value;
     }
 
-    private function textLength(string $value): int
-    {
-        return function_exists('mb_strlen') ? mb_strlen($value, 'UTF-8') : strlen($value);
-    }
 
     private function nullIfEmpty(string $value): ?string
     {

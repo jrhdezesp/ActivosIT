@@ -39,7 +39,7 @@ class Catalogo extends PrivateController
             }
             $this->renderForm();
         } catch (\Exception $ex) {
-            Site::redirectToWithMsg($this->listUrl() . '&msg=error', $ex->getMessage());
+            Site::redirectToWithMsg($this->listUrl() . '&msg=error', Site::safeMessage($ex));
         }
     }
 
@@ -118,7 +118,7 @@ class Catalogo extends PrivateController
             if (
                 !empty($field['maxlength'])
                 && $value !== ''
-                && $this->textLength($value) > intval($field['maxlength'])
+                && \Utilities\Text::length($value) > intval($field['maxlength'])
             ) {
                 $this->errors[$name] = 'El valor supera el máximo de ' . intval($field['maxlength']) . ' caracteres.';
                 continue;
@@ -304,10 +304,6 @@ class Catalogo extends PrivateController
         return false;
     }
 
-    private function textLength(string $value): int
-    {
-        return function_exists('mb_strlen') ? mb_strlen($value, 'UTF-8') : strlen($value);
-    }
 
     private function listUrl(): string
     {

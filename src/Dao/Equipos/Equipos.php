@@ -361,7 +361,7 @@ class Equipos extends Table
      */
     public static function insertEquipo(array $data): bool
     {
-        return self::executeNonQuery(
+        $ok = self::executeNonQuery(
             'INSERT INTO equipos_individuales ('
             . 'id_articulo, numero_serie_equipo, codigo_patrimonial_equipo,'
             . ' fecha_adquisicion, id_motivo, proveedor_origen, estado_operativo,'
@@ -386,6 +386,10 @@ class Equipos extends Table
                 'estado' => intval($data['estado_registro']),
             ]
         );
+        if ($ok) {
+            self::sincronizarExistenciaSerie(intval($data['id_articulo']));
+        }
+        return $ok;
     }
 
     /**
@@ -397,7 +401,8 @@ class Equipos extends Table
      */
     public static function updateEquipo(int $id, array $data): bool
     {
-        return self::executeNonQuery(
+        $anterior = self::getEquipoById($id);
+        $ok = self::executeNonQuery(
             'UPDATE equipos_individuales SET'
             . ' id_articulo = :articulo, numero_serie_equipo = :serie,'
             . ' codigo_patrimonial_equipo = :patrimonial, fecha_adquisicion = :adquisicion,'
@@ -423,6 +428,13 @@ class Equipos extends Table
                 'id' => $id,
             ]
         );
+        if ($ok) {
+            if (is_array($anterior)) {
+                self::sincronizarExistenciaSerie(intval($anterior['id_articulo']));
+            }
+            self::sincronizarExistenciaSerie(intval($data['id_articulo']));
+        }
+        return $ok;
     }
 
     /**
@@ -478,9 +490,39 @@ class Equipos extends Table
 
     public static function deactivateEquipo(int $id): bool
     {
-        return self::executeNonQuery(
+        $equipo = self::getEquipoById($id);
+        $ok = self::executeNonQuery(
             'UPDATE equipos_individuales SET estado_registro = 0 WHERE id_equipo = :id',
             ['id' => $id]
+        );
+        if ($ok && is_array($equipo)) {
+            self::sincronizarExistenciaSerie(intval($equipo['id_articulo']));
+        }
+        return $ok;
+    }
+
+    /**
+     * Recalcula la existencia de un articulo controlado por serie.
+     *
+     * El saldo de estos articulos es el numero de equipos activos asociados,
+     * por lo que se actualiza cada vez que un equipo se crea, cambia de
+     * articulo o se desactiva.
+     *
+     * @param int $idArticulo Articulo a recalcular.
+     * @return void
+     */
+    public static function sincronizarExistenciaSerie(int $idArticulo): void
+    {
+        if ($idArticulo <= 0) {
+            return;
+        }
+
+        self::executeNonQuery(
+            "UPDATE articulos a SET existencia_actual = (
+                SELECT COUNT(*) FROM equipos_individuales e
+                WHERE e.id_articulo = a.id_articulo AND e.estado_registro = 1
+            ) WHERE a.id_articulo = :id AND a.tipo_control = 'SERIE'",
+            ['id' => $idArticulo]
         );
     }
 }
