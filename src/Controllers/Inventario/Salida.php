@@ -282,6 +282,8 @@ class Salida extends PrivateController
             && $tipoId !== intval($this->doc['id_tipo_doc'] ?? 0)
         ) {
             $this->errors['id_tipo_doc'] = 'El tipo de documento seleccionado está inactivo.';
+        } elseif (stripos(strval($tipo['nombre_tipo'] ?? ''), 'asignaci') !== false) {
+            $this->errors['id_tipo_doc'] = 'Las asignaciones de equipos se registran desde el módulo Asignaciones; no se permiten como salida.';
         }
 
         $fecha = Fechas::normalizarFechaHora(strval($this->item['fecha_movimiento'] ?? ''));

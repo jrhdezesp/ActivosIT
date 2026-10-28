@@ -224,7 +224,20 @@ class Salidas extends Table
 
         $sql .= ' ORDER BY nombre_tipo ASC';
 
-        return self::obtenerRegistros($sql, $params);
+        $tipos = self::obtenerRegistros($sql, $params);
+
+        // Las salidas no pueden usarse para asignar equipos: ese proceso tiene
+        // su propio modulo con responsable e historial. Se conserva el tipo del
+        // documento en edicion para no romper registros existentes.
+        $filtrados = [];
+        foreach ($tipos as $tipo) {
+            $esAsignacion = stripos(strval($tipo['label'] ?? ''), 'asignaci') !== false;
+            if (!$esAsignacion || intval($tipo['value'] ?? 0) === $includeId) {
+                $filtrados[] = $tipo;
+            }
+        }
+
+        return $filtrados;
     }
 
     public static function getMotivosSalida(bool $onlyActive = true, int $includeId = 0): array
@@ -622,7 +635,13 @@ class Salidas extends Table
         $tipo = self::getTipoDocumentoById(intval($doc['id_tipo_doc']));
         $esAsignacion = $tipo !== null
             && stripos(strval($tipo['nombre_tipo'] ?? ''), 'asignaci') !== false;
-        $estadoEquipo = $esAsignacion ? 'ASIGNADO' : 'DE_BAJA';
+        if ($esAsignacion) {
+            throw new \RuntimeException(
+                'Las salidas no pueden ser de tipo asignacion. Registra la entrega desde el modulo Asignaciones.'
+            );
+        }
+
+        $estadoEquipo = 'DE_BAJA';
 
         $motivoEquipo = null;
         if ($estadoEquipo === 'DE_BAJA' && $doc['id_motivo'] !== null) {
