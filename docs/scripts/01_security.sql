@@ -187,11 +187,7 @@ INSERT INTO `permisos` (`id_permiso`, `nombre_permiso`, `descripcion_permiso`, `
 -- Controlador de la bitácora de auditoría.
 (46, 'Controllers\\Auditoria\\Auditoria',              'Bitácora de auditoría',                          'Auditoría',  'CTR', 1);
 
--- Asignación de Roles a Usuarios
-INSERT INTO `usuarios_roles` (`id_usuario`, `id_rol`) VALUES
-(1, 1),
-(2, 3),
-(3, 2);
+-- Las cuentas y sus roles se asignan durante el bootstrap del despliegue.
 
 -- Asignación de Permisos a Roles
 INSERT INTO `roles_permisos` (`id_rol`, `id_permiso`) VALUES
