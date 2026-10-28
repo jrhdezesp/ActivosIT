@@ -20,7 +20,7 @@ class Reportes extends Table
      * Indicadores generales del inventario. Todas las consultas son de solo
      * lectura y consideran unicamente registros activos.
      *
-     * @return array{usuarios:int,articulos:int,stock_bajo:int,existencias:int,equipos:int,equipos_disponibles:int,equipos_asignados:int,equipos_mantenimiento:int,equipos_revision:int,equipos_baja:int,movimientos:int,movimientos_mes:int,asignaciones_activas:int,custodios:int,mantenimientos:int,mantenimientos_proceso:int,mantenimientos_completados:int}
+     * @return array{usuarios:int,articulos:int,stock_bajo:int,existencias:int,equipos:int,equipos_disponibles:int,equipos_reservados:int,equipos_asignados:int,equipos_mantenimiento:int,equipos_revision:int,equipos_baja:int,movimientos:int,movimientos_mes:int,asignaciones_activas:int,custodios:int,mantenimientos:int,mantenimientos_proceso:int,mantenimientos_completados:int}
      */
     public static function getResumenGeneral(): array
     {
@@ -41,6 +41,7 @@ class Reportes extends Table
         $equipos = self::obtenerUnRegistro(
             "SELECT COUNT(*) AS total,"
             . " COALESCE(SUM(estado_operativo = 'DISPONIBLE'), 0) AS disponibles,"
+            . " COALESCE(SUM(estado_operativo = 'RESERVADO'), 0) AS reservados,"
             . " COALESCE(SUM(estado_operativo = 'ASIGNADO'), 0) AS asignados,"
             . " COALESCE(SUM(estado_operativo = 'EN_MANTENIMIENTO'), 0) AS en_mantenimiento,"
             . " COALESCE(SUM(estado_operativo = 'EN_REVISION'), 0) AS en_revision,"
@@ -80,6 +81,7 @@ class Reportes extends Table
             'existencias' => intval($articulos['existencias'] ?? 0),
             'equipos' => intval($equipos['total'] ?? 0),
             'equipos_disponibles' => intval($equipos['disponibles'] ?? 0),
+            'equipos_reservados' => intval($equipos['reservados'] ?? 0),
             'equipos_asignados' => intval($equipos['asignados'] ?? 0),
             'equipos_mantenimiento' => intval($equipos['en_mantenimiento'] ?? 0),
             'equipos_revision' => intval($equipos['en_revision'] ?? 0),

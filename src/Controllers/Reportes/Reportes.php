@@ -196,6 +196,11 @@ class Reportes extends PrivateController
                 'tone' => 'success',
             ],
             [
+                'label' => 'Reservados',
+                'value' => intval($resumen['equipos_reservados']),
+                'tone' => 'warning',
+            ],
+            [
                 'label' => 'Asignados',
                 'value' => intval($resumen['equipos_asignados']),
                 'tone' => 'info',

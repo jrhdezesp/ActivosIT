@@ -36,6 +36,7 @@ class Equipos extends Table
     // Estados que describen la situacion operativa de un equipo.
     public const ESTADOS_OPERATIVOS = [
         'DISPONIBLE',
+        'RESERVADO',
         'ASIGNADO',
         'EN_MANTENIMIENTO',
         'EN_REVISION',
@@ -185,6 +186,7 @@ class Equipos extends Table
         $row = self::obtenerUnRegistro(
             "SELECT COUNT(*) AS total,"
             . " COALESCE(SUM(CASE WHEN estado_operativo = 'DISPONIBLE' THEN 1 ELSE 0 END), 0) AS disponibles,"
+            . " COALESCE(SUM(CASE WHEN estado_operativo = 'RESERVADO' THEN 1 ELSE 0 END), 0) AS reservados,"
             . " COALESCE(SUM(CASE WHEN estado_operativo = 'ASIGNADO' THEN 1 ELSE 0 END), 0) AS asignados,"
             . " COALESCE(SUM(CASE WHEN estado_operativo IN ('EN_MANTENIMIENTO', 'EN_REVISION') THEN 1 ELSE 0 END), 0) AS servicio,"
             . " COALESCE(SUM(CASE WHEN estado_operativo = 'DE_BAJA' THEN 1 ELSE 0 END), 0) AS baja"
@@ -195,6 +197,7 @@ class Equipos extends Table
         return [
             'total' => intval($row['total'] ?? 0),
             'disponibles' => intval($row['disponibles'] ?? 0),
+            'reservados' => intval($row['reservados'] ?? 0),
             'asignados' => intval($row['asignados'] ?? 0),
             'servicio' => intval($row['servicio'] ?? 0),
             'baja' => intval($row['baja'] ?? 0),
@@ -409,6 +412,30 @@ class Equipos extends Table
                 'id' => $id,
             ]
         );
+    }
+
+    /**
+     * Indica si el equipo esta reservado por una salida en borrador.
+     *
+     * @param int $equipoId Clave primaria del equipo.
+     * @return bool
+     */
+    public static function tieneReservaActiva(int $equipoId): bool
+    {
+        if ($equipoId <= 0) {
+            return false;
+        }
+
+        $row = self::obtenerUnRegistro(
+            "SELECT COUNT(*) AS total FROM detalles_salida d"
+            . " JOIN documentos_salida doc ON doc.id_doc_salida = d.id_doc_salida"
+            . " JOIN equipos_individuales eq ON eq.id_equipo = d.id_equipo"
+            . " WHERE d.id_equipo = :id AND doc.estado_doc = 'BORRADOR'"
+            . " AND eq.estado_operativo = 'RESERVADO'",
+            ['id' => $equipoId]
+        );
+
+        return intval($row['total'] ?? 0) > 0;
     }
 
     public static function tieneHistorialOperativo(int $equipoId): bool

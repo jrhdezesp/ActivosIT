@@ -20,6 +20,7 @@ class Equipo extends PrivateController
     // Estados que describen la situacion actual de un equipo.
     private const ESTADOS_OPERATIVOS = [
         'DISPONIBLE',
+        'RESERVADO',
         'ASIGNADO',
         'EN_MANTENIMIENTO',
         'EN_REVISION',
@@ -28,6 +29,7 @@ class Equipo extends PrivateController
 
     private const ESTADOS_OPERATIVOS_LABELS = [
         'DISPONIBLE' => 'Disponible',
+        'RESERVADO' => 'Reservado',
         'ASIGNADO' => 'Asignado',
         'EN_MANTENIMIENTO' => 'En mantenimiento',
         'EN_REVISION' => 'En revisión',
@@ -278,12 +280,15 @@ class Equipo extends PrivateController
             // Validar coherencia con asignaciones y mantenimientos activos
             $tieneAsignacion = DaoAsignaciones::tieneAsignacionActiva($this->id);
             $tieneMantenimiento = DaoAsignaciones::tieneMantenimientoActivo($this->id);
+            $tieneReserva = DaoEquipos::tieneReservaActiva($this->id);
 
             if ($tieneAsignacion && $operativo !== 'ASIGNADO') {
                 $this->errors['estado_operativo'] = 'El equipo tiene una asignación activa; su estado debe ser Asignado.';
             } elseif ($tieneMantenimiento && $operativo !== 'EN_MANTENIMIENTO') {
                 $this->errors['estado_operativo'] = 'El equipo tiene un mantenimiento en proceso; su estado debe ser En mantenimiento.';
-            } elseif (!$tieneAsignacion && !$tieneMantenimiento
+            } elseif ($tieneReserva && $operativo !== 'RESERVADO') {
+                $this->errors['estado_operativo'] = 'El equipo tiene una salida en borrador; su estado debe ser Reservado.';
+            } elseif (!$tieneAsignacion && !$tieneMantenimiento && !$tieneReserva
                 && !in_array($operativo, ['DISPONIBLE', 'EN_REVISION', 'DE_BAJA'], true)) {
                 $this->errors['estado_operativo'] = 'Selecciona un estado operativo válido.';
             }
@@ -422,6 +427,11 @@ class Equipo extends PrivateController
         if (DaoAsignaciones::tieneMantenimientoActivo($this->id)) {
             throw new \RuntimeException(
                 'No se puede desactivar el equipo porque tiene un mantenimiento en proceso.'
+            );
+        }
+        if (DaoEquipos::tieneReservaActiva($this->id)) {
+            throw new \RuntimeException(
+                'No se puede desactivar el equipo porque esta reservado en una salida en borrador.'
             );
         }
 

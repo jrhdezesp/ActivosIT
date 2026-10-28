@@ -234,7 +234,7 @@ class Salida extends PrivateController
         $this->tipos = DaoSalidas::getTiposDocumento(true, $includeTipo);
         $this->motivos = DaoSalidas::getMotivosSalida(true, $includeMotivo);
         $this->articulos = DaoSalidas::getArticulosOptions($includeArticulos);
-        $this->equipos = DaoSalidas::getEquiposDisponibles();
+        $this->equipos = DaoSalidas::getEquiposDisponibles($this->mode !== 'INS' ? $this->id : 0);
 
         if ($this->mode === 'INS' && !$this->isPostBack()) {
             $tipoActual = intval($this->item['id_tipo_doc'] ?? 0);
@@ -384,7 +384,9 @@ class Salida extends PrivateController
                         $lineErrors['equipo'] = 'El equipo seleccionado está inactivo.';
                     } elseif (intval($equipo['id_articulo'] ?? 0) !== $articuloId) {
                         $lineErrors['equipo'] = 'El equipo no corresponde al artículo seleccionado.';
-                    } elseif (strval($equipo['estado_operativo'] ?? '') !== 'DISPONIBLE') {
+                    } elseif (strval($equipo['estado_operativo'] ?? '') !== 'DISPONIBLE'
+                        && !(strval($equipo['estado_operativo'] ?? '') === 'RESERVADO'
+                            && DaoSalidas::equipoReservadoEnDocumento($equipoId, $this->id))) {
                         $lineErrors['equipo'] = 'El equipo ya no está disponible para salir.';
                     } elseif (isset($equiposUsados[$equipoId])) {
                         $lineErrors['equipo'] = 'El equipo está repetido en este documento.';
@@ -475,6 +477,7 @@ class Salida extends PrivateController
                 }
 
                 $before = $current;
+                DaoSalidas::liberarReservasDocumento($this->id);
                 if (!DaoSalidas::updateDocumento($this->id, $data)) {
                     throw new \RuntimeException('No se pudo actualizar el documento de salida.');
                 }
@@ -483,6 +486,7 @@ class Salida extends PrivateController
                 $docId = $this->id;
             }
 
+            DaoSalidas::reservarEquipos($detalles);
             DaoSalidas::commit();
         } catch (\Throwable $ex) {
             DaoSalidas::rollback();

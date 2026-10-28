@@ -31,6 +31,11 @@ class Equipos extends PrivateController
             'class' => 'badge--success',
             'icon' => 'fa-circle-check',
         ],
+        'RESERVADO' => [
+            'label' => 'Reservado',
+            'class' => 'badge--warning',
+            'icon' => 'fa-bookmark',
+        ],
         'ASIGNADO' => [
             'label' => 'Asignado',
             'class' => 'badge--info',

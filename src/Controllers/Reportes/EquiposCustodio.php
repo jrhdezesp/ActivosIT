@@ -18,6 +18,7 @@ class EquiposCustodio extends PrivateController
 
     private const ESTADOS_EQUIPO = [
         'DISPONIBLE' => ['label' => 'Disponible', 'tone' => 'success'],
+        'RESERVADO' => ['label' => 'Reservado', 'tone' => 'warning'],
         'ASIGNADO' => ['label' => 'Asignado', 'tone' => 'info'],
         'EN_MANTENIMIENTO' => ['label' => 'En mantenimiento', 'tone' => 'warning'],
         'EN_REVISION' => ['label' => 'En revisión', 'tone' => 'neutral'],
@@ -511,6 +512,7 @@ class EquiposCustodio extends PrivateController
 
         $labels = [
             'DISPONIBLE' => ['disponible', 'disponibles'],
+            'RESERVADO' => ['reservado', 'reservados'],
             'ASIGNADO' => ['asignado', 'asignados'],
             'EN_MANTENIMIENTO' => ['en mantenimiento', 'en mantenimiento'],
             'EN_REVISION' => ['en revisión', 'en revisión'],

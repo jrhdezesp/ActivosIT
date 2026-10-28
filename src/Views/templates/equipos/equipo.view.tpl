@@ -80,7 +80,7 @@
               <option value="{{!value}}" {{selected}}>{{!label}}</option>
               {{endfor EstadoOperativoOptions}}
             </select>
-            <p class="form-help">Disponible, asignado, en mantenimiento, en revisión o de baja.</p>
+            <p class="form-help">Disponible, reservado, asignado, en mantenimiento, en revision o de baja.</p>
             {{if FormEstadoOperativoError}}<p class="form-error">{{!FormEstadoOperativoError}}</p>{{endif FormEstadoOperativoError}}
           </div>
 

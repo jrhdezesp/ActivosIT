@@ -285,26 +285,118 @@ class Salidas extends Table
 
     /**
      * Equipos que pueden salir del inventario: estan activos, disponibles y no
-     * forman parte de otra salida confirmada. Un equipo anulado vuelve a estar
-     * disponible para una nueva salida.
+     * forman parte de otra salida confirmada. Al editar un borrador se incluye
+     * el equipo que ese mismo documento tiene reservado.
+     *
+     * @param int $includeDocId Documento en edicion; 0 para una salida nueva.
+     * @return array
      */
-    public static function getEquiposDisponibles(): array
+    public static function getEquiposDisponibles(int $includeDocId = 0): array
     {
-        return self::obtenerRegistros(
-            "SELECT eq.id_equipo AS value, eq.id_articulo,"
+        $sql = "SELECT eq.id_equipo AS value, eq.id_articulo,"
             . " eq.numero_serie_equipo, eq.codigo_patrimonial_equipo,"
             . " eq.estado_operativo"
             . " FROM equipos_individuales eq"
             . " WHERE eq.estado_registro = 1"
-            . " AND eq.estado_operativo = 'DISPONIBLE'"
             . " AND NOT EXISTS ("
             . "   SELECT 1 FROM detalles_salida d"
             . "   JOIN documentos_salida doc ON doc.id_doc_salida = d.id_doc_salida"
             . "   WHERE d.id_equipo = eq.id_equipo AND doc.estado_doc = 'CONFIRMADO'"
-            . " )"
-            . " ORDER BY eq.numero_serie_equipo ASC",
-            []
+            . " )";
+        $params = [];
+
+        if ($includeDocId > 0) {
+            $sql .= " AND (eq.estado_operativo = 'DISPONIBLE'"
+                . " OR (eq.estado_operativo = 'RESERVADO' AND EXISTS ("
+                . "   SELECT 1 FROM detalles_salida rd"
+                . "   JOIN documentos_salida rdoc ON rdoc.id_doc_salida = rd.id_doc_salida"
+                . "   WHERE rd.id_equipo = eq.id_equipo"
+                . "   AND rdoc.estado_doc = 'BORRADOR'"
+                . "   AND rdoc.id_doc_salida = :includeDocId"
+                . " )))";
+            $params['includeDocId'] = $includeDocId;
+        } else {
+            $sql .= " AND eq.estado_operativo = 'DISPONIBLE'";
+        }
+
+        $sql .= " ORDER BY eq.numero_serie_equipo ASC";
+
+        return self::obtenerRegistros($sql, $params);
+    }
+
+    /**
+     * Indica si un equipo pertenece a un borrador de salida concreto.
+     *
+     * @param int $equipoId Equipo consultado.
+     * @param int $docId Documento de salida.
+     * @return bool
+     */
+    public static function equipoReservadoEnDocumento(int $equipoId, int $docId): bool
+    {
+        if ($equipoId <= 0 || $docId <= 0) {
+            return false;
+        }
+
+        $row = self::obtenerUnRegistro(
+            "SELECT COUNT(*) AS total FROM detalles_salida d"
+            . " JOIN documentos_salida doc ON doc.id_doc_salida = d.id_doc_salida"
+            . " WHERE d.id_equipo = :equipo"
+            . " AND doc.id_doc_salida = :documento"
+            . " AND doc.estado_doc = 'BORRADOR'",
+            ['equipo' => $equipoId, 'documento' => $docId]
         );
+
+        return intval($row['total'] ?? 0) > 0;
+    }
+
+    /**
+     * Libera los equipos reservados por un documento en borrador.
+     *
+     * @param int $docId Documento de salida.
+     * @return void
+     */
+    public static function liberarReservasDocumento(int $docId): void
+    {
+        if ($docId <= 0) {
+            return;
+        }
+
+        self::executeNonQuery(
+            "UPDATE equipos_individuales eq"
+            . " SET eq.estado_operativo = 'DISPONIBLE'"
+            . " WHERE eq.estado_operativo = 'RESERVADO'"
+            . " AND EXISTS ("
+            . "   SELECT 1 FROM detalles_salida d"
+            . "   WHERE d.id_doc_salida = :documento AND d.id_equipo = eq.id_equipo"
+            . " )",
+            ['documento' => $docId]
+        );
+    }
+
+    /**
+     * Marca como reservados los equipos serializados de un borrador.
+     *
+     * @param array $detalles Lineas con id_equipo.
+     * @return void
+     */
+    public static function reservarEquipos(array $detalles): void
+    {
+        $equipos = [];
+        foreach ($detalles as $detalle) {
+            $equipoId = intval($detalle['id_equipo'] ?? 0);
+            if ($equipoId > 0) {
+                $equipos[$equipoId] = true;
+            }
+        }
+
+        foreach (array_keys($equipos) as $equipoId) {
+            self::executeNonQuery(
+                "UPDATE equipos_individuales SET estado_operativo = 'RESERVADO'"
+                . " WHERE id_equipo = :id"
+                . " AND estado_operativo IN ('DISPONIBLE', 'RESERVADO')",
+                ['id' => intval($equipoId)]
+            );
+        }
     }
 
     public static function getArticuloById(int $id): ?array
@@ -609,7 +701,10 @@ class Salidas extends Table
                         'El equipo "' . $equipoLabel . '" no corresponde al artículo de la línea.'
                     );
                 }
-                if (strval($equipo['estado_operativo'] ?? '') !== 'DISPONIBLE') {
+                $estadoActual = strval($equipo['estado_operativo'] ?? '');
+                if ($estadoActual !== 'DISPONIBLE'
+                    && !($estadoActual === 'RESERVADO'
+                        && self::equipoReservadoEnDocumento($equipoId, $docId))) {
                     throw new \RuntimeException(
                         'El equipo "' . $equipoLabel . '" ya no está disponible para salir.'
                     );
@@ -764,6 +859,10 @@ class Salidas extends Table
                     ['id' => $equipoId]
                 );
             }
+        }
+
+        if (strval($doc['estado_doc']) === 'BORRADOR') {
+            self::liberarReservasDocumento($docId);
         }
 
         self::executeNonQuery(
