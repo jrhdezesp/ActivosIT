@@ -28,6 +28,15 @@ CREATE TABLE IF NOT EXISTS `ubicaciones` (
   UNIQUE KEY `uq_ubicaciones_nombre` (`nombre_ubicacion`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `estados_fisicos` (
+  `id_estado_fisico` INT NOT NULL AUTO_INCREMENT,
+  `nombre_estado_fisico` VARCHAR(100) NOT NULL,
+  `descripcion_estado_fisico` VARCHAR(255) NULL,
+  `estado_estado_fisico` BOOLEAN NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id_estado_fisico`),
+  UNIQUE KEY `uq_estados_fisicos_nombre` (`nombre_estado_fisico`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS `departamentos` (
   `id_departamento` INT NOT NULL AUTO_INCREMENT,
   `nombre_departamento` VARCHAR(150) NOT NULL,

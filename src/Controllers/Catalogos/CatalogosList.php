@@ -116,6 +116,10 @@ abstract class CatalogosList extends PrivateController
                     $detail = trim(strval($row['descripcion_departamento'] ?? '')) ?: 'Sin descripcion';
                     break;
 
+                case 'estados_fisicos':
+                    $detail = trim(strval($row['descripcion_estado_fisico'] ?? '')) ?: 'Sin descripcion';
+                    break;
+
                 case 'unidades_medida':
                     $symbol = trim(strval($row['simbolo_medida'] ?? ''));
                     if ($symbol !== '') {

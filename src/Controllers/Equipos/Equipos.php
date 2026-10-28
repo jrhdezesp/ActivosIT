@@ -3,6 +3,7 @@
 namespace Controllers\Equipos;
 
 use Controllers\PrivateController;
+use Dao\Catalogos\Catalogos as DaoCatalogos;
 use Dao\Equipos\Equipos as DaoEquipos;
 use Utilities\Paging;
 use Views\Renderer;
@@ -72,6 +73,7 @@ class Equipos extends PrivateController
     private $orderDescending = false;
     private $pageNumber = 1;
     private $itemsPerPage = 10;
+    private $estadosFisicosLabels = [];
 
     /**
      * Busca los equipos solicitados y presenta el listado correspondiente.
@@ -79,6 +81,7 @@ class Equipos extends PrivateController
     public function run(): void
     {
         $this->getParams();
+        $this->loadEstadoFisicoLabels();
 
         $result = DaoEquipos::getEquipos(
             $this->search,
@@ -227,6 +230,17 @@ class Equipos extends PrivateController
         ];
     }
 
+    private function loadEstadoFisicoLabels(): void
+    {
+        $this->estadosFisicosLabels = [];
+        foreach (DaoCatalogos::getItems('estados_fisicos', '', '1') as $row) {
+            $name = trim(strval($row['nombre_estado_fisico'] ?? ''));
+            if ($name !== '') {
+                $this->estadosFisicosLabels[$name] = $name;
+            }
+        }
+    }
+
     private function mapEquipo(array $row): array
     {
         $id = intval($row['id_equipo'] ?? 0);
@@ -239,7 +253,7 @@ class Equipos extends PrivateController
         ];
         $fisico = strval($row['estado_fisico'] ?? '');
         $fisicoData = self::ESTADOS_FISICOS[$fisico] ?? [
-            'label' => 'Sin definir',
+            'label' => $this->estadosFisicosLabels[$fisico] ?? ($fisico !== '' ? $fisico : 'Sin definir'),
             'class' => 'badge--outline',
         ];
 

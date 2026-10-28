@@ -3,6 +3,7 @@
 namespace Controllers\Equipos;
 
 use Controllers\PrivateController;
+use Dao\Catalogos\Catalogos as DaoCatalogos;
 use Dao\Equipos\Equipos as DaoEquipos;
 use Dao\Inventario\Asignaciones as DaoAsignaciones;
 use Utilities\ArrUtils;
@@ -36,8 +37,6 @@ class Equipo extends PrivateController
         'DE_BAJA' => 'De baja',
     ];
 
-    private const ESTADOS_FISICOS = ['BUENO', 'REGULAR', 'MALO'];
-
     private const ESTADOS_FISICOS_LABELS = [
         'BUENO' => 'Bueno',
         'REGULAR' => 'Regular',
@@ -62,6 +61,7 @@ class Equipo extends PrivateController
     private $articulos = [];
     private $ubicaciones = [];
     private $motivos = [];
+    private $estadosFisicos = [];
 
     /**
      * Carga el equipo, procesa los cambios enviados y muestra el formulario.
@@ -198,6 +198,21 @@ class Equipo extends PrivateController
         $this->articulos = DaoEquipos::getArticulosOptions(true, $includeArticulo);
         $this->ubicaciones = DaoEquipos::getUbicacionesOptions(true, $includeUbicacion);
         $this->motivos = DaoEquipos::getMotivosOptions($includeMotivo);
+        $this->estadosFisicos = DaoCatalogos::getItems('estados_fisicos', '', '1');
+
+        $currentFisico = trim(strval($this->item['estado_fisico'] ?? ''));
+        if ($currentFisico !== '') {
+            $found = false;
+            foreach ($this->estadosFisicos as $estado) {
+                if (trim(strval($estado['nombre_estado_fisico'] ?? '')) === $currentFisico) {
+                    $found = true;
+                    break;
+                }
+            }
+            if (!$found) {
+                $this->estadosFisicos[] = ['nombre_estado_fisico' => $currentFisico];
+            }
+        }
     }
 
     /**
@@ -306,7 +321,7 @@ class Equipo extends PrivateController
         }
 
         $fisico = strval($this->item['estado_fisico'] ?? '');
-        if (!in_array($fisico, self::ESTADOS_FISICOS, true)) {
+        if (!array_key_exists($fisico, $this->estadoFisicoValues())) {
             $this->errors['estado_fisico'] = 'Selecciona un estado fisico valido.';
         }
 
@@ -592,11 +607,34 @@ class Equipo extends PrivateController
     private function buildEstadoFisicoOptions(): array
     {
         $options = [];
-        foreach (self::ESTADOS_FISICOS_LABELS as $value => $label) {
+        foreach ($this->estadoFisicoValues() as $value => $label) {
             $options[] = ['value' => $value, 'label' => $label];
         }
 
         return $options;
+    }
+
+    private function estadoFisicoValues(): array
+    {
+        $values = self::ESTADOS_FISICOS_LABELS;
+        $seen = array_map(function ($label) {
+            return mb_strtolower($label, 'UTF-8');
+        }, array_values($values));
+
+        foreach ($this->estadosFisicos as $row) {
+            $name = trim(strval($row['nombre_estado_fisico'] ?? ''));
+            if ($name === '') {
+                continue;
+            }
+
+            $key = mb_strtolower($name, 'UTF-8');
+            if (!in_array($key, $seen, true)) {
+                $values[$name] = $name;
+                $seen[] = $key;
+            }
+        }
+
+        return $values;
     }
 
     private function decorateArticuloOptions(array $rows, string $selected): array

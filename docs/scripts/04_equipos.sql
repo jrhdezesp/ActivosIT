@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `equipos_individuales` (
   `id_motivo` INT NULL,
   `proveedor_origen` VARCHAR(150) NULL,
   `estado_operativo` ENUM('DISPONIBLE', 'RESERVADO', 'ASIGNADO', 'EN_MANTENIMIENTO', 'EN_REVISION', 'DE_BAJA') NOT NULL DEFAULT 'DISPONIBLE',
-  `estado_fisico` ENUM('BUENO', 'REGULAR', 'MALO') NOT NULL DEFAULT 'BUENO',
+  `estado_fisico` VARCHAR(100) NOT NULL DEFAULT 'BUENO',
   `id_ubicacion` INT NOT NULL,
   `garantia_vencimiento_equipo` DATE NULL,
   `observaciones_equipo` TEXT NULL,
