@@ -78,6 +78,7 @@ class Equipos extends Table
      * @param bool $orderDescending true para orden descendente.
      * @param int $page Pagina basada en cero.
      * @param int $itemsPerPage Registros por pagina.
+     * @param string $estadoFisico Estado fisico; vacio para todos.
      * @return array{equipos: array, total: int, page: int, itemsPerPage: int, pages: int}
      */
     public static function getEquipos(
@@ -88,7 +89,8 @@ class Equipos extends Table
         string $orderBy = 'numero_serie_equipo',
         bool $orderDescending = false,
         int $page = 0,
-        int $itemsPerPage = 10
+        int $itemsPerPage = 10,
+        string $estadoFisico = ''
     ): array {
         if (!in_array($status, ['', '0', '1'], true)) {
             throw new \InvalidArgumentException('El estado solicitado no es válido.');
@@ -134,6 +136,12 @@ class Equipos extends Table
         if ($articuloId > 0) {
             $conditions[] = 'e.id_articulo = :articuloId';
             $params['articuloId'] = $articuloId;
+        }
+
+        $estadoFisico = trim($estadoFisico);
+        if ($estadoFisico !== '') {
+            $conditions[] = 'e.estado_fisico = :estadoFisico';
+            $params['estadoFisico'] = $estadoFisico;
         }
 
         $where = count($conditions) > 0 ? ' WHERE ' . implode(' AND ', $conditions) : '';

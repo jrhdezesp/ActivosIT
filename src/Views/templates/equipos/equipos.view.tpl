@@ -76,6 +76,15 @@
       </select>
     </div>
     <div class="form-field">
+      <label for="equipmentPhysical">Estado fisico</label>
+      <select id="equipmentPhysical" name="fisico">
+        <option value="" {{ifnot EstadoFisico}}selected{{endifnot EstadoFisico}}>Todos</option>
+        {{foreach EstadosFisicosFiltro}}
+        <option value="{{!value}}" {{selected}}>{{!label}}</option>
+        {{endfor EstadosFisicosFiltro}}
+      </select>
+    </div>
+    <div class="form-field">
       <label for="equipmentArticle">Artículo</label>
       <select id="equipmentArticle" name="articulo">
         <option value="" {{ifnot ArticuloId}}selected{{endifnot ArticuloId}}>Todos</option>

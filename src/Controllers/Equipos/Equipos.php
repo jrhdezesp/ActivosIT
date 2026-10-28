@@ -68,6 +68,7 @@ class Equipos extends PrivateController
     private $search = '';
     private $status = '';
     private $estadoOperativo = '';
+    private $estadoFisico = '';
     private $articuloId = 0;
     private $orderBy = 'numero_serie_equipo';
     private $orderDescending = false;
@@ -91,7 +92,8 @@ class Equipos extends PrivateController
             $this->orderBy,
             $this->orderDescending,
             $this->pageNumber - 1,
-            $this->itemsPerPage
+            $this->itemsPerPage,
+            $this->estadoFisico
         );
 
         $this->pageNumber = max(1, intval($result['page']) + 1);
@@ -115,6 +117,11 @@ class Equipos extends PrivateController
         $this->estadoOperativo = strtoupper(strval($_GET['operativo'] ?? ''));
         if (!in_array($this->estadoOperativo, array_keys(self::ESTADOS), true)) {
             $this->estadoOperativo = '';
+        }
+
+        $this->estadoFisico = trim(strval($_GET['fisico'] ?? ''));
+        if ($this->textLength($this->estadoFisico) > 100) {
+            $this->estadoFisico = $this->substring($this->estadoFisico, 0, 100);
         }
 
         $this->articuloId = max(0, intval($_GET['articulo'] ?? 0));
@@ -195,6 +202,8 @@ class Equipos extends PrivateController
             'StatusInactiveSelected' => $this->status === '0' ? 'selected' : '',
             'EstadoOperativo' => $this->estadoOperativo,
             'EstadosFiltro' => $this->decorateEstadoOptions(),
+            'EstadoFisico' => $this->estadoFisico,
+            'EstadosFisicosFiltro' => $this->decorateEstadoFisicoFiltro(),
             'ArticuloId' => $this->articuloId,
             'ArticulosFiltro' => $articuloFilter,
             'HasFilters' => $hasFilters,
@@ -321,6 +330,33 @@ class Equipos extends PrivateController
         return $options;
     }
 
+    private function decorateEstadoFisicoFiltro(): array
+    {
+        $values = [];
+        foreach (self::ESTADOS_FISICOS as $value => $data) {
+            $values[$value] = $data['label'];
+        }
+        foreach ($this->estadosFisicosLabels as $value => $label) {
+            if (!isset($values[$value])) {
+                $values[$value] = $label;
+            }
+        }
+        if ($this->estadoFisico !== '' && !isset($values[$this->estadoFisico])) {
+            $values[$this->estadoFisico] = $this->estadoFisico;
+        }
+
+        $options = [];
+        foreach ($values as $value => $label) {
+            $options[] = [
+                'value' => $value,
+                'label' => $label,
+                'selected' => $value === $this->estadoFisico ? 'selected' : '',
+            ];
+        }
+
+        return $options;
+    }
+
     private function buildSortData(string $field): array
     {
         $isCurrent = $this->orderBy === $field;
@@ -380,6 +416,9 @@ class Equipos extends PrivateController
         if ($this->estadoOperativo !== '') {
             $params['operativo'] = $this->estadoOperativo;
         }
+        if ($this->estadoFisico !== '') {
+            $params['fisico'] = $this->estadoFisico;
+        }
         if ($this->articuloId > 0) {
             $params['articulo'] = $this->articuloId;
         }
@@ -416,6 +455,7 @@ class Equipos extends PrivateController
         return $this->search !== ''
             || $this->status !== ''
             || $this->estadoOperativo !== ''
+            || $this->estadoFisico !== ''
             || $this->articuloId > 0;
     }
 
