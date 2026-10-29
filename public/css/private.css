@@ -773,6 +773,14 @@
   background: var(--brand-blue-soft);
 }
 
+.editor-icon-button:disabled,
+.editor-icon-button:disabled:hover {
+  border-color: var(--brand-line);
+  background: var(--brand-white);
+  color: #8A94A6;
+  cursor: not-allowed;
+}
+
 .nav-editor-items {
   margin: 0;
   padding: 0.4rem 0.7rem 0.6rem;
@@ -841,6 +849,22 @@
 .status-badge--group {
   background: var(--brand-blue-soft);
   color: var(--brand-blue);
+}
+
+.status-badge--hidden {
+  background: #FFF3D6;
+  color: #8A5A00;
+}
+
+.nav-editor-group.is-hidden,
+.nav-editor-item.is-hidden,
+.nav-preview__group.is-hidden,
+.nav-preview li.is-hidden {
+  opacity: 0.7;
+}
+
+.nav-editor-group.is-hidden > .nav-editor-group__header {
+  background: #FFF8E8;
 }
 
 .nav-editor-empty {

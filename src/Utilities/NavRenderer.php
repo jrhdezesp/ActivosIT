@@ -74,6 +74,21 @@ class NavRenderer
             $entry["status"] = $status;
             $entry["description"] = $entry["description"] ?? "";
             $entry["status_label"] = self::statusLabel($status);
+            $isVisible = ($entry["visible"] ?? true) !== false;
+            $entry["hidden_class"] = $isVisible ? "" : " is-hidden";
+            $entry["visible_attr"] = $isVisible ? "1" : "0";
+            $entry["visibility_icon"] = $isVisible ? "fa-eye" : "fa-eye-slash";
+            $entry["visibility_title"] = $isVisible ? "Ocultar del menú" : "Mostrar en el menú";
+            $entry["visibility_pressed"] = $isVisible ? "true" : "false";
+            $entry["hidden_badge_html"] = $isVisible
+                ? ""
+                : '<span class="status-badge status-badge--hidden">Oculto</span>';
+            $entry["visibility_control_html"] = Nav::isProtectedNavId(strval($entry["id"] ?? ""))
+                ? self::lockedVisibilityButton()
+                : '<button type="button" class="editor-icon-button" data-toggle-visibility aria-pressed="'
+                    . $entry["visibility_pressed"] . '" title="' . $entry["visibility_title"]
+                    . '" aria-label="' . $entry["visibility_title"] . ' ' . self::escape($entry["nav_label"] ?? "")
+                    . '"><i class="fa-solid ' . $entry["visibility_icon"] . '"></i></button>';
             $entry["active_class"] = $hasActiveItem
                 || self::isActiveUrl($entry["nav_url"] ?? "", $currentPage)
                 ? " is-active"
@@ -122,22 +137,45 @@ class NavRenderer
         $statusLabel = self::escape(self::statusLabel($item["status"] ?? "active"));
         $icon = self::escape($item["icon"] ?? "fa-circle");
         $label = self::escape($item["nav_label"] ?? "");
-        return '<li class="nav-editor-item" data-item data-item-id="' . $id . '">'
+        $isVisible = ($item["visible"] ?? true) !== false;
+        $isProtected = Nav::isProtectedNavId($id);
+        $hiddenClass = $isVisible ? "" : " is-hidden";
+        $visibilityIcon = $isVisible ? "fa-eye" : "fa-eye-slash";
+        $visibilityTitle = $isVisible ? "Ocultar del menú" : "Mostrar en el menú";
+        $visibilityBadge = $isVisible
+            ? ""
+            : '<span class="status-badge status-badge--hidden">Oculto</span>';
+        $visibilityControl = $isProtected
+            ? self::lockedVisibilityButton()
+            : '<button type="button" class="editor-icon-button" data-toggle-visibility aria-pressed="'
+                . ($isVisible ? "true" : "false") . '" title="' . $visibilityTitle . '" aria-label="' . $visibilityTitle
+                . ' ' . $label . '"><i class="fa-solid ' . $visibilityIcon . '"></i></button>';
+        return '<li class="nav-editor-item' . $hiddenClass . '" data-item data-item-id="' . $id
+            . '" data-visible="' . ($isVisible ? "1" : "0") . '">'
             . '<span class="nav-editor-item__handle" aria-hidden="true"><i class="fa-solid fa-grip-vertical"></i></span>'
             . '<span class="nav-editor-item__icon"><i class="fa-solid ' . $icon . '" aria-hidden="true"></i></span>'
             . '<div class="nav-editor-item__copy"><strong>' . $label . '</strong><span>' . $url . '</span></div>'
             . '<span class="status-badge status-badge--' . $status . '">' . $statusLabel . '</span>'
+            . $visibilityBadge
             . '<div class="nav-editor-item__controls">'
+            . $visibilityControl
             . '<button type="button" class="editor-icon-button" data-move="up" title="Subir" aria-label="Subir ' . $label . '"><i class="fa-solid fa-arrow-up"></i></button>'
             . '<button type="button" class="editor-icon-button" data-move="down" title="Bajar" aria-label="Bajar ' . $label . '"><i class="fa-solid fa-arrow-down"></i></button>'
             . '</div></li>';
+    }
+
+    /** Boton fijo que recuerda que la entrada no puede ocultarse. */
+    private static function lockedVisibilityButton(): string
+    {
+        return '<button type="button" class="editor-icon-button" disabled title="Siempre visible" aria-label="Siempre visible"><i class="fa-solid fa-lock"></i></button>';
     }
 
     private static function previewItem(array $item): string
     {
         $status = self::escape($item["status"] ?? "active");
         $label = self::escape($item["nav_label"] ?? "");
-        return '<li data-status="' . $status . '">' . $label . '</li>';
+        $hiddenClass = ($item["visible"] ?? true) !== false ? "" : ' class="is-hidden"';
+        return '<li' . $hiddenClass . ' data-status="' . $status . '">' . $label . '</li>';
     }
 
     private static function isActiveUrl(string $url, string $currentPage): bool

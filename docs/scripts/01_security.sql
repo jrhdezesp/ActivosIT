@@ -117,6 +117,21 @@ CREATE TABLE IF NOT EXISTS `intentos_login` (
   KEY `idx_intentos_bloqueo` (`bloqueado_hasta`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Orden y visibilidad elegidos para los elementos de nav.config.json.
+-- No define rutas ni permisos: solo la presentacion del menu privado.
+CREATE TABLE IF NOT EXISTS `navegacion_preferencias` (
+  `nav_id` VARCHAR(100) NOT NULL,
+  `orden` INT NOT NULL DEFAULT 0,
+  `visible` BOOLEAN NOT NULL DEFAULT 1,
+  `id_usuario` INT NULL,
+  `fecha_modificacion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`nav_id`),
+  KEY `idx_navegacion_usuario` (`id_usuario`),
+  CONSTRAINT `fk_navegacion_usuario`
+    FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`)
+    ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- -----------------------------------------------------------------------------
 -- 2. DATOS SEMILLA (SEEDS)
 -- -----------------------------------------------------------------------------
