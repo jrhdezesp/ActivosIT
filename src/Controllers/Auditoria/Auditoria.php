@@ -70,6 +70,22 @@ class Auditoria extends PrivateController
             'label' => 'Evidencia de mantenimiento eliminada',
             'icon' => 'fa-trash-can',
         ],
+        'SUBIR_IMAGEN_ASIGNACION' => [
+            'label' => 'Fotos de entrega agregadas',
+            'icon' => 'fa-images',
+        ],
+        'ELIMINAR_IMAGEN_ASIGNACION' => [
+            'label' => 'Foto de entrega eliminada',
+            'icon' => 'fa-trash-can',
+        ],
+        'SUBIR_IMAGEN_DEVOLUCION' => [
+            'label' => 'Fotos de devolución agregadas',
+            'icon' => 'fa-images',
+        ],
+        'ELIMINAR_IMAGEN_DEVOLUCION' => [
+            'label' => 'Foto de devolución eliminada',
+            'icon' => 'fa-trash-can',
+        ],
         'REGISTRO' => [
             'label' => 'Registro de cuenta',
             'icon' => 'fa-user-plus',

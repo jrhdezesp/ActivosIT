@@ -91,17 +91,22 @@ CREATE TABLE IF NOT EXISTS `equipos_imagenes` (
   `descripcion` VARCHAR(255) NULL,
   `contexto` ENUM('REGISTRO', 'ESTADO', 'MANTENIMIENTO', 'ASIGNACION', 'DEVOLUCION', 'BAJA') NOT NULL DEFAULT 'ESTADO',
   `id_mantenimiento` INT NULL,
+  `id_asignacion` INT NULL,
   `id_usuario_registro` INT NOT NULL,
   `fecha_registro` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_imagen`),
   KEY `idx_img_equipo` (`id_equipo`),
   KEY `idx_img_mantenimiento` (`id_mantenimiento`),
+  KEY `idx_img_asignacion` (`id_asignacion`),
   KEY `idx_img_usuario` (`id_usuario_registro`),
   CONSTRAINT `fk_img_equipo`
     FOREIGN KEY (`id_equipo`) REFERENCES `equipos_individuales` (`id_equipo`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_img_mantenimiento`
     FOREIGN KEY (`id_mantenimiento`) REFERENCES `mantenimientos` (`id_mantenimiento`)
+    ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_img_asignacion`
+    FOREIGN KEY (`id_asignacion`) REFERENCES `asignaciones_devoluciones` (`id_asignacion`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_img_usuario`
     FOREIGN KEY (`id_usuario_registro`) REFERENCES `usuarios` (`id_usuario`)

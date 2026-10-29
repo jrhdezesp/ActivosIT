@@ -88,6 +88,16 @@ class ImageStorage
     }
 
     /**
+     * Indica si el campo $_FILES contiene al menos un archivo.
+     *
+     * @param mixed $files Estructura de $_FILES.
+     */
+    public static function hasUploads($files): bool
+    {
+        return count(self::normalizeFiles($files)) > 0;
+    }
+
+    /**
      * Guarda varias imágenes de un mismo campo $_FILES.
      *
      * @param mixed $files Estructura de $_FILES con name/tmp_name/error/size.
@@ -204,6 +214,10 @@ class ImageStorage
         }
 
         if (!is_array($files['name'])) {
+            if (intval($files['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+                return [];
+            }
+
             return [$files];
         }
 

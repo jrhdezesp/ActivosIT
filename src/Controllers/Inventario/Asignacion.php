@@ -4,10 +4,12 @@ namespace Controllers\Inventario;
 
 use Controllers\PrivateController;
 use Dao\Catalogos\Catalogos as DaoCatalogos;
+use Dao\Equipos\Imagenes as DaoImagenes;
 use Dao\Inventario\Asignaciones as DaoAsignaciones;
 use Utilities\Bitacora;
 use Utilities\CSRF;
 use Utilities\Fechas;
+use Utilities\ImageStorage;
 use Utilities\Security;
 use Utilities\Site;
 use Views\Renderer;
@@ -44,6 +46,13 @@ class Asignacion extends PrivateController
                 $this->requireAction('Acciones.Inventario.Asignaciones.Crear');
             }
             $this->loadOptions();
+
+            $accion = strtoupper(trim(strval($_POST['accion'] ?? 'guardar')));
+            if ($this->isPostBack() && $accion === 'ELIMINAR_IMAGEN') {
+                CSRF::requireValid('asignacion', $_POST['token'] ?? '');
+                $this->handleDeleteImage();
+                return;
+            }
 
             if ($this->isPostBack()) {
                 CSRF::requireValid('asignacion', $_POST['token'] ?? '');
@@ -351,6 +360,19 @@ class Asignacion extends PrivateController
         $oldEquipoId = 0;
         $before = null;
 
+        $deliveryFiles = [];
+        try {
+            if (ImageStorage::hasUploads($_FILES['imagenes_entrega'] ?? null)) {
+                $deliveryFiles = ImageStorage::saveMany(
+                    $_FILES['imagenes_entrega'],
+                    'equipos/' . intval($data['id_equipo'])
+                );
+            }
+        } catch (\RuntimeException $ex) {
+            $this->errors['imagenes_entrega'] = $ex->getMessage();
+            return;
+        }
+
         DaoAsignaciones::beginTransaction();
 
         try {
@@ -401,7 +423,32 @@ class Asignacion extends PrivateController
             DaoAsignaciones::commit();
         } catch (\Throwable $ex) {
             DaoAsignaciones::rollback();
+            foreach ($deliveryFiles as $file) {
+                ImageStorage::delete($file['ruta']);
+            }
             throw $ex;
+        }
+
+        if (count($deliveryFiles) > 0) {
+            $this->insertAssignmentImages(
+                intval($id),
+                intval($data['id_equipo']),
+                'ASIGNACION',
+                $deliveryFiles
+            );
+            Bitacora::registrar(
+                'SUBIR_IMAGEN_ASIGNACION',
+                'Asignaciones',
+                Bitacora::RESULTADO_EXITO,
+                intval($id),
+                null,
+                [
+                    'cantidad' => count($deliveryFiles),
+                    'archivos' => array_map(function (array $file): string {
+                        return $file['ruta'];
+                    }, $deliveryFiles),
+                ]
+            );
         }
 
         Bitacora::registrar(
@@ -414,6 +461,12 @@ class Asignacion extends PrivateController
         );
 
         $msg = $this->mode === 'INS' ? 'created' : 'updated';
+        if (count($deliveryFiles) > 0 && $this->mode === 'UPD') {
+            Site::redirectTo(
+                'index.php?page=Inventario_Asignacion&mode=UPD&id='
+                . intval($id) . '&msg=image_uploaded'
+            );
+        }
         Site::redirectTo('index.php?page=Inventario_Asignaciones&msg=' . $msg);
     }
 
@@ -436,6 +489,19 @@ class Asignacion extends PrivateController
 
         $userId = intval(Security::getUserId());
 
+        $returnFiles = [];
+        try {
+            if (ImageStorage::hasUploads($_FILES['imagenes_devolucion'] ?? null)) {
+                $returnFiles = ImageStorage::saveMany(
+                    $_FILES['imagenes_devolucion'],
+                    'equipos/' . intval($this->record['id_equipo'] ?? 0)
+                );
+            }
+        } catch (\RuntimeException $ex) {
+            $this->returnErrors['imagenes_devolucion'] = $ex->getMessage();
+            return;
+        }
+
         DaoAsignaciones::beginTransaction();
 
         try {
@@ -457,7 +523,32 @@ class Asignacion extends PrivateController
             DaoAsignaciones::commit();
         } catch (\Throwable $ex) {
             DaoAsignaciones::rollback();
+            foreach ($returnFiles as $file) {
+                ImageStorage::delete($file['ruta']);
+            }
             throw $ex;
+        }
+
+        if (count($returnFiles) > 0) {
+            $this->insertAssignmentImages(
+                $this->id,
+                intval($current['id_equipo'] ?? 0),
+                'DEVOLUCION',
+                $returnFiles
+            );
+            Bitacora::registrar(
+                'SUBIR_IMAGEN_DEVOLUCION',
+                'Asignaciones',
+                Bitacora::RESULTADO_EXITO,
+                $this->id,
+                null,
+                [
+                    'cantidad' => count($returnFiles),
+                    'archivos' => array_map(function (array $file): string {
+                        return $file['ruta'];
+                    }, $returnFiles),
+                ]
+            );
         }
 
         Bitacora::registrar(
@@ -476,6 +567,85 @@ class Asignacion extends PrivateController
         );
 
         Site::redirectTo('index.php?page=Inventario_Asignaciones&msg=returned');
+    }
+
+    /** Guarda las fotos de entrega o devolucion de una asignacion. */
+    private function insertAssignmentImages(
+        int $idAsignacion,
+        int $idEquipo,
+        string $contexto,
+        array $files
+    ): void {
+        if (count($files) === 0 || $idAsignacion <= 0 || $idEquipo <= 0) {
+            return;
+        }
+
+        $userId = intval(Security::getUserId());
+        $rows = [];
+        foreach ($files as $file) {
+            $rows[] = [
+                'id_equipo' => $idEquipo,
+                'ruta_imagen' => $file['ruta'],
+                'nombre_original' => $file['nombre_original'],
+                'tipo_mime' => $file['tipo_mime'],
+                'tamano_bytes' => $file['tamano'],
+                'descripcion' => null,
+                'contexto' => $contexto,
+                'id_mantenimiento' => null,
+                'id_asignacion' => $idAsignacion,
+                'id_usuario_registro' => $userId,
+            ];
+        }
+
+        try {
+            DaoImagenes::insertMany($rows);
+        } catch (\Throwable $ex) {
+            foreach ($files as $file) {
+                ImageStorage::delete($file['ruta']);
+            }
+            throw $ex;
+        }
+    }
+
+    /** Elimina una foto de entrega o devolucion de la asignacion. */
+    private function handleDeleteImage(): void
+    {
+        if ($this->mode !== 'UPD' || $this->id <= 0) {
+            throw new \RuntimeException('Guarda la asignación antes de administrar sus fotos.');
+        }
+
+        $imageId = intval($_POST['id_imagen'] ?? 0);
+        $image = DaoImagenes::getById($imageId);
+        if (!$image || intval($image['id_asignacion'] ?? 0) !== $this->id) {
+            throw new \RuntimeException('La imagen seleccionada no pertenece a esta asignación.');
+        }
+
+        if (!DaoImagenes::deleteById($imageId)) {
+            throw new \RuntimeException('No se pudo eliminar la imagen.');
+        }
+        ImageStorage::delete(strval($image['ruta_imagen'] ?? ''));
+
+        $contexto = strtoupper(strval($image['contexto'] ?? ''));
+        $evento = $contexto === 'DEVOLUCION'
+            ? 'ELIMINAR_IMAGEN_DEVOLUCION'
+            : 'ELIMINAR_IMAGEN_ASIGNACION';
+
+        Bitacora::registrar(
+            $evento,
+            'Asignaciones',
+            Bitacora::RESULTADO_EXITO,
+            $this->id,
+            [
+                'id_imagen' => $imageId,
+                'ruta' => strval($image['ruta_imagen'] ?? ''),
+            ],
+            null
+        );
+
+        Site::redirectTo(
+            'index.php?page=Inventario_Asignacion&mode=UPD&id='
+            . $this->id . '&msg=image_deleted'
+        );
     }
 
     private function renderForm(): void
@@ -533,6 +703,41 @@ class Asignacion extends PrivateController
         $returnErrors = count($this->returnErrors) > 0;
         $allErrors = count($this->errors) + count($this->returnErrors);
 
+        $imagenesEntrega = [];
+        $imagenesDevolucion = [];
+        if ($this->id > 0) {
+            foreach (DaoImagenes::getByAsignacion($this->id) as $row) {
+                $contexto = strtoupper(strval($row['contexto'] ?? ''));
+                $item = [
+                    'id' => intval($row['id_imagen'] ?? 0),
+                    'url' => 'index.php?page=Inventario_Asignaciones&accion=imagen&id='
+                        . intval($row['id_imagen'] ?? 0),
+                    'fecha' => Fechas::paraMostrarFechaHora(strval($row['fecha_registro'] ?? '')),
+                    'usuario' => trim(strval($row['usuario_nombre'] ?? '')) !== ''
+                        ? trim(strval($row['usuario_nombre']))
+                        : 'Sistema',
+                ];
+                if ($contexto === 'DEVOLUCION') {
+                    $item['alt'] = 'Foto de devolución de la asignación #' . $this->id;
+                    $imagenesDevolucion[] = $item;
+                } else {
+                    $item['alt'] = 'Foto de entrega de la asignación #' . $this->id;
+                    $imagenesEntrega[] = $item;
+                }
+            }
+        }
+
+        $canUploadDelivery = $canEdit && !$isReturn;
+        $canUploadReturn = $isReturn;
+        $canManageImages = $this->mode === 'UPD' && $this->id > 0;
+        $imageMessage = '';
+        $message = strtolower(trim(strval($_GET['msg'] ?? '')));
+        if ($message === 'image_uploaded') {
+            $imageMessage = 'Las fotos se agregaron correctamente.';
+        } elseif ($message === 'image_deleted') {
+            $imageMessage = 'La foto se eliminó correctamente.';
+        }
+
         Renderer::render('inventario/asignacion', [
             'FormEyebrow' => 'Inventario / Asignaciones',
             'FormTitle' => $formTitle,
@@ -584,6 +789,23 @@ class Asignacion extends PrivateController
             'FormFechaDevolucionError' => strval($this->returnErrors['fecha_devolucion'] ?? ''),
             'FormCondicionDevolucionError' => strval($this->returnErrors['condicion_devolucion'] ?? ''),
             'HasReturnErrors' => $returnErrors,
+            'CanUploadDelivery' => $canUploadDelivery,
+            'CanUploadReturn' => $canUploadReturn,
+            'CanManageImages' => $canManageImages,
+            'ImagenesEntrega' => $imagenesEntrega,
+            'HasImagenesEntrega' => count($imagenesEntrega) > 0,
+            'ImageCountEntregaLabel' => count($imagenesEntrega) === 1
+                ? '1 foto de entrega'
+                : strval(count($imagenesEntrega)) . ' fotos de entrega',
+            'ImagenesDevolucion' => $imagenesDevolucion,
+            'HasImagenesDevolucion' => count($imagenesDevolucion) > 0,
+            'ImageCountDevolucionLabel' => count($imagenesDevolucion) === 1
+                ? '1 foto de devolución'
+                : strval(count($imagenesDevolucion)) . ' fotos de devolución',
+            'ImageToken' => CSRF::token('asignacion'),
+            'FormImagenesEntregaError' => strval($this->errors['imagenes_entrega'] ?? ''),
+            'FormImagenesDevolucionError' => strval($this->returnErrors['imagenes_devolucion'] ?? ''),
+            'ImageMessage' => $imageMessage,
             'EquiposOptionsHtml' => $this->buildEquipoOptionsHtml($selectedEquipo),
             'HasEquiposOptions' => count($this->equipos) > 0,
             'EquipoPlaceholderSelected' => $selectedEquipo === '0' ? 'selected' : '',

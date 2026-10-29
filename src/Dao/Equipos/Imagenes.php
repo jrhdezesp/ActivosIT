@@ -47,6 +47,21 @@ class Imagenes extends Table
         );
     }
 
+    /** Evidencias de una asignacion o devolucion concreta. */
+    public static function getByAsignacion(int $idAsignacion): array
+    {
+        if ($idAsignacion <= 0) {
+            return [];
+        }
+
+        return self::obtenerRegistros(
+            self::SELECT_FIELDS
+            . ' WHERE i.id_asignacion = :asignacion'
+            . ' ORDER BY i.fecha_registro DESC, i.id_imagen DESC',
+            ['asignacion' => $idAsignacion]
+        );
+    }
+
     /** Devuelve una imagen por su identificador. */
     public static function getById(int $id): ?array
     {
@@ -96,10 +111,10 @@ class Imagenes extends Table
                 'INSERT INTO equipos_imagenes ('
                 . 'id_equipo, ruta_imagen, nombre_original, tipo_mime,'
                 . ' tamano_bytes, descripcion, contexto, id_mantenimiento,'
-                . ' id_usuario_registro'
+                . ' id_asignacion, id_usuario_registro'
                 . ') VALUES ('
                 . ':equipo, :ruta, :nombre, :mime, :tamano, :descripcion,'
-                . ' :contexto, :mantenimiento, :usuario'
+                . ' :contexto, :mantenimiento, :asignacion, :usuario'
                 . ')'
             );
 
@@ -125,6 +140,15 @@ class Imagenes extends Table
                         ? intval($row['id_mantenimiento'])
                         : null,
                     intval($row['id_mantenimiento'] ?? 0) > 0
+                        ? \PDO::PARAM_INT
+                        : \PDO::PARAM_NULL
+                );
+                $statement->bindValue(
+                    ':asignacion',
+                    intval($row['id_asignacion'] ?? 0) > 0
+                        ? intval($row['id_asignacion'])
+                        : null,
+                    intval($row['id_asignacion'] ?? 0) > 0
                         ? \PDO::PARAM_INT
                         : \PDO::PARAM_NULL
                 );

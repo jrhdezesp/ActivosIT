@@ -513,9 +513,13 @@ class Equipo extends PrivateController
             if (!$image || intval($image['id_equipo'] ?? 0) !== $this->id) {
                 throw new \RuntimeException('La imagen seleccionada no pertenece a este equipo.');
             }
-            if (strtoupper(strval($image['contexto'] ?? '')) === 'MANTENIMIENTO') {
+            if (in_array(
+                strtoupper(strval($image['contexto'] ?? '')),
+                ['MANTENIMIENTO', 'ASIGNACION', 'DEVOLUCION'],
+                true
+            )) {
                 throw new \RuntimeException(
-                    'Las evidencias de mantenimiento se administran desde su mantenimiento.'
+                    'Las evidencias de mantenimiento y asignacion se administran desde su modulo.'
                 );
             }
 
@@ -660,7 +664,11 @@ class Equipo extends PrivateController
                         . intval($row['id_imagen'] ?? 0),
                     'descripcion' => trim(strval($row['descripcion'] ?? '')),
                     'contextoLabel' => $contextos[$contexto] ?? 'Estado',
-                    'puedeEliminar' => $contexto !== 'MANTENIMIENTO',
+                    'puedeEliminar' => !in_array(
+                        $contexto,
+                        ['MANTENIMIENTO', 'ASIGNACION', 'DEVOLUCION'],
+                        true
+                    ),
                     'fecha' => $this->formatDate(strval($row['fecha_registro'] ?? '')),
                     'usuario' => trim(strval($row['usuario_nombre'] ?? '')) !== ''
                         ? trim(strval($row['usuario_nombre']))

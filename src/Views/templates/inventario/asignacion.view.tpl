@@ -29,7 +29,7 @@
       </div>
     </div>
 
-    <form action="{{!FormAction}}" method="POST">
+    <form action="{{!FormAction}}" method="POST" enctype="multipart/form-data">
       <div class="form-card__body">
         <input type="hidden" name="token" value="{{!FormToken}}" />
         <input type="hidden" name="mode" value="{{!FormMode}}" />
@@ -111,6 +111,15 @@
             <textarea name="observaciones" id="observaciones" maxlength="65535" rows="2" placeholder="Notas adicionales sobre la asignación." {{FormReadonly}}>{{!FormObservaciones}}</textarea>
             {{if FormObservacionesError}}<p class="form-error">{{!FormObservacionesError}}</p>{{endif FormObservacionesError}}
           </div>
+
+          {{if CanUploadDelivery}}
+          <div class="form-field form-field--full {{if FormImagenesEntregaError}}has-error{{endif FormImagenesEntregaError}}">
+            <label for="imagenes_entrega" class="form-label">Fotos de entrega (opcional)</label>
+            <input type="file" id="imagenes_entrega" name="imagenes_entrega[]" accept="image/jpeg,image/png,image/webp" multiple />
+            <p class="form-help">JPG, PNG o WebP. Hasta 8 fotos por carga, máximo 5 MB cada una. Quedan como evidencia de la condición al entregar.</p>
+            {{if FormImagenesEntregaError}}<p class="form-error">{{!FormImagenesEntregaError}}</p>{{endif FormImagenesEntregaError}}
+          </div>
+          {{endif CanUploadDelivery}}
         </div>
 
         {{if ShowReturnSection}}
@@ -140,6 +149,15 @@
               <textarea name="condicion_devolucion" id="condicion_devolucion" maxlength="65535" rows="3" placeholder="Estado físico, accesorios devueltos, faltantes o daños." {{ReturnReadonly}}>{{!FormCondicionDevolucion}}</textarea>
               {{if FormCondicionDevolucionError}}<p class="form-error">{{!FormCondicionDevolucionError}}</p>{{endif FormCondicionDevolucionError}}
             </div>
+
+            {{if CanUploadReturn}}
+            <div class="form-field form-field--full {{if FormImagenesDevolucionError}}has-error{{endif FormImagenesDevolucionError}}">
+              <label for="imagenes_devolucion" class="form-label">Fotos de devolución (opcional)</label>
+              <input type="file" id="imagenes_devolucion" name="imagenes_devolucion[]" accept="image/jpeg,image/png,image/webp" multiple />
+              <p class="form-help">JPG, PNG o WebP. Hasta 8 fotos por carga, máximo 5 MB cada una. Quedan como evidencia de la condición al recibir.</p>
+              {{if FormImagenesDevolucionError}}<p class="form-error">{{!FormImagenesDevolucionError}}</p>{{endif FormImagenesDevolucionError}}
+            </div>
+            {{endif CanUploadReturn}}
           </div>
         </section>
         {{endif ShowReturnSection}}
@@ -178,5 +196,85 @@
         </div>
       </div>
     </form>
+
+    {{if ImageMessage}}
+    <div class="image-panel">
+      <div class="alert alert--success alert--compact" role="status">{{!ImageMessage}}</div>
+    </div>
+    {{endif ImageMessage}}
+
+    {{if HasImagenesEntrega}}
+    <section class="image-panel" aria-labelledby="assignment-delivery-images">
+      <div class="image-panel__header">
+        <div>
+          <h2 class="image-panel__title" id="assignment-delivery-images">Fotos de entrega</h2>
+          <p class="image-panel__description">Evidencia de la condición del equipo al entregarlo.</p>
+        </div>
+        <span class="badge badge--outline">{{!ImageCountEntregaLabel}}</span>
+      </div>
+
+      <div class="image-gallery">
+        {{foreach ImagenesEntrega}}
+        <figure class="image-card">
+          <a class="image-card__link" href="{{!url}}" target="_blank" rel="noopener">
+            <img class="image-card__thumb" src="{{!url}}" alt="{{!alt}}" loading="lazy" decoding="async" />
+          </a>
+          <figcaption class="image-card__body">
+            <span class="image-card__meta">{{!fecha}} · {{!usuario}}</span>
+            <span class="badge badge--outline image-card__context">Entrega</span>
+          </figcaption>
+          {{if ~CanManageImages}}
+          <form class="image-card__delete" action="{{!~FormAction}}" method="POST">
+            <input type="hidden" name="token" value="{{!~ImageToken}}" />
+            <input type="hidden" name="accion" value="eliminar_imagen" />
+            <input type="hidden" name="id_imagen" value="{{!id}}" />
+            <button class="button button--ghost button--sm" type="submit">
+              <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+              Eliminar
+            </button>
+          </form>
+          {{endif ~CanManageImages}}
+        </figure>
+        {{endfor ImagenesEntrega}}
+      </div>
+    </section>
+    {{endif HasImagenesEntrega}}
+
+    {{if HasImagenesDevolucion}}
+    <section class="image-panel" aria-labelledby="assignment-return-images">
+      <div class="image-panel__header">
+        <div>
+          <h2 class="image-panel__title" id="assignment-return-images">Fotos de devolución</h2>
+          <p class="image-panel__description">Evidencia de la condición del equipo al recibirlo de vuelta.</p>
+        </div>
+        <span class="badge badge--outline">{{!ImageCountDevolucionLabel}}</span>
+      </div>
+
+      <div class="image-gallery">
+        {{foreach ImagenesDevolucion}}
+        <figure class="image-card">
+          <a class="image-card__link" href="{{!url}}" target="_blank" rel="noopener">
+            <img class="image-card__thumb" src="{{!url}}" alt="{{!alt}}" loading="lazy" decoding="async" />
+          </a>
+          <figcaption class="image-card__body">
+            <span class="image-card__meta">{{!fecha}} · {{!usuario}}</span>
+            <span class="badge badge--outline image-card__context">Devolución</span>
+          </figcaption>
+          {{if ~CanManageImages}}
+          <form class="image-card__delete" action="{{!~FormAction}}" method="POST">
+            <input type="hidden" name="token" value="{{!~ImageToken}}" />
+            <input type="hidden" name="accion" value="eliminar_imagen" />
+            <input type="hidden" name="id_imagen" value="{{!id}}" />
+            <button class="button button--ghost button--sm" type="submit">
+              <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+              Eliminar
+            </button>
+          </form>
+          {{endif ~CanManageImages}}
+        </figure>
+        {{endfor ImagenesDevolucion}}
+      </div>
+    </section>
+    {{endif HasImagenesDevolucion}}
   </section>
 </div>

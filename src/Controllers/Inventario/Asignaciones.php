@@ -4,7 +4,9 @@ namespace Controllers\Inventario;
 
 use Controllers\PrivateController;
 use Dao\Catalogos\Catalogos as DaoCatalogos;
+use Dao\Equipos\Imagenes as DaoImagenes;
 use Dao\Inventario\Asignaciones as DaoAsignaciones;
+use Utilities\ImageStorage;
 use Utilities\Paging;
 use Views\Renderer;
 
@@ -47,6 +49,19 @@ class Asignaciones extends PrivateController
     /** Obtiene y muestra las asignaciones que coinciden con la consulta. */
     public function run(): void
     {
+        if (strtolower(trim(strval($_GET['accion'] ?? ''))) === 'imagen') {
+            $image = DaoImagenes::getById(intval($_GET['id'] ?? 0));
+            if (!$image || intval($image['id_asignacion'] ?? 0) <= 0) {
+                http_response_code(404);
+                exit;
+            }
+            ImageStorage::stream(
+                strval($image['ruta_imagen'] ?? ''),
+                strval($image['tipo_mime'] ?? '')
+            );
+            return;
+        }
+
         $this->getParams();
 
         $result = DaoAsignaciones::getAsignaciones(
