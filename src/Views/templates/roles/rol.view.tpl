@@ -29,7 +29,7 @@
 
         <div class="form-field form-field--full {{if rolesdsc_error}}has-error{{endif rolesdsc_error}}">
           <label for="rolesdsc">Descripción</label>
-          <input {{~readonly}} type="text" name="rolesdsc" id="rolesdsc" value="{{!rolesdsc}}" placeholder="Descripción del rol" />
+          <input {{~readonly}} type="text" name="rolesdsc" id="rolesdsc" value="{{!rolesdsc}}" maxlength="150" placeholder="Descripción del rol" />
           {{if rolesdsc_error}}
           <p class="form-error">{{rolesdsc_error}}</p>
           {{endif rolesdsc_error}}

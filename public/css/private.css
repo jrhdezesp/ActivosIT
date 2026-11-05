@@ -4187,3 +4187,19 @@
 .article-cell .data-table__stack {
   flex: 1 1 auto;
 }
+
+/* ---------------------------------------------------------------------------
+   Textos largos en listados
+
+   La regla general de las tablas permite partir el texto en varias lineas.
+   Para descripciones y nombres se prefiere una sola linea con puntos
+   suspensivos; el valor completo queda en el atributo title del enlace.
+   --------------------------------------------------------------------------- */
+.data-table--list tbody td .data-table__truncate,
+.data-table--list tbody td a.data-table__truncate {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

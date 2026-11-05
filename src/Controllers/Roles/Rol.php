@@ -107,8 +107,8 @@ class Rol extends PrivateController
 
         if (Validators::IsEmpty($this->rol['rolesdsc'])) {
             $errors['rolesdsc_error'] = 'La descripción del rol es requerida';
-        } elseif (\Utilities\Text::length($this->rol['rolesdsc']) > 255) {
-            $errors['rolesdsc_error'] = 'La descripción no puede superar los 255 caracteres';
+        } elseif (\Utilities\Text::length($this->rol['rolesdsc']) > 150) {
+            $errors['rolesdsc_error'] = 'La descripción no puede superar los 150 caracteres';
         }
 
         if (!in_array($this->rol['rolesest'], ['ACT', 'INA'])) {
