@@ -6,6 +6,10 @@ use Dao\Security\Security as DaoSecurity;
 
 // Administra los datos de acceso y permisos durante la sesion.
 class Security {
+    // Tiempo maximo de inactividad antes de cerrar la sesion.
+    private const SESSION_IDLE_SECONDS = 1500;
+    private const SESSION_END_KEY = 'session_end_reason';
+
     private function __construct()
     {
         
@@ -61,8 +65,10 @@ class Security {
             "userId" => $userId,
             "userName" => $userName,
             "userEmail" => $userEmail,
-            "sessionToken" => $sessionToken
+            "sessionToken" => $sessionToken,
+            "lastActivity" => time()
         );
+        unset($_SESSION[self::SESSION_END_KEY]);
         DaoSecurity::registrarSesionUnica(
             $userId,
             hash('sha256', $sessionToken),
@@ -80,15 +86,36 @@ class Security {
         if (!is_array($login)) {
             return false;
         }
+
+        $lastActivity = intval($login["lastActivity"] ?? 0);
+        if ($lastActivity > 0 && (time() - $lastActivity) > self::SESSION_IDLE_SECONDS) {
+            $_SESSION[self::SESSION_END_KEY] = 'sesion_expirada';
+            return false;
+        }
+
         $sessionToken = strval($login["sessionToken"] ?? "");
         if ($sessionToken === "") {
+            $_SESSION[self::SESSION_END_KEY] = 'sesion_reemplazada';
             return false;
         }
         $tokenGuardado = DaoSecurity::getSesionToken(intval($login["userId"] ?? 0));
         if ($tokenGuardado === null) {
+            $_SESSION[self::SESSION_END_KEY] = 'sesion_reemplazada';
             return false;
         }
-        return hash_equals($tokenGuardado, hash('sha256', $sessionToken));
+        if (!hash_equals($tokenGuardado, hash('sha256', $sessionToken))) {
+            $_SESSION[self::SESSION_END_KEY] = 'sesion_reemplazada';
+            return false;
+        }
+
+        $_SESSION["login"]["lastActivity"] = time();
+        return true;
+    }
+
+    /** Motivo por el que se cerro la sesion anterior. */
+    public static function getSessionEndReason(): string
+    {
+        return strval($_SESSION[self::SESSION_END_KEY] ?? 'sesion_reemplazada');
     }
     // Indica si existe una cuenta autenticada en la sesion actual.
     public static function isLogged():bool

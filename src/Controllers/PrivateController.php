@@ -56,8 +56,11 @@ abstract class PrivateController extends PublicController
         // Una sola sesion por cuenta: si otro dispositivo inicio sesion
         // despues, esta sesion deja de ser la vigente y se cierra aqui.
         if (!Security::assertActiveSession()) {
-            Security::logout(false);
-            Site::redirectTo("index.php?page=Sec_Login&motivo=sesion_reemplazada");
+            $reason = Security::getSessionEndReason();
+            Security::logout($reason !== 'sesion_reemplazada');
+            Site::redirectTo(
+                "index.php?page=Sec_Login&motivo=" . urlencode($reason)
+            );
         }
         // El control de acceso se aplica siempre. En desarrollo solo se
         // registran automáticamente los permisos que aún no existen, pero un

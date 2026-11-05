@@ -35,6 +35,9 @@ class Login extends PublicController
         if ($this->motivo === 'sesion_reemplazada' && !$this->isPostBack()) {
             $this->generalError = "Tu sesión se cerró porque se inició sesión en otro dispositivo.";
         }
+        if ($this->motivo === 'sesion_expirada' && !$this->isPostBack()) {
+            $this->generalError = "Tu sesión se cerró por inactividad. Vuelve a iniciar sesión.";
+        }
         if ($this->isPostBack() && !CSRF::validate('login', $_POST['csrf_token'] ?? '')) {
             $this->txtEmail = strval($_POST['txtEmail'] ?? '');
             $this->generalError = "El formulario expiró o no es válido. Intente de nuevo.";
