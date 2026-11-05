@@ -81,7 +81,7 @@
             </figure>
             {{endif HasImagenReferencia}}
             <input type="file" name="imagen_referencia" id="imagen_referencia" accept="image/jpeg,image/png,image/webp" {{FormDisabled}} />
-            <p class="form-help">JPG, PNG o WebP. Máximo 5 MB. Es una foto de referencia del artículo; el estado de cada equipo se registra en sus propias fotos.</p>
+            <p class="form-help">JPG, PNG o WebP. Máximo 5 MB, 4096 px por lado y proporción máxima 3:1. Es una foto de referencia del artículo; el estado de cada equipo se registra en sus propias fotos.</p>
             {{if HasImagenReferencia}}
             <label class="form-check">
               <input type="checkbox" name="eliminar_imagen" value="1" {{FormDisabled}} />
@@ -120,6 +120,7 @@
               <option value="{{!value}}" {{selected}}>{{!label}}</option>
               {{endfor TipoControlOptions}}
             </select>
+            <p class="form-help">No se puede cambiar si el artículo ya tiene equipos o movimientos registrados.</p>
             <p class="form-help">Usa cantidad para consumibles y serie para equipos individuales.</p>
             {{if FormTipoControlError}}<p class="form-error">{{!FormTipoControlError}}</p>{{endif FormTipoControlError}}
           </div>

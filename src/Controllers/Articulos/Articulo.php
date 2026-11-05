@@ -247,6 +247,12 @@ class Articulo extends PrivateController
         $this->item['tipo_control'] = $control;
         if (!in_array($control, ['CANTIDAD', 'SERIE'], true)) {
             $this->errors['tipo_control'] = 'Selecciona un tipo de control válido.';
+        } elseif (
+            $this->mode === 'UPD'
+            && $control !== strval($this->originalItem['tipo_control'] ?? '')
+            && DaoArticulos::tieneHistorialInventario($this->id)
+        ) {
+            $this->errors['tipo_control'] = 'No se puede cambiar el control de un artículo con equipos o movimientos registrados.';
         }
 
         $minimum = trim(strval($this->item['existencia_minima'] ?? ''));

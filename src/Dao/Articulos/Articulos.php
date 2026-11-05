@@ -370,4 +370,28 @@ class Articulos extends Table
         );
         return intval($row['total'] ?? 0) > 0;
     }
+
+    /**
+     * Indica si el articulo tiene equipos o movimientos de inventario.
+     *
+     * El tipo de control no debe cambiarse cuando ya existe historial: los
+     * equipos serializados y los saldos por cantidad dejarian de ser
+     * congruentes con el nuevo control.
+     *
+     * @param int $id Articulo a consultar.
+     * @return bool
+     */
+    public static function tieneHistorialInventario(int $id): bool
+    {
+        $row = self::obtenerUnRegistro(
+            'SELECT ('
+            . 'SELECT COUNT(*) FROM equipos_individuales WHERE id_articulo = :idEquipos'
+            . ') + ('
+            . 'SELECT COUNT(*) FROM movimientos_inventario WHERE id_articulo = :idMovimientos'
+            . ') AS total',
+            ['idEquipos' => $id, 'idMovimientos' => $id]
+        );
+
+        return intval($row['total'] ?? 0) > 0;
+    }
 }
