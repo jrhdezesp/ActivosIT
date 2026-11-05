@@ -491,9 +491,14 @@ class Equipo extends PrivateController
                 'No se puede desactivar el equipo porque tiene un mantenimiento en proceso.'
             );
         }
-        if (DaoEquipos::tieneReservaActiva($this->id)) {
+        if (DaoEquipos::tieneSalidaBorrador($this->id)) {
             throw new \RuntimeException(
-                'No se puede desactivar el equipo porque esta reservado en una salida en borrador.'
+                'No se puede desactivar el equipo porque aparece en una salida en borrador.'
+            );
+        }
+        if (DaoEquipos::tieneEntradaBorrador($this->id)) {
+            throw new \RuntimeException(
+                'No se puede desactivar el equipo porque aparece en una entrada en borrador.'
             );
         }
 

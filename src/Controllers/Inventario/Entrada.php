@@ -372,6 +372,8 @@ class Entrada extends PrivateController
                         $lineErrors['equipo'] = 'El equipo seleccionado está inactivo.';
                     } elseif (intval($equipo['id_articulo'] ?? 0) !== $articuloId) {
                         $lineErrors['equipo'] = 'El equipo no corresponde al artículo seleccionado.';
+                    } elseif (strval($equipo['estado_operativo'] ?? '') !== 'DISPONIBLE') {
+                        $lineErrors['equipo'] = 'El equipo debe estar disponible para registrar la entrada.';
                     } elseif (isset($equiposUsados[$equipoId])) {
                         $lineErrors['equipo'] = 'El equipo está repetido en este documento.';
                     } elseif (DaoEntradas::equipoUsadoEnConfirmado($equipoId)) {

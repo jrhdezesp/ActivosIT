@@ -466,6 +466,40 @@ class Equipos extends Table
         return intval($row['total'] ?? 0) > 0;
     }
 
+    /** Indica si el equipo aparece en una salida en borrador. */
+    public static function tieneSalidaBorrador(int $equipoId): bool
+    {
+        if ($equipoId <= 0) {
+            return false;
+        }
+
+        $row = self::obtenerUnRegistro(
+            'SELECT COUNT(*) AS total FROM detalles_salida d'
+            . ' JOIN documentos_salida doc ON doc.id_doc_salida = d.id_doc_salida'
+            . " WHERE d.id_equipo = :id AND doc.estado_doc = 'BORRADOR'",
+            ['id' => $equipoId]
+        );
+
+        return intval($row['total'] ?? 0) > 0;
+    }
+
+    /** Indica si el equipo aparece en una entrada en borrador. */
+    public static function tieneEntradaBorrador(int $equipoId): bool
+    {
+        if ($equipoId <= 0) {
+            return false;
+        }
+
+        $row = self::obtenerUnRegistro(
+            'SELECT COUNT(*) AS total FROM detalles_entrada d'
+            . ' JOIN documentos_entrada doc ON doc.id_doc_entrada = d.id_doc_entrada'
+            . " WHERE d.id_equipo = :id AND doc.estado_doc = 'BORRADOR'",
+            ['id' => $equipoId]
+        );
+
+        return intval($row['total'] ?? 0) > 0;
+    }
+
     public static function tieneHistorialOperativo(int $equipoId): bool
     {
         if ($equipoId <= 0) {

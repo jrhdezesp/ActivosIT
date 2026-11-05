@@ -832,8 +832,9 @@ class Salidas extends Table
             throw new \RuntimeException('El documento ya está anulado.');
         }
 
+        $detalles = self::getDetalles($docId);
+
         if (strval($doc['estado_doc']) === 'CONFIRMADO') {
-            $detalles = self::getDetalles($docId);
             $totales = self::totalesPorArticulo($detalles);
 
             foreach ($totales as $articuloId => $cantidad) {
@@ -880,6 +881,16 @@ class Salidas extends Table
                     continue;
                 }
                 $equipos[$equipoId] = true;
+
+                if (
+                    Asignaciones::tieneAsignacionActiva($equipoId)
+                    || Asignaciones::tieneMantenimientoActivo($equipoId)
+                    || \Dao\Equipos\Equipos::tieneReservaActiva($equipoId)
+                ) {
+                    throw new \RuntimeException(
+                        'No se puede anular la salida porque uno de sus equipos tiene una asignación, mantenimiento o reserva activa.'
+                    );
+                }
 
                 self::executeNonQuery(
                     "UPDATE equipos_individuales SET estado_operativo = 'DISPONIBLE',"

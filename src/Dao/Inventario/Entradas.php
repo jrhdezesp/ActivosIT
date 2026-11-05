@@ -290,6 +290,7 @@ class Entradas extends Table
             . " eq.estado_operativo"
             . " FROM equipos_individuales eq"
             . " WHERE eq.estado_registro = 1"
+            . " AND eq.estado_operativo = 'DISPONIBLE'"
             . " AND NOT EXISTS ("
             . "   SELECT 1 FROM detalles_entrada d"
             . "   JOIN documentos_entrada doc ON doc.id_doc_entrada = d.id_doc_entrada"
@@ -324,7 +325,7 @@ class Entradas extends Table
 
         $row = self::obtenerUnRegistro(
             'SELECT id_equipo, id_articulo, numero_serie_equipo,'
-            . ' codigo_patrimonial_equipo, estado_registro'
+            . ' codigo_patrimonial_equipo, estado_operativo, estado_registro'
             . ' FROM equipos_individuales WHERE id_equipo = :id LIMIT 1',
             ['id' => $id]
         );
@@ -520,10 +521,24 @@ class Entradas extends Table
                 continue;
             }
 
-            self::obtenerUnRegistro(
-                'SELECT id_equipo FROM equipos_individuales WHERE id_equipo = :id FOR UPDATE',
+            $equipo = self::obtenerUnRegistro(
+                'SELECT id_equipo, id_articulo, estado_operativo, estado_registro'
+                . ' FROM equipos_individuales WHERE id_equipo = :id FOR UPDATE',
                 ['id' => $equipoId]
             );
+
+            if (!$equipo) {
+                throw new \RuntimeException('No se encontró uno de los equipos del documento.');
+            }
+            if (intval($equipo['estado_registro'] ?? 0) !== 1) {
+                throw new \RuntimeException('Uno de los equipos del documento está inactivo.');
+            }
+            if (intval($equipo['id_articulo'] ?? 0) !== intval($detalle['id_articulo'] ?? 0)) {
+                throw new \RuntimeException('Uno de los equipos no corresponde al artículo de la línea.');
+            }
+            if (strval($equipo['estado_operativo'] ?? '') !== 'DISPONIBLE') {
+                throw new \RuntimeException('Uno de los equipos ya no está disponible para registrar la entrada.');
+            }
 
             $usado = self::obtenerUnRegistro(
                 'SELECT d.id_detalle_ent FROM detalles_entrada d'
