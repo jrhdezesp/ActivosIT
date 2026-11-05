@@ -64,12 +64,13 @@
 
           <div class="form-field {{if FormUbicacionError}}has-error{{endif FormUbicacionError}}">
             <label for="id_ubicacion" class="form-label {{if FormRequired}}form-label--required{{endif FormRequired}}">Ubicación</label>
-            <select name="id_ubicacion" id="id_ubicacion" {{FormRequired}} {{FormDisabled}}>
+            <select name="id_ubicacion" id="id_ubicacion" {{FormRequired}} {{FormDisabled}} {{FormUbicacionDisabled}}>
               <option value="" {{UbicacionPlaceholderSelected}}>Selecciona una ubicación</option>
               {{foreach UbicacionesForm}}
               <option value="{{!value}}" {{selected}}>{{!label}}</option>
               {{endfor UbicacionesForm}}
             </select>
+            <p class="form-help">{{!FormUbicacionHelp}}</p>
             {{if FormUbicacionError}}<p class="form-error">{{!FormUbicacionError}}</p>{{endif FormUbicacionError}}
           </div>
 
@@ -225,7 +226,7 @@
         <div class="form-field">
           <label for="imagenes" class="form-label">Agregar fotos</label>
           <input type="file" id="imagenes" name="imagenes[]" accept="image/jpeg,image/png,image/webp" multiple required />
-          <p class="form-help">JPG, PNG o WebP. Hasta 8 fotos por carga, máximo 5 MB cada una.</p>
+          <p class="form-help">JPG, PNG o WebP. Hasta 8 fotos por carga, máximo 5 MB cada una, 4096 px por lado y proporción máxima 3:1.</p>
         </div>
         <div class="form-field">
           <label for="descripcion_imagen" class="form-label">Descripción (opcional)</label>

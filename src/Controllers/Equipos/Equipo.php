@@ -240,6 +240,12 @@ class Equipo extends PrivateController
         $this->errors = [];
         $excludeId = $this->mode === 'UPD' ? $this->id : 0;
 
+        // La ubicacion solo cambia desde el modulo de traslados; en edicion
+        // se conserva la ubicacion original aunque el formulario la envie.
+        if ($this->mode === 'UPD') {
+            $this->item['id_ubicacion'] = strval($this->originalItem['id_ubicacion'] ?? '0');
+        }
+
         if ($this->mode === 'UPD') {
             $newArticuloId = intval($this->item['id_articulo']);
             $originalArticuloId = intval($this->originalItem['id_articulo'] ?? 0);
@@ -338,7 +344,14 @@ class Equipo extends PrivateController
         }
 
         $fisico = strval($this->item['estado_fisico'] ?? '');
-        if (!array_key_exists($fisico, $this->estadoFisicoValues())) {
+        $fisicoValido = false;
+        foreach (array_keys($this->estadoFisicoValues()) as $fisicoOpcion) {
+            if (mb_strtolower(strval($fisicoOpcion), 'UTF-8') === mb_strtolower($fisico, 'UTF-8')) {
+                $fisicoValido = true;
+                break;
+            }
+        }
+        if (!$fisicoValido) {
             $this->errors['estado_fisico'] = 'Selecciona un estado fisico valido.';
         }
 
@@ -708,6 +721,10 @@ class Equipo extends PrivateController
             'FormRequired' => $isDelete ? '' : 'required',
             'FormReadonly' => $isDelete ? 'readonly' : '',
             'FormDisabled' => $isDelete ? 'disabled' : '',
+            'FormUbicacionDisabled' => $this->mode === 'UPD' ? 'disabled' : '',
+            'FormUbicacionHelp' => $this->mode === 'UPD'
+                ? 'La ubicación se cambia desde Activos > Traslados para conservar el historial.'
+                : 'Ubicación donde se resguarda el equipo.',
             'FormArticulo' => $selectedArticulo,
             'FormSerie' => strval($this->item['numero_serie_equipo'] ?? ''),
             'FormPatrimonial' => strval($this->item['codigo_patrimonial_equipo'] ?? ''),
