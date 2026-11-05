@@ -116,7 +116,7 @@
           <div class="form-field form-field--full {{if FormImagenesEntregaError}}has-error{{endif FormImagenesEntregaError}}">
             <label for="imagenes_entrega" class="form-label">Fotos de entrega (opcional)</label>
             <input type="file" id="imagenes_entrega" name="imagenes_entrega[]" accept="image/jpeg,image/png,image/webp" multiple />
-            <p class="form-help">JPG, PNG o WebP. Hasta 8 fotos por carga, máximo 5 MB cada una. Quedan como evidencia de la condición al entregar.</p>
+            <p class="form-help">JPG, PNG o WebP. Hasta 8 fotos por carga, máximo 5 MB cada una, 4096 px por lado y proporción máxima 3:1. Quedan como evidencia de la condición al entregar.</p>
             {{if FormImagenesEntregaError}}<p class="form-error">{{!FormImagenesEntregaError}}</p>{{endif FormImagenesEntregaError}}
           </div>
           {{endif CanUploadDelivery}}
@@ -154,7 +154,7 @@
             <div class="form-field form-field--full {{if FormImagenesDevolucionError}}has-error{{endif FormImagenesDevolucionError}}">
               <label for="imagenes_devolucion" class="form-label">Fotos de devolución (opcional)</label>
               <input type="file" id="imagenes_devolucion" name="imagenes_devolucion[]" accept="image/jpeg,image/png,image/webp" multiple />
-              <p class="form-help">JPG, PNG o WebP. Hasta 8 fotos por carga, máximo 5 MB cada una. Quedan como evidencia de la condición al recibir.</p>
+              <p class="form-help">JPG, PNG o WebP. Hasta 8 fotos por carga, máximo 5 MB cada una, 4096 px por lado y proporción máxima 3:1. Quedan como evidencia de la condición al recibir.</p>
               {{if FormImagenesDevolucionError}}<p class="form-error">{{!FormImagenesDevolucionError}}</p>{{endif FormImagenesDevolucionError}}
             </div>
             {{endif CanUploadReturn}}

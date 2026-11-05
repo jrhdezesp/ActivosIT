@@ -245,7 +245,7 @@
         <div class="form-field">
           <label for="evidencias" class="form-label">Agregar evidencias</label>
           <input type="file" id="evidencias" name="imagenes[]" accept="image/jpeg,image/png,image/webp" multiple required />
-          <p class="form-help">JPG, PNG o WebP. Hasta 8 fotos por carga, máximo 5 MB cada una.</p>
+          <p class="form-help">JPG, PNG o WebP. Hasta 8 fotos por carga, máximo 5 MB cada una, 4096 px por lado y proporción máxima 3:1.</p>
         </div>
         <div class="form-field">
           <label for="descripcion_evidencia" class="form-label">Descripción (opcional)</label>

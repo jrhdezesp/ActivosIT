@@ -13,6 +13,9 @@ class ImageStorage
 {
     private const MAX_BYTES = 5 * 1024 * 1024;
     private const MAX_FILES = 8;
+    private const MAX_WIDTH = 4096;
+    private const MAX_HEIGHT = 4096;
+    private const MAX_ASPECT_RATIO = 3.0;
 
     private const MIME_EXTENSIONS = [
         'image/jpeg' => 'jpg',
@@ -51,6 +54,7 @@ class ImageStorage
         if ($info === false) {
             throw new \RuntimeException('El archivo no es una imagen válida.');
         }
+        self::validateDimensions($info);
 
         $mime = self::detectMime($temporary);
         if (!isset(self::MIME_EXTENSIONS[$mime]) && isset($info['mime'])) {
@@ -254,6 +258,23 @@ class ImageStorage
         }
 
         return $mime;
+    }
+
+    /** Rechaza imagenes fuera del formato de foto admitido. */
+    private static function validateDimensions(array $info): void
+    {
+        $width = intval($info[0] ?? 0);
+        $height = intval($info[1] ?? 0);
+        if ($width <= 0 || $height <= 0) {
+            throw new \RuntimeException('No se pudieron leer las dimensiones de la imagen.');
+        }
+        if ($width > self::MAX_WIDTH || $height > self::MAX_HEIGHT) {
+            throw new \RuntimeException('La imagen supera el máximo de 4096 píxeles por lado.');
+        }
+        $ratio = max($width / $height, $height / $width);
+        if ($ratio > self::MAX_ASPECT_RATIO) {
+            throw new \RuntimeException('La imagen es demasiado alargada. Usa una proporción máxima de 3:1.');
+        }
     }
 
     private static function cleanName(string $name): string
