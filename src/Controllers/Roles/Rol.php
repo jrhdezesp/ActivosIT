@@ -88,8 +88,10 @@ class Rol extends PrivateController
     {
         $errors = [];
         $this->rol['rolescod'] = strval($_POST['rolescod'] ?? '');
-        $this->rol['rolesdsc'] = strval($_POST['rolesdsc'] ?? '');
-        $this->rol['rolesest'] = strval($_POST['rolesest'] ?? '');
+        if ($this->mode !== 'DEL') {
+            $this->rol['rolesdsc'] = strval($_POST['rolesdsc'] ?? '');
+            $this->rol['rolesest'] = strval($_POST['rolesest'] ?? '');
+        }
 
         // El codigo es la llave primaria: en UPD/DEL se toma siempre del GET
         // para que no pueda cambiarse manipulando el formulario.
@@ -105,14 +107,16 @@ class Rol extends PrivateController
             $errors['rolescod_error'] = 'Ya existe un rol con ese código';
         }
 
-        if (Validators::IsEmpty($this->rol['rolesdsc'])) {
-            $errors['rolesdsc_error'] = 'La descripción del rol es requerida';
-        } elseif (\Utilities\Text::length($this->rol['rolesdsc']) > 150) {
-            $errors['rolesdsc_error'] = 'La descripción no puede superar los 150 caracteres';
-        }
+        if ($this->mode !== 'DEL') {
+            if (Validators::IsEmpty($this->rol['rolesdsc'])) {
+                $errors['rolesdsc_error'] = 'La descripción del rol es requerida';
+            } elseif (\Utilities\Text::length($this->rol['rolesdsc']) > 150) {
+                $errors['rolesdsc_error'] = 'La descripción no puede superar los 150 caracteres';
+            }
 
-        if (!in_array($this->rol['rolesest'], ['ACT', 'INA'])) {
-            $errors['rolesest_error'] = 'El estado del rol es invalido';
+            if (!in_array($this->rol['rolesest'], ['ACT', 'INA'])) {
+                $errors['rolesest_error'] = 'El estado del rol es invalido';
+            }
         }
 
         if (count($errors) > 0) {

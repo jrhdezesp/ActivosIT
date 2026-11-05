@@ -96,8 +96,10 @@ class Usuario extends PrivateController
         $this->usuario['useremail'] = trim(strval($_POST['useremail'] ?? ''));
         $this->usuario['username'] = trim(strval($_POST['username'] ?? ''));
         $this->usuario['userpswd'] = strval($_POST['userpswd'] ?? '');
-        $this->usuario['userest'] = strval($_POST['userest'] ?? '');
-        $this->usuario['usertipo'] = strval($_POST['usertipo'] ?? '');
+        if ($this->mode !== 'DEL') {
+            $this->usuario['userest'] = strval($_POST['userest'] ?? '');
+            $this->usuario['usertipo'] = strval($_POST['usertipo'] ?? '');
+        }
 
         if (Validators::IsEmpty($this->usuario['useremail'])) {
             $errors['useremail_error'] = 'El correo del usuario es requerido';

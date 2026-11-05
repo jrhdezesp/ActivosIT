@@ -83,8 +83,6 @@ class Funcion extends PrivateController
         $errors = [];
         $this->funcion['fncod'] = strval($_POST['fncod'] ?? '');
         $this->funcion['fndsc'] = strval($_POST['fndsc'] ?? '');
-        $this->funcion['fnest'] = strval($_POST['fnest'] ?? '');
-        $this->funcion['fntyp'] = strval($_POST['fntyp'] ?? '');
         // En DEL los selects de tipo y estado estan deshabilitados y no se
         // envian; se conservan los valores cargados desde la base.
         if ($this->mode !== 'DEL') {
@@ -106,10 +104,12 @@ class Funcion extends PrivateController
             $errors['fncod_error'] = 'Ya existe un permiso con ese código';
         }
 
-        if (Validators::IsEmpty($this->funcion['fndsc'])) {
-            $errors['fndsc_error'] = 'La descripción de la función es requerida';
-        } elseif (\Utilities\Text::length($this->funcion['fndsc']) > 150) {
-            $errors['fndsc_error'] = 'La descripción no puede superar los 150 caracteres';
+        if ($this->mode !== 'DEL') {
+            if (Validators::IsEmpty($this->funcion['fndsc'])) {
+                $errors['fndsc_error'] = 'La descripción de la función es requerida';
+            } elseif (\Utilities\Text::length($this->funcion['fndsc']) > 150) {
+                $errors['fndsc_error'] = 'La descripción no puede superar los 150 caracteres';
+            }
         }
 
         if ($this->mode !== 'DEL') {
