@@ -46,7 +46,7 @@
 
         <div class="form-field form-field--full {{if fndsc_error}}has-error{{endif fndsc_error}}">
           <label for="fndsc">Descripción</label>
-          <input {{~readonly}} type="text" name="fndsc" id="fndsc" value="{{!fndsc}}" placeholder="Descripción de la función" />
+          <input {{~readonly}} type="text" name="fndsc" id="fndsc" value="{{!fndsc}}" maxlength="150" placeholder="Descripción de la función" />
           {{if fndsc_error}}
           <p class="form-error">{{fndsc_error}}</p>
           {{endif fndsc_error}}

@@ -85,6 +85,12 @@ class Funcion extends PrivateController
         $this->funcion['fndsc'] = strval($_POST['fndsc'] ?? '');
         $this->funcion['fnest'] = strval($_POST['fnest'] ?? '');
         $this->funcion['fntyp'] = strval($_POST['fntyp'] ?? '');
+        // En DEL los selects de tipo y estado estan deshabilitados y no se
+        // envian; se conservan los valores cargados desde la base.
+        if ($this->mode !== 'DEL') {
+            $this->funcion['fnest'] = strval($_POST['fnest'] ?? '');
+            $this->funcion['fntyp'] = strval($_POST['fntyp'] ?? '');
+        }
 
         // El codigo es la llave primaria: en UPD/DEL se toma siempre del GET
         // para que no pueda cambiarse manipulando el formulario.
@@ -102,16 +108,18 @@ class Funcion extends PrivateController
 
         if (Validators::IsEmpty($this->funcion['fndsc'])) {
             $errors['fndsc_error'] = 'La descripción de la función es requerida';
-        } elseif (\Utilities\Text::length($this->funcion['fndsc']) > 255) {
-            $errors['fndsc_error'] = 'La descripción no puede superar los 255 caracteres';
+        } elseif (\Utilities\Text::length($this->funcion['fndsc']) > 150) {
+            $errors['fndsc_error'] = 'La descripción no puede superar los 150 caracteres';
         }
 
-        if (!in_array($this->funcion['fnest'], ['ACT', 'INA'])) {
-            $errors['fnest_error'] = 'El estado de la función es invalido';
-        }
+        if ($this->mode !== 'DEL') {
+            if (!in_array($this->funcion['fnest'], ['ACT', 'INA'])) {
+                $errors['fnest_error'] = 'El estado de la función es invalido';
+            }
 
-        if (!in_array($this->funcion['fntyp'], ['CTR', 'MNU', 'MNT', 'RPT', 'ACC'])) {
-            $errors['fntyp_error'] = 'El tipo de la función es invalido';
+            if (!in_array($this->funcion['fntyp'], ['CTR', 'MNU', 'MNT', 'RPT', 'ACC'])) {
+                $errors['fntyp_error'] = 'El tipo de la función es invalido';
+            }
         }
 
         if (count($errors) > 0) {
