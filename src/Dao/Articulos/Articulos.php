@@ -392,6 +392,30 @@ class Articulos extends Table
             ['idEquipos' => $id, 'idMovimientos' => $id]
         );
 
+        return intval($row['total'] ?? 0) > 0 || self::tieneDocumentosBorrador($id);
+    }
+
+    /**
+     * Indica si el articulo aparece en una entrada o salida en borrador.
+     *
+     * @param int $id Articulo a consultar.
+     * @return bool
+     */
+    public static function tieneDocumentosBorrador(int $id): bool
+    {
+        $row = self::obtenerUnRegistro(
+            'SELECT ('
+            . 'SELECT COUNT(*) FROM detalles_entrada d'
+            . ' JOIN documentos_entrada doc ON doc.id_doc_entrada = d.id_doc_entrada'
+            . " WHERE d.id_articulo = :idEntrada AND doc.estado_doc = 'BORRADOR'"
+            . ') + ('
+            . 'SELECT COUNT(*) FROM detalles_salida d'
+            . ' JOIN documentos_salida doc ON doc.id_doc_salida = d.id_doc_salida'
+            . " WHERE d.id_articulo = :idSalida AND doc.estado_doc = 'BORRADOR'"
+            . ') AS total',
+            ['idEntrada' => $id, 'idSalida' => $id]
+        );
+
         return intval($row['total'] ?? 0) > 0;
     }
 }

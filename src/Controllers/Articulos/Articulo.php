@@ -417,6 +417,13 @@ class Articulo extends PrivateController
             );
         }
 
+        if (DaoArticulos::tieneDocumentosBorrador($this->id)) {
+            throw new \RuntimeException(
+                'No se puede desactivar un artículo que aparece en una entrada o salida en borrador. '
+                . 'Anula o confirma primero el documento.'
+            );
+        }
+
         if (!DaoArticulos::deactivateArticulo($this->id)) {
             throw new \RuntimeException('No se pudo desactivar el artículo.');
         }
